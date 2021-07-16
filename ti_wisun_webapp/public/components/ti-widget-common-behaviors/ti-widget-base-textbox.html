@@ -1,0 +1,181 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+   <link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<!--
+`ti-widget-base-textbox` implements behaviors for text input boxes
+
+@group Ti Elements
+@polymerBehavior TiWidgetBaseTextbox
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<script>
+	/** @polymerBehavior */
+	TiWidgetBaseTextbox = 
+	{
+        properties: 
+        {
+            /**
+             * Controls the text value input by the user.
+             *
+             * @attribute value
+             * @type string
+             */
+            value: 
+            {
+                notify: true,
+                type: String,
+                value: "",
+                observer: "valueChanged"
+            },
+
+            /**
+             * Controls whether or not spaces are automatically removed from the beginning and ending of the text.
+             *
+             * @attribute trim
+             * @type boolean
+             * @default false
+             */
+            trim: 
+            {
+                notify: false,
+                type: Boolean,
+                value: false,
+                observer: "trimChanged"
+            },
+
+            /**
+             * Controls whether or not the text is automatically converted to uppercase text.
+             *
+             * @attribute uppercase
+             * @type boolean
+             * @default false
+             */
+            uppercase: 
+            {
+                notify: true,
+                type: Boolean,
+                value: false,
+                observer: "uppercaseChanged"
+            },
+
+            /**
+             * Controls whether or not the text is automatically converted to lowercase text.
+             *
+             * @attribute lowercase
+             * @type boolean
+             * @default false
+             */
+            lowercase: 
+            {
+                notify: true,
+                type: Boolean,
+                value: false,
+                observer: "lowercaseChanged"
+            }
+        },
+
+        formatChangedValue : function(text)
+        {
+            // format the case only 
+            if (text === undefined || text === null)
+            {
+                return "";
+            }
+            
+            var newText = (typeof text !== 'string') ? text.toString() : text;
+            
+            if (this.lowercase)
+            {
+                newText = newText.toLowerCase();
+            }
+            else if (this.uppercase)
+            {
+                newText = newText.toUpperCase();
+            }
+            
+            // now apply trim
+            return  (this.trim) ? newText.trim() : newText;
+        },            
+        trimChanged : function()
+        {
+            if (this.trim)
+            {
+                var oldValue = this.getText();
+                var newValue = oldValue.trim();
+                if (oldValue != newValue)
+                {
+                    this.setText(newValue);
+                }
+                this.updateValue(newValue);
+            }
+        },
+        uppercaseChanged : function()
+        {
+            if (this.uppercase && this.lowercase)
+            {
+                this.lowercase = false;
+            }
+            if (this.uppercase)
+            {
+                var oldValue = this.getText();
+                var newValue = oldValue.toUpperCase();
+                if (oldValue != newValue)
+                {
+                    this.setText(newValue);
+                }
+                this.updateValue(newValue);
+            }
+            this.addRemoveClassName(this.uppercase, 'uppercase', this.getTextElement());
+        },
+        lowercaseChanged : function()
+        {
+            if (this.uppercase && this.lowercase)
+            {
+                this.uppercase = false;
+            }
+            if (this.lowercase)
+            {
+                var oldValue = this.getText();
+                var newValue = oldValue.toLowerCase();
+                if (oldValue != newValue)
+                {
+                    this.setText(newValue);
+                }
+                this.updateValue(newValue);
+            }
+            this.addRemoveClassName(this.lowercase, 'lowercase', this.getTextElement());
+        },
+        ready: function()
+        {
+			this.lowercaseChanged();
+			this.uppercaseChanged();
+			this.trimChanged();
+        }
+    };
+</script>

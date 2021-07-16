@@ -1,0 +1,298 @@
+
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html" >
+<link rel="import" href="../paper-tooltip/paper-tooltip.html" >
+<link rel="import" href="../paper-icon-button/paper-icon-button.html" >
+<link rel="import" href="../paper-button/paper-button.html" >
+<link rel="import" href="../paper-behaviors/paper-button-behavior.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+
+<!--
+`ti-widget-button` is a bindable version of the Paper-button component.
+
+Example:
+
+    <ti-widget-button></ti-widget-button>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-button
+@demo demo.html
+@homepage https://gitorious.design.ti.com/guicomposer-nw/ti-widget-common
+-->
+<dom-module id='ti-widget-button'  >
+    <style>
+
+        :host {
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            min-width: 5.14em;
+            margin: 0 0.29em;
+            background: transparent;
+            text-align: center;
+            font: inherit;
+            text-transform: uppercase;
+            outline: none;
+            border-radius: 3px;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            cursor: pointer;
+            z-index: 0;
+
+        @apply(--paper-button);
+        }
+
+        .keyboard-focus {
+            font-weight: bold;
+        }
+
+        :host([disabled]) {
+            background: #eaeaea;
+            color: #a8a8a8;
+            cursor: auto;
+            pointer-events: none;
+
+        @apply(--paper-button-disabled);
+        }
+
+        :host([noink]) paper-ripple {
+            display: none;
+        }
+
+        paper-material {
+            border-radius: inherit;
+        }
+/* See https://www.polymer-project.org/1.0/docs/devguide/styling.html
+         .content > ::content * { */
+        .content > * {
+            text-transform: inherit;
+        }
+
+        .content {
+            padding: 0.7em 0.57em;
+            
+            @apply(--ti-widget-button-content);
+        }
+
+        :host[raised] {
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+
+    <template>
+        <paper-material class$="[[_computeContentClass(receivedFocusFromKeyboard)]]" elevation="[[_elevation]]" animated raised="{{raised}}">
+            <content>{{label}}</content>
+        </paper-material>
+    </template>
+
+</dom-module>
+    <script>
+        Polymer ({
+          is: 'ti-widget-button',
+            hostAttributes: {
+            },
+            behaviors: [
+            	TiWidgetBase,
+                Polymer.PaperButtonBehavior
+            ],
+            properties: {
+                /**
+                 * Controls the button rendering based on css selected theme.
+                 *
+                 * @attribute buttonType
+                 * @type string
+                 * @default primary
+                 */
+                buttonType: {
+                  notify: true,
+                  type: String,
+                  value: "default",
+                  observer: "buttonTypeChanged"
+                },
+                /**
+                 * Controls the coloring of the button text
+                 *
+                 * @attribute fontColor
+                 * @type string
+                 * @default undefined
+                 */
+                fontColor: {
+                  notify: true,
+                  type: String,
+                  value: undefined,
+                  observer: "fontColorChanged"
+                },
+                /**
+                 * If true, the button should be styled with a shadow.
+                 *
+                 * @attribute raised
+                 * @type Boolean
+                 * @default true
+                 */
+                raised: {
+                    type: Boolean,
+                    value: false,
+                    reflectToAttribute: true,
+                    observer: '_calculateElevation'
+                },
+                /**
+                 * incremented each time the button is clicked.  This can be used to
+                 * e.g. bind to a target variable that causes an action to be performed when it changes.
+                 * The target should change the value of the bound variable back to 0 when the action is complete,
+                 * and trigger the action when bindableTrigger changes it to > 0.
+                 *
+                 * @attribute bindableTrigger
+                 * @type number
+                 * @default 0
+                 */
+                bindableTrigger: {
+                  notify: true,
+                  type: Number,
+                  value: 0
+                },
+                /**
+                 * The text displayed as the button caption
+                 *
+                 * @attribute label
+                 * @type string
+                 * @default Button
+                 */
+                label: {
+                    notify: true,
+                    type: String,
+                    value: 'Button'
+                }
+            },
+            fontColorChanged: function(){
+               if ((this.fontColor !== undefined)&&(this.style !== undefined)){
+                   this.style.color=this.fontColor;
+               }
+            },
+            pressedChanged: function() {
+                // super.pressedChanged();
+                // Polymer.PaperButtonBehavior.pressedChanged(this);
+
+                if (this.pressed){
+                    this.bindableTrigger++;
+                    if (this.bindableTrigger === 0){
+                        this.bindableTrigger = 1;
+                    }
+                }
+            },
+            buttonTypeChanged: function() {
+                if (this.buttonType.trim().length > 0) {
+                    var numAttributes = 0;
+                    if (this.attributes !== undefined) {
+                        numAttributes = this.attributes.length;
+                    }
+                    var found = false;
+                    var i = 0;
+                    while ((!found) && (i < numAttributes)) {
+                        var attr = this.attributes[i].name;
+                        switch (attr) {
+                            case "primary":
+                            case "secondary":
+                            case "success":
+                            case "info":
+                            case "warning":
+                            case "error":
+                            case "link":
+                                Polymer.dom(this).removeAttribute(attr);
+                                found = true;
+                                break;
+                        }
+                        i++;
+                    }
+
+					if (this.buttonType !== "default") {
+                        Polymer.dom(this).setAttribute(this.buttonType.toLowerCase(), "");
+                    }
+
+                }
+            },
+            btnClickHdlr: undefined,
+            logevent:   function(event) {
+                console.log('ti-widget-button: clicked. id='+event.target.id);
+            },
+            ready: function() {
+                this.buttonTypeChanged();
+            },
+            attached: function() {
+              this.async(function() {
+                  this.domReady();
+              }.bind(this),1);
+            },
+            domReady: function() {
+                if (this.style !== undefined) {
+                    this.fontColor = this.style.color;
+                }
+
+                this.addEventListener("pressed-changed", this.pressedChanged);
+            },
+            toggleChanged: function() {
+                // super.toggleChanged();
+                Polymer.PaperButtonBehavior.toggleChanged(this);
+
+                if (this.toggle) {
+                    // we need noink attribute to work around a bug in paper-button for toggle button operation.
+                    Polymer.dom(this).setAttribute('noink', '');
+                }
+                else {
+                    Polymer.dom(this).removeAttribute('noink');
+                }
+
+            },
+
+            _calculateElevation: function() {
+                if (!this.raised) {
+                    this._elevation = 0;
+                } else {
+                    Polymer.PaperButtonBehaviorImpl._calculateElevation.apply(this);
+                }
+            },
+
+            _computeContentClass: function(receivedFocusFromKeyboard) {
+                var className = 'content ';
+                if (receivedFocusFromKeyboard) {
+                    className += ' keyboard-focus';
+                }
+                return className;
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,126 @@
+<!--
+    Copyright (c) 2016, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-radio-button/paper-radio-button.html">
+<!--
+`ti-widget-radio-button` is a toggle button in the radio style.  It can be used on it's own, or added to a 
+ti-widget-radio-group for mutually exclusive options.
+
+Example:
+
+    <ti-widget-radio-button label="my prompt"></ti-widget-radio-button>
+
+@group Ti Elements
+@element ti-widget-radio-button
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-radio-button'>
+
+    <template>
+        <style>
+            :host {
+                display: inline;
+            }
+        </style>
+        
+	<paper-radio-button checked="{{checked}}" toggles disabled="[[disabled]]">[[label]]</paper-radio-button>
+    
+    </template>
+    <script>
+        Polymer (
+        {
+            is: 'ti-widget-radio-button',
+            /**
+             * Fired each time the radio-button checked value is changed.
+             * Add the attribute on-changed="myHandler" to receive the callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("changed",function(event){...});
+             *
+             * @event changed
+             */
+            properties: 
+            {
+                /**
+                 * Provides the text to display for the label.
+                 *
+                 * @attribute label
+                 * @type string
+                 */
+                label: 
+                {
+                  notify: false,
+                  type: String,
+                  value: ""
+                },
+                
+	            /**
+	             * Provides the checked state of the radio button.
+	             *
+	             * @attribute value
+	             * @type boolean
+	             */
+	            checked: 
+	            {
+	                notify: true,
+	                type: Boolean,
+	                value: false,
+                    observer: "_checkedChanged"
+	            },
+                
+                /**
+                 * Provides a value to identify this radio button in lieu of the label text.
+                 *
+                 * @attribute label
+                 * @type string
+                 */
+                value: 
+                {
+                  notify: false,
+                  type: String,
+                  value: undefined
+                },
+	            /**
+	             * Provides the flag to disable the radio button.
+	             *
+	             * @attribute disabled
+	             * @type boolean
+	             */
+	            disabled: 
+	            {
+	                notify: false,
+	                type: Boolean,
+	                value: false
+	            }
+            },
+            _checkedChanged: function() {
+                this.fire('changed');
+            }
+        });
+    </script>
+</dom-module>

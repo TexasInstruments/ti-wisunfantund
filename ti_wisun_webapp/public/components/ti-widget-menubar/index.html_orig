@@ -1,0 +1,22 @@
+<!doctype html>
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
+The complete set of authors may be found at http://polymer.github.io/AUTHORS
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+-->
+<html>
+<head>
+
+    <script src="../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../ti-core-component-page/ti-core-component-page.html">
+
+</head>
+<body unresolved>
+
+<ti-core-component-page sources='["ti-widget-menubar.html", "ti-widget-menuitem.html","ti-widget-menuaction.html","ti-widget-filemenu.html","ti-widget-editmenu.html","ti-widget-helpmenu.html","ti-widget-optionsmenu.html"]'></ti-core-component-page>
+
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!--
+    Copyright (c) 2015, 2021, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../font-roboto/font-roboto.html">
+<link rel="import" href="../ti-core-assets/ti-core-assets.html">
+<style>
+
+    /* default designer grid lines */
+    html.designer body {
+        border: 3px solid #fff;
+        background-size: 10px 10px;
+        background-color: #fff;
+        background-position: top 3px left 3px;
+        background-image:
+            linear-gradient(to right, #f5f5f5 1px, transparent 1px),
+            linear-gradient(to bottom, #f5f5f5 1px, transparent 1px);
+    }
+
+    /* common.css */
+    %%common.css%%
+
+    /* all themes standard styles */
+    %%standard-themes%%
+    </style>
+
+    <style is="custom-style">
+
+    /* all themes custom styles */
+    %%custom-themes%%
+
+    /* flex layout attribute definitions supported by the designer */
+    [layout][horizontal] {
+    	@apply(--layout-horizontal);
+    }
+    [layout][vertical] {
+    	@apply(--layout-vertical);
+    }
+    [flex],
+    [flex][one] {
+    	@apply(--layout-flex);
+	}
+    [flex][two] {
+    	@apply(--layout-flex-2);
+	}
+    [flex][three] {
+    	@apply(--layout-flex-3);
+	}
+    [flex][four] {
+    	@apply(--layout-flex-4);
+	}
+    [flex][five] {
+    	@apply(--layout-flex-5);
+	}
+    [flex][six] {
+    	@apply(--layout-flex-6);
+	}
+    [flex][seven] {
+    	@apply(--layout-flex-7);
+	}
+    [flex][eight] {
+    	@apply(--layout-flex-8);
+	}
+    [flex][nine] {
+    	@apply(--layout-flex-9);
+	}
+    [flex][ten] {
+    	@apply(--layout-flex-10);
+	}
+    [flex][eleven] {
+    	@apply(--layout-flex-11);
+	}
+    [flex][twelve] {
+    	@apply(--layout-flex-12);
+	}
+	[layout][start-justified] {
+		@apply(--layout-start-justified);
+	}
+	[layout][center-justified] {
+		@apply(--layout-center-justified);
+	}
+	[layout][end-justified] {
+		@apply(--layout-end-justified);
+	}
+	[layout][around-justified] {
+		@apply(--layout-around-justified);
+	}
+	[layout][justified] {
+		@apply(--layout-justified);
+	}
+	[layout][start] {
+		@apply(--layout-start);
+	}
+	[layout][center] {
+		@apply(--layout-center);
+	}
+	[layout][end] {
+		@apply(--layout-end);
+	}
+	[wrap] {
+		@apply(--layout-wrap);
+	}
+	[wrap-reverse] {
+		@apply(--layout-wrap-reverse);
+	}
+	[layout] > * {
+		flex-shrink: 0;
+	}
+    </style>
+<!--
+`ti-core-stylesheets` pulls in the selected css stylesheet in order to 'theme' the widgets.
+ To use the selected stylesheet, simply use this component in your design or link to this
+ component's html file in your index.html:
+
+Example:
+
+   &lt;link rel="import" src="../designer/components/ti-core-stylesheets.html"&gt;
+
+See demo.html to select the theme to use and to see a working example of the widgets styled using the selected theme.
+
+@group TI Core
+@demo demo.html
+@element ti-core-stylesheets
+@homepage ../ti-guicomposer-helpindex/demo.html
+-->
+
+<script>
+
+    var gc = gc || {};
+    if (window.parent.gc)
+    {
+        // take the designer from the parent iframe, if available.
+        gc.designer = gc.designer || window.parent.gc.designer;
+    }
+    if (window.global && global.document && global.document.gc)
+    {
+        // take the designer from the global node-webkit document if available
+        gc.designer = gc.designer || global.document.gc.designer;
+    }
+
+    (function() {
+		var rightMargin  			= 2;
+		var bottomMargin 			= 0;
+		var poweredBy 				= document.createElement("div");
+		poweredBy.innerHTML 		= "Powered By GUI Composer&trade;";
+		poweredBy.style.position 	= "absolute";
+		poweredBy.style.color 		= "rgba(0, 0, 0, 0.2)";
+		poweredBy.style.fontStyle	= "italic";
+		poweredBy.style.fontSize	= "x-small";
+		poweredBy.style.zIndex		= 9999;
+		poweredBy.style.position	= "fixed";
+		poweredBy.style.right		= rightMargin + "px";
+		poweredBy.style.bottom		= bottomMargin + "px";
+        poweredBy.setAttribute("class", "poweredby-gc no-select");
+
+        // Newton - This is needed in the case where the design canvas misses the dom-change stamp event.
+        // It can check the stamped property on the template instead.
+        var registerDomChange = function() {
+            var template = document.querySelector('#template_obj') || document.querySelector('template[is=dom-bind]');
+            if (template) {
+                template.addEventListener('dom-change', function(e) {
+                    template.stamped = true;
+                });
+            }
+        };
+        registerDomChange();
+
+        var onDocumentLoaded = function()
+        {
+            if (gc.localStorage && window.location.pathname.indexOf('/components/') >= 0 && window.location.pathname.indexOf('demo.html') > 0)
+            {
+	            document.querySelector('body').className = gc.localStorage.getItem('gc.designer.defaultTheme') || 'ti-theme';
+	            setTimeout(function() {
+		            Polymer.updateStyles();
+	            }, 10);
+            }
+
+            if (!gc.designer)
+            {
+	     		document.body.appendChild(poweredBy);
+            }
+            registerDomChange();
+
+            // Newton - This is needed so the design canvas can detect any errors on the window that occurred
+            // while loading the iframe.
+            window.windowErrors = [];
+            window.addEventListener('error', function(e) {
+                // Use outerHTML to find the line number in the gist because line numbers are not provided
+                // for resource loading errors (404)
+                // Javascript exceptions throw ErrorEvents which include line numbers but I am ignoring these
+                // since they most likely don't affect rendering the html
+                window.windowErrors.push(e.target.outerHTML);
+            }, true);
+        };
+
+        if (document.querySelector('body'))
+        {
+            onDocumentLoaded();
+        }
+        else
+        {
+            document.addEventListener( "DOMContentLoaded", onDocumentLoaded);
+        }
+
+        function updatePoweredByPosition() {
+            if (poweredBy && poweredBy.getAttribute('no-update') == null /* ti-status-bar sets this attribute */) {
+                try {
+                    var container = Polymer.dom(document).querySelector('ti-widget-container');
+                    var scrollerWidth = container && (container.scrollHeight > container.clientHeight) ? 15 : 0;
+                    var scrollerHeight = container && (container.scrollWidth > container.clientWidth) ? 15 : 0;
+
+					poweredBy.style.right  = rightMargin + scrollerWidth + "px";
+					poweredBy.style.bottom = bottomMargin + scrollerHeight + "px"
+
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        }
+
+        addEventListener("ti-widget-statusbar-attached", function(event) {
+            if (!gc.designer && !gc.desktop.isCCS()) {
+                bottomMargin = event.detail['status-container'].getClientRects()[0].height + 1;
+                updatePoweredByPosition();
+            }
+        }.bind(this));
+
+        addEventListener("resize", function() {
+            updatePoweredByPosition();
+        });
+
+		var firstTime = true;
+        addEventListener('WebComponentsReady', function () {
+            setTimeout(function() {
+                updatePoweredByPosition();
+            }, 200);
+            if (firstTime)
+            {
+                firstTime = false;
+                var counter = 10;
+                var masterChromeHack = setInterval(function()
+                {
+                    try
+                    {
+                        if (counter-- <= 0)
+                        {
+                            clearInterval(masterChromeHack);
+                        }
+                        var a = document.styleSheets[0].cssRules.item(0);
+                        a.style.fontWeight = "normal";
+                    }
+                    catch(e)
+                    {
+                    }
+                }, 1000);
+            }
+        });
+    }());
+</script>
+<dom-module id="ti-core-stylesheets">
+	<script>
+      	Polymer ({
+        	is: 'ti-core-stylesheets'
+    	});
+	</script>
+</dom-module>

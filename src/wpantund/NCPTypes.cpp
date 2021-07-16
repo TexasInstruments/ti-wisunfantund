@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -40,6 +42,10 @@ using namespace wpantund;
 bool
 nl::wpantund::ncp_state_is_sleeping(NCPState x)
 {
+#ifdef TI_WISUN_FAN
+	return false;
+	/* TI Wi-SUN FAN 1.0 does not support sleep operation */
+#else
 	switch(x) {
 	case DEEP_SLEEP:
 	case NET_WAKE_ASLEEP:
@@ -47,11 +53,16 @@ nl::wpantund::ncp_state_is_sleeping(NCPState x)
 	default:
 		return false;
 	}
+#endif
 }
 
 bool
 nl::wpantund::ncp_state_has_joined(NCPState x)
 {
+#ifdef TI_WISUN_FAN
+	return true;
+/* TI Wi-SUN FAN 1.0 only support wpantund for Border Router devices which are always considered joined */
+#else
 	switch(x) {
 	case ASSOCIATED:
 	case ISOLATED:
@@ -61,11 +72,16 @@ nl::wpantund::ncp_state_has_joined(NCPState x)
 	default:
 		return false;
 	}
+#endif
 }
 
 bool
 nl::wpantund::ncp_state_is_joining(NCPState x)
 {
+#ifdef TI_WISUN_FAN
+	return false;
+	/* TI Wi-SUN FAN 1.0 only support wpantund for Border Router devices which are always considered joined */
+#else
 	switch(x) {
 	case ASSOCIATING:
 	case CREDENTIALS_NEEDED:
@@ -73,6 +89,7 @@ nl::wpantund::ncp_state_is_joining(NCPState x)
 	default:
 		return false;
 	}
+#endif
 }
 
 bool
@@ -200,7 +217,7 @@ nl::wpantund::node_type_to_string(NodeType node_type)
 
 	switch (node_type) {
 	case UNKNOWN:
-		ret = kWPANTUNDNodeType_Unknown;
+		ret = kWPANTUNDNodeType_BorderRouter;
 		break;
 	case END_DEVICE:
 		ret = kWPANTUNDNodeType_EndDevice;
@@ -229,6 +246,75 @@ nl::wpantund::node_type_to_string(NodeType node_type)
 		break;
 	}
 
+	return ret;
+}
+
+std::string
+nl::wpantund::ncp_protocol_version_to_string(const int major, const int minor)
+{
+	std::string ret;
+
+	ret = (("Wi-SUNFAN/") + (std::to_string(major)) + (".") + (std::to_string(minor)));
+
+	return ret;
+}
+
+std::string
+nl::wpantund::ch_spacing_to_string(const int ch_spacing)
+{
+	std::string ret;
+
+	ret = ((std::to_string(ch_spacing)) + (" kHz"));
+
+	return ret;
+}
+
+std::string
+nl::wpantund::ch0_center_freq_to_string(const int ch0_mhz, const int ch0_khz)
+{
+	std::string ret;
+
+	ret = (("{") + (std::to_string(ch0_mhz)) + (" MHz, ") + (std::to_string(ch0_khz)) + (" kHz}"));
+
+	return ret;
+}
+
+std::string
+nl::wpantund::mac_filter_list_to_string(std::string filter_list[])
+{
+	std::string ret;
+	ret.append("\n");
+	for (int x = 0; x < MAC_FILTER_LIST_SIZE; x++){
+		ret.append(filter_list[x] + "\n");
+	}
+
+	return ret;
+}
+
+std::string
+nl::wpantund::ncp_region_to_string(uint8_t region)
+{
+	std::string ret;
+
+	switch (region) {
+	case 1:
+		ret = "1 : North-America";
+		break;
+	case 2:
+		ret = "2 : Japan";
+		break;
+	case 3:
+		ret = "1 : Europe";
+		break;
+	case 7:
+		ret = "1 : Brazil";
+		break;
+	default:
+		ret.append(std::to_string(region));
+		ret.append(" : UNKNOWN REGION");
+		break;
+	}
+	
 	return ret;
 }
 

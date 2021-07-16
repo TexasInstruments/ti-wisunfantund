@@ -1,0 +1,256 @@
+
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+
+<!--
+`ti-widget-droplist` is a drop down selection widget.
+
+Example:
+
+    <ti-widget-droplist></ti-widget-droplist>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-droplist
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-droplist'  >
+
+    <template>
+        <style>
+            :host {
+                text-decoration: inherit;
+            }
+            #selectorList {
+                width: inherit;
+                display: inline-block;
+                font-size: inherit;
+                text-decoration: inherit;
+                font-weight: inherit;
+                font-style: inherit;
+                color: inherit;
+                height: auto;
+                padding: 0px;
+                margin: 1px;
+                min-width: inherit;
+                max-width: inherit;
+            }
+            #selectorList.disabled {
+                opacity: 0.8;
+                @apply(--ti-widget-disabled-styles);
+            }
+        </style>
+
+        <select class="form-control" id="selectorList" on-change="onChangeHdlr" style$="[[droplistStyle]]" ></select>
+
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-widget-droplist',
+
+            behaviors: [TiWidgetBase, TiWidgetBaseText, TiWidgetBaseSelector],
+
+            /**
+             * Fired when the currentState changes.
+             * Add the attribute on-selected="myHandler" to receive the callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("selected",function(event){...});
+             *
+             * @event selected
+             */
+
+            /**
+             * Controls the currently selected item by its textual label value.
+             *
+             * @attribute selectedText
+             * @type string
+             */
+
+            /**
+             * Provides a list of textual labels to be displayed for the options in the selection.
+             *
+             * @attribute labels
+             * @type array of string separated by ',', ';', or '|'
+             */
+
+            /**
+             * Controls the currently selected item by its zero based index in the list of options.
+             *
+             * @attribute selectedIndex
+             * @type number
+             * @default 0
+             */
+
+            /**
+             * Controls the currently selected item by its value.  Values are provided by the values
+             * attribute.  For convenience, if no values attribute is specified, the option values
+             * are automatically defined as their one based index.  If you need a zero based index,
+             * use the selectedIndex attribute instead.
+             *
+             * @attribute selectedValue
+             * @type number
+             * @default 1
+             */
+
+            /**
+             * Provides a list of values for the list of options.  This list should be the
+             * same length as the list of labels provided for the options; otherwise the
+             * extra options will have undefined values.  The values need not be numeric.  String
+             * values are also allowed.
+             *
+             * @attribute values
+             * @type list of strings|numbers separated by ',', ';', or '|'
+             * @default undefined
+             */
+
+            /**
+             * Controls whether the list of options are sorted or not.  Sorting is for display purposes
+             * only.  It will not effect the selectedIndex or selectedValue in anyway.  Sorting is
+             * alphabetical based on the lowercase version of each options label text.
+             *
+             * @attribute sorted
+             * @type boolean
+             * @default false
+             */
+
+            /**
+             * Provides the initial selection for the list of options.  This is usually not necessary.
+             * Usually the widget will respond to data bindings to get the initial selection.
+             * Use this only when you want to force the initial value of the selection and drive other
+             * bindings with it.
+             *
+             * @attribute initialIndex
+             * @type zero based index into the list of options
+             * @default undefined
+             */
+            properties: {
+                /**
+                 * Configures the number of lines displayed by the widget.
+                 * If 0, the widget operates as a droplist.  If > 0 it operates as
+                 * a listbox
+                 *
+                 * @attribute size
+                 * @type number
+                 * @default 0
+                 */
+                size: {
+                    type: Number,
+                    notify: true,
+                    default: 0,
+                    observer: "_sizeChanged"
+                },
+                /**
+                 * CSS style string to use to display the droplist
+                 *
+                 * @attribute droplistStyle
+                 * @type string
+                 * @default ""
+                 */
+                droplistStyle: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                }
+            },
+            onChangeHdlr : undefined,
+            _sizeChanged: function(newValue,oldValue){
+                if (this.size < 0){
+                    this.size = 0;
+                }
+                this.$.selectorList.size = this.size;
+            },
+            getSelectWidget: function() {
+                return this.$.selectorList;
+            },
+            created: function()
+            {
+                this.setOptions = this._setOptions.bind(this);
+            },
+            ready : function()
+            {
+                this.onChangeHdlr = this.onUserInputChanged.bind(this);
+
+            },
+            attached: function(){
+                this.isListOpen = false;
+            },
+            getElement : function()
+            {
+                return this.$ && this.$.selectorList;
+            },
+            setSelectedIndex : function(newIndex)
+            {
+                if (this.$)
+                {
+                    this.$.selectorList.selectedIndex = newIndex;
+                }
+            },
+            getSelectedIndex : function()
+            {
+                return this.$ ? this.$.selectorList.selectedIndex : -1;
+            },
+            _setOptions : function(newOptions)
+            {
+                if (this.$)
+                {
+                    // remove existing options
+                    while (this.$.selectorList.firstChild)
+                    {
+                        this.$.selectorList.removeChild(this.$.selectorList.firstChild);
+                    }
+
+                    // add new options
+                    for (var i = 0; i < newOptions.length; i++)
+                    {
+                        var opt = document.createElement('option');
+                        var newOption = newOptions[i];
+                        opt.value = newOption.value;
+                        opt.text = newOption.text;
+                        if (newOption.disabled)
+                        {
+                            opt.setAttribute("disabled", "disabled");
+                        }
+                        this.$.selectorList.appendChild(opt);
+                    }
+
+                    this._options = newOptions;
+                }
+                else
+                {
+                    console.log('called with this.$=' + this.$);
+                }
+
+            },
+            setOptions: undefined
+        });
+    </script>
+</dom-module>

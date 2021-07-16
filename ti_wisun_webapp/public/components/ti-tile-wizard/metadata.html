@@ -1,0 +1,453 @@
+<x-meta id="ti-tile-container" label="Empty Tile" is-container group="Instrument Tiles">
+
+    <template>
+        <ti-tile-container style="width:200px;height:200px;border:solid 1px lightgray;position:absolute"></ti-tile-container>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="Custom"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="6"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-container.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-images" label="Image List Tile" is-container group="Instrument Tiles">
+
+    <template>
+        <ti-tile-images style="width:200px;height:200px;border:solid 1px lightgray;position:absolute"></ti-tile-images>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="Custom"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="imagePaths" kind="string" important order="6"></property>
+    <property name="imageFolder" kind="string" important order="7"></property>
+    <property name="values" kind="string" important order="8"></property>
+    <property name="value" kind="string" important order="9"></property>
+    <property name="selectedIndex" kind="number" important order="10"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="11"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-images.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-title" is-hidden label="Tile Title" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-title style="width:180px;height:180px;border:solid 1px lightgray;"  title-font-size="x-large"></ti-tile-title>
+    </template>
+    <property name="titleText" kind="string" important order="5" defaultvalue="Dashboard"></property>
+    <property name="titleFontSize" kind="select"
+              options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit" important order="8">
+    </property>
+    <property name="titleFontWeight" kind="select"
+              options="normal,bold,lighter,bolder,100,200,300,400,500,600,700,800,900,inherit" important order="9">
+    </property>
+    <property name="titleTextDecoration" kind="select"
+              options="none,underline,overline,line-through" important order="10">
+    </property>
+    <property name="titleMarginTop" kind="string" important order="11">
+    </property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" important order="12"></property>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-title.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-meter" label="Meter" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-meter style="width:200px;height:200px;border:solid 1px lightgray;"  value-font-size="xx-large" title-text="Meter" meter-colors="#00e000,#00e000,#00e000,#a9d70b,#f9c802,#ff0000" units="" min-value="0" max-value="100" value="0"></ti-tile-meter>
+    </template>
+    <property name="titleText" kind="string" important defaultvalue="Meter" order="1"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="19"></property>
+    <property name="backgroundColor" kind="color"  order="20"></property>
+    <property name="value" kind="number" important  order="21"></property>
+    <property name="minValue" kind="number" important order="22"></property>
+    <property name="maxValue" kind="number" important order="23"></property>
+    <property name="valueFontSize" kind="select"
+              options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit" order="40">
+    </property>
+    <property name="units" kind="string" important order="41"></property>
+    <property name="meterColors" kind="string" important order="42"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="43"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-meter.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-watermeter" label="Moisture Level" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-watermeter style="width:200px;height:200px;border:solid 1px lightgray;"  value-font-size="xx-large" title-text="Water Meter" meter-colors="#ff0000,#ffe000,#20e000,#00e000,#008080,#0000ff" units=""  min-value="0" value="10" max-value="24"></ti-tile-watermeter>
+    </template>
+
+    <property name="titleText" kind="string" important order="1" defaultvalue="Water Meter"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="value" kind="number" important order="6" ></property>
+    <property name="minValue" kind="number" important order="7"></property>
+    <property name="maxValue" kind="number" important defaultvalue="24"></property>
+
+    <property name="valueFontSize" kind="select"
+              options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit" important order="40">
+    </property>
+    <property name="units" kind="string" important order="41"></property>
+    <property name="meterColors" kind="string" important order="42"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="44"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-watermeter.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-analoggauge" label="Analog Gauge" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-analoggauge style="width:200px;height:200px;border:solid 1px lightgray;"   font-size="medium" min-value="0" max-value="100" value ="0" title-text="Analog Gauge"></ti-tile-analoggauge>
+    </template>
+    <property name="titleText" kind="string" defaultvalue="Analog Gauge" important order="1"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="9"></property>
+    <property name="backgroundColor" kind="color"  order="10"></property>
+    <property name="value" kind="number" important order="11"></property>
+    <property name="minValue" kind="number" important order="12"></property>
+    <property name="maxValue" kind="number" important order="13"></property>
+    <property name="gaugeTitle" kind="string" important order="14"></property>
+    <property name="units" kind="string" important order="15"></property>
+    <property name="showOdometer" kind="boolean" important order="16"></property>
+    <property name="odometer" kind="number" important order="17"></property>
+    <property name="frameColor" kind="color" important order="18"></property>
+    <property name="needleColor" kind="color" important order="19"></property>
+    <property name="gaugeFontSizeInPx" kind="range" min="4.0" max="6.0" step="0.25" important order="20"></property>
+    <property name="gaugeTitleFontSizeInPx" kind="range" min="5.0" max="8.0" step="0.25" important order="21"></property>
+    <property name="odometerFontSizeInPx" kind="range" min="4.5" max="7.5" step="0.25" important order="22"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="23"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-analoggauge.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-compass" label="Compass" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-compass style="width:200px;height:200px;border:solid 1px lightgray;"  value ="0" title-text="Compass"></ti-tile-compass>
+    </template>
+    <property name="titleText" kind="string" important defaultvalue="Analog Gauge" order="1"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="value" kind="range" min="0" max="359" step="1" defaultvalue="0" important order="6"></property>
+    <property name="smallTextFontSize" kind="string"   important order="7"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="10"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-compass.html">
+    </template>
+</x-meta>
+<x-meta id="ti-tile-attitude" label="Attitude Display"  group="Instrument Tiles">
+
+    <template>
+        <ti-tile-attitude style="width:200px;height:200px;border:solid 1px lightgray;"  tilt="0" rotation="0" title-text="Attitude Display"></ti-tile-attitude>
+    </template>
+    <property name="titleText" kind="string" important defaultvalue="Analog Gauge" order="1"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="tilt" kind="range"  min="-90.0" max="90.0" step="0.1" defaultvalue="0" important order="6"></property>
+    <property name="rotation" kind="range"  min="-180" max="180" step="0.1" important order="7"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="8"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-attitude.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-thermometer" label="Thermometer" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-thermometer style="width:150px;height:200px;border:solid 1px lightgray;"  title-text="Thermometer" units="F" value="22" min-value="10" max-value="50" minor-ticks="4" labels=""  font-size="medium"></ti-tile-thermometer>
+    </template>
+
+    <property name="titleText" kind="string" important order="1" defaultvalue="Thermometer"></property>
+
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="value" kind="number" important order="6"></property>
+    <property name="minValue" kind="number" important order="7"></property>
+    <property name="maxValue" kind="number" important order="8"></property>
+
+    <property name="minorTicks" kind="number" important order="40"></property>
+    <!-- not important - only allow editing in full properties pane -->
+    <property name="fontSize" kind="select"
+              options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit" important order="41">
+    </property>
+    <property name="units" kind="select"
+              options="F,C,K" important order="42">
+    </property>
+    <property name="labels" kind="string" order="43"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="44"></property>
+
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-thermometer.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-temperaturegraph" label="Temperature Graph" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-temperaturegraph style="width:400px;height:200px;border:solid 1px lightgray;"  title-text="Temperature" value="20" temperature-scale="F" target-temperature-scale="F" min-value="0" max-value="100" seconds-between-ticks="15" num-values-to-plot="75"></ti-tile-temperaturegraph>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="Temperature"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="5"></property>
+    <property name="backgroundColor" kind="color"  order="6"></property>
+    <property name="value" kind="number" important order="6"></property>
+    <property name="minValue" kind="number" important order="7"></property>
+    <property name="maxValue" kind="number" important order="8"></property>
+    <property name="numValuesToPlot" kind="number" important order="40"></property>
+    <property name="secondsBetweenTicks" kind="number" important order="41"></property>
+    <property name="temperatureScale" kind="select"
+              options="F,C,K" important order="42">
+    </property>
+    <property name="targetTemperatureScale" kind="select"
+              options="F,C,K" important order="43">
+    </property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="44"></property>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-temperaturegraph.html">
+    </template>
+</x-meta>
+
+
+<x-meta id="ti-tile-scalargraph" label="XYZ Graph" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-scalargraph style="width:400px;height:200px;border:solid 1px lightgray;"  min-value="0" max-value="10" units="mV" num-channels="3" title-text="XYZ Graph" value_X="1" value_Y="2" value_Z="3" label_X="X" label_Y="Y" label_Z="Z"></ti-tile-scalargraph>
+
+    </template>
+
+    <property name="titleText" kind="string" important order="1" defaultvalue="XYZ Graph"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="numChannels" kind="select" options="1,2,3" important order="6"> </property>
+    <property name="value_X" kind="number" important order="7"></property>
+    <property name="value_Y" kind="number" important order="8"></property>
+    <property name="value_Z" kind="number" important order="10"></property>
+    <property name="minValue" kind="number" important order="12"></property>
+    <property name="maxValue" kind="number" important order="14"></property>
+    <property name="units" kind="string" important  order="20"> </property>
+    <property name="label_X" kind="string" important order="23"></property>
+    <property name="label_Y" kind="string" important order="24"></property>
+    <property name="label_Z" kind="string" important order="27"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="30"></property>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-scalargraph.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-textbox" label="TextBox" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-textbox style="width:400px;height:200px;border:solid 1px lightgray;"  enable-tx add-cr-to-rx-value font-size="medium" title-text="Text Box" convert-tx-to-json-object="true"></ti-tile-textbox>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="Text Box"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="enableTx" kind="boolean" important order="6"></property>
+    <property name="showRxButtons" kind="boolean" important order="7"></property>
+    <property name="discardPreviousRxValues" kind="boolean" important order="8"></property>
+    <property name="enableRxTimestamp" kind="boolean" important order="9"></property>
+    <property name="convertTxToJsonObject" kind="boolean" important order="10"></property>
+    <property name="txValueToDevice" kind="string" important order="11"></property>
+    <property name="rxValueFromDevice" kind="string" important order="12"></property>
+    <property name="addCrToRxValue" kind="boolean" important order="13"></property>
+    <property name="fontSize" kind="select"
+              options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit" important order="12">
+    </property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="13"></property>
+    <property name="maxNumRxCharsToDisplay" kind="number" important order="14"></property>
+    <property name="showOnlyLastMessage" kind="boolean" important order="15"></property>
+    <template id="imports">
+        <link rel="import" href="ti-tile-textbox.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-led" label="LED" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-led style="width:100px;height:200px;border:solid 1px lightgray;" title-text="LED" font-size="medium" color='#ff0000' value="20" min-value="0" max-value="100" increment="20" labels="0,20,40,80,100" hide-ticks="false"></ti-tile-led>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="LED"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="value" kind="boolean" important order="6"></property>
+    <property name="color" kind="color" important order="8"></property>
+    <property name="size" kind="string" important  order="9"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="10"></property>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-led.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-string" label="String" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-string style="width:100px;height:200px;border:solid 1px lightgray;" font-size="medium" value="abc." title-text="Value" ></ti-tile-string>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="Value"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="value" kind="string" important order="6"></property>
+    <property name="decimalPlaces" kind="number" important order="7"></property>
+    <property name="valueFontColor" kind="color" important order="8"></property>
+    <property name="valueFontSize" kind="select"
+              options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit" important order="8">
+    </property>
+    <property name="valueFontWeight" kind="select"
+              options="normal,bold,lighter,bolder,100,200,300,400,500,600,700,800,900,inherit" important order="9">
+    </property>
+    <property name="textDecoration" kind="select"
+              options="none,underline,overline,line-through" important order="10">
+    </property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="11"></property>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-string.html">
+    </template>
+</x-meta>
+
+
+<x-meta id="ti-tile-slider" label="Slider" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-slider style="width:250px;height:200px;border:solid 1px lightgray;"  title-text="Slider" color="#c00" value="22" min-value="5" max-value="30" labels="5,10,15,20,25,30" increment="1" value-font-size="large"></ti-tile-slider>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="Slider"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="rangeSlider" kind="boolean" important order="6"></property>
+    <property name="value" kind="number" important order="7"></property>
+    <property name="valueLow" kind="number" important order="8"></property>
+    <property name="minValue" kind="number" important order="9"></property>
+    <property name="maxValue" kind="number" important order="10"></property>
+    <property name="hideTicks" kind="boolean" important order="32"></property>
+    <property name="increment" kind="number" important order="34"></property>
+    <property name="labels" kind="string" important order="36"></property>
+    <property name="units" kind="string" important order="38"></property>
+    <property name="valueFontSize" kind="select"
+              options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit" important order="40">
+    </property>
+    <property name="color" kind="color" important order="41"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="42"></property>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-slider.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-toggleswitch" label="Toggle Switch" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-toggleswitch style="width:100px;height:200px;border:solid 1px lightgray;" font-size="medium" value="false" toggle-color="#008000" title-text="Toggle Switch" ></ti-tile-toggleswitch>
+    </template>
+
+    <property name="titleText" kind="string" important order="1" defaultvalue="Toggle Switch"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="value" kind="boolean" important order="6"></property>
+    <!--
+    <property name="color" kind="select" options="red,green,blue,yellow,orange" important order="7"></property>
+    -->
+    <property name="toggleColor" kind="color" important order="8"></property>
+    <property name="msDebouncePeriod" kind="number" important order="9"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="10"></property>
+
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-toggleswitch.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-dial" label="Dial" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-dial style="width:230px;height:200px;border:solid 1px lightgray;"  dialSize="130" max-value="100" value ="20" title-text="Dial"  dial-background-color="#666666" dial-pointer-color="#ff0000" dial-font-color="#ffffff"></ti-tile-dial>
+    </template>
+
+    <property name="titleText" kind="string" important order="1" defaultvalue="Dial"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="value" kind="number" important order="6"></property>
+    <property name="minValue" kind="number" important order="7"></property>
+    <property name="maxValue" kind="number" important order="8"></property>
+    <property name="decimalPlaces" kind="number" important order="9"></property>
+    <property name="dialBackgroundColor" kind="color" important order="10"></property>
+    <property name="dialPointerColor" kind="color" important order="11"></property>
+    <property name="dialFontColor" kind="color" important order="12"></property>
+    <property name="dialSize" kind="number" important order="13"></property>
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" order="14" defaultvalue="3"></property>
+    <property name="knobColor" kind="string" order="153" defaultvalue="white"/>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-dial.html">
+    </template>
+</x-meta>
+
+<x-meta id="ti-tile-markdown" label="Markdown" group="Instrument Tiles">
+
+    <template>
+        <ti-tile-markdown style="width:300px;height:200px;border:solid 1px lightgray;" font-size="medium" markdown-text="see the [Markdown Basics Guide](https://help.github.com/articles/markdown-basics/) for info on Markdown" title-text="Instructions" ></ti-tile-markdown>
+    </template>
+    <property name="titleText" kind="string" important order="1" defaultvalue="Instructions"></property>
+    <property name="titleStyle" kind="string"  order="2" ></property>
+    <property name="titleBackgroundColor" kind="color" important order="3"></property>
+    <property name="tileBodyStyle" kind="string"  order="4"></property>
+    <property name="backgroundColor" kind="color"  order="5"></property>
+    <property name="markdownText" kind="text" important order="6"></property>
+
+    <property name="elevation" kind="range" min="0.0" max="5.0" step="1.0" defaultvalue="3" order="10"></property>
+
+    <template id="imports">
+        <link rel="import" href="ti-tile-markdown.html">
+    </template>
+</x-meta>
+

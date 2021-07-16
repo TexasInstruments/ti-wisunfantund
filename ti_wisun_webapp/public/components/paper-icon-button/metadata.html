@@ -1,0 +1,64 @@
+<!--
+    @license
+    Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--
+    Copyright (c) 2016, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../paper-common-behaviors/metadata.html">
+
+<x-meta id="paper-icon-button" label="Paper Icon Button" group="Paper">
+	<template>
+	    <paper-icon-button icon="add"></paper-icon-button>
+	</template>
+	
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase"/>
+
+	<!-- Local -->
+	<property name="pressed" kind="boolean" order="20"/>
+	<property name="active" kind="boolean" order="21"/>
+	<property name="icon" kind="string" order="22"/>
+	<property name="iconSize" kind="string" order="23"/>
+	<property name="imagePath" kind="string" order="24"/>
+	<property name="iconColor" kind="color" order="25"/>
+	<property name="iconColorWhenPressed" kind="color" order="26"/>
+	<property name="backgroundColorWhenPressed" kind="color" order="27"/>
+	<property name="noInk" kind="boolean" order="28"/>
+	<property name="action" kind="string" order="29"/>
+
+	<template id="imports">
+		<link rel="import" href="paper-icon-button.html">
+	</template>
+</x-meta>
+

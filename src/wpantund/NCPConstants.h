@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #ifndef wpantund_NCPConstants_h
@@ -33,7 +35,7 @@
 #define NCP_EUI64_SIZE                          8
 
 #define BUSY_DEBOUNCE_TIME_IN_MS                200
-#define MAX_INSOMNIA_TIME_IN_MS                 (MSEC_PER_SEC * 60 * 3)
+#define MAX_INSOMNIA_TIME_IN_MS                 (MSEC_PER_SEC * 60 * 1)
 
 #define NCP_DEBUG_LINE_LENGTH_MAX               400
 

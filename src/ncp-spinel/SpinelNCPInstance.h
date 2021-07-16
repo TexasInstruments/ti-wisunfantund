@@ -14,6 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * Modified by Texas Instruments - 2021
  *
  */
 
@@ -50,6 +52,8 @@ WPANTUND_DECLARE_NCPINSTANCE_PLUGIN(spinel, SpinelNCPInstance);
 #define EVENT_NCP_PROP_VALUE_REMOVED   (0xFF0003|EVENT_NCP_MARKER)
 
 #define NCP_FRAMING_OVERHEAD 3
+
+#define CHANNEL_LIST_SIZE             17
 
 #define CONTROL_REQUIRE_EMPTY_OUTBOUND_BUFFER_WITHIN(seconds, error_label) do { \
 		EH_WAIT_UNTIL_WITH_TIMEOUT(seconds, (GetInstance(this)->mOutboundBufferLen <= 0) && GetInstance(this)->mOutboundCallback.empty()); \
@@ -229,18 +233,16 @@ private:
 			spinel_prop_key_t prop_key, ReplyUnpacker unpacker);
 
 	void regsiter_all_get_handlers(void);
-
+	
 	void get_prop_ConfigNCPDriverName(CallbackWithStatusArg1 cb);
 	void get_prop_NCPCapabilities(CallbackWithStatusArg1 cb);
 	void get_prop_NetworkIsCommissioned(CallbackWithStatusArg1 cb);
-	void get_prop_ThreadRouterID(CallbackWithStatusArg1 cb);
 	void get_prop_ThreadConfigFilterRLOCAddresses(CallbackWithStatusArg1 cb);
 	void get_prop_ThreadConfigFilterALOCAddresses(CallbackWithStatusArg1 cb);
 	void get_prop_JoinerDiscernerBitLength(CallbackWithStatusArg1 cb);
 	void get_prop_CommissionerEnergyScanResult(CallbackWithStatusArg1 cb);
 	void get_prop_CommissionerPanIdConflictResult(CallbackWithStatusArg1 cb);
 	void get_prop_IPv6MeshLocalPrefix(CallbackWithStatusArg1 cb);
-	void get_prop_IPv6MeshLocalAddress(CallbackWithStatusArg1 cb);
 	void get_prop_IPv6LinkLocalAddress(CallbackWithStatusArg1 cb);
 	void get_prop_LinkMetricsQueryResult(CallbackWithStatusArg1 cb);
 	void get_prop_LinkMetricsMgmtResponse(CallbackWithStatusArg1 cb);
@@ -305,6 +307,8 @@ private:
 
 	static int convert_value_NCPMCUPowerState(const boost::any &value, boost::any &value_out);
 	static int convert_value_channel_mask(const boost::any &value, boost::any &value_out);
+	static int convert_value_channel_list(const boost::any &value, boost::any &value_out);
+	static int convert_value_dodag_route_dest(const boost::any &value, boost::any &value_out);
 	static int convert_value_counter_reset(const boost::any &value, boost::any &value_out);
 	static int convert_value_CommissionerState(const boost::any &value, boost::any &value_out);
 	static int convert_value_dua_interface_identifier(const boost::any &value, boost::any &value_out);
@@ -351,6 +355,7 @@ private:
 
 	void regsiter_all_insert_handlers(void);
 
+	void insert_prop_MacFilterList(const boost::any &value, CallbackWithStatus cb);
 	void insert_prop_MACAllowlistEntries(const boost::any &value, CallbackWithStatus cb);
 	void insert_prop_MACDenylistEntries(const boost::any &value, CallbackWithStatus cb);
 	void insert_prop_MACFilterEntries(const boost::any &value, CallbackWithStatus cb);
@@ -361,6 +366,7 @@ private:
 
 	void regsiter_all_remove_handlers(void);
 
+	void remove_prop_MacFilterList(const boost::any &value, CallbackWithStatus cb);
 	void remove_prop_MACAllowlistEntries(const boost::any &value, CallbackWithStatus cb);
 	void remove_prop_MACDenylistEntries(const boost::any &value, CallbackWithStatus cb);
 	void remove_prop_MACFilterEntries(const boost::any &value, CallbackWithStatus cb);

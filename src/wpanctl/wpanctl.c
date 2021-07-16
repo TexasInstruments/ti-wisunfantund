@@ -19,6 +19,8 @@
  *		This file implements the main program entry point for the
  *		WPAN control utility, `wpanctl`.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 
@@ -62,15 +64,23 @@
 #include "version.h"
 #include "string-utils.h"
 #include "wpanctl-utils.h"
-
+#include "webserver-config.h"
 #include "wpan-dbus-v0.h"
 
 static bool istty = true;
-int gDebugMode = 0;
+int WEBSERVER_APP = 0;
+//extern int FILE_UPDATE_RATE;
+int gDebugMode = 1;
+
+const char * connecteddevices_filename = "/var/local/wisunwebapp/txt_files/connected_devices.txt";
+const char * numconnected_filename = "/var/local/wisunwebapp/txt_files/num_connected.txt";
+const char * all_connecteddevices_filename = "/var/local/wisunwebapp/txt_files/all_connected_devices.txt";
 
 static arg_list_item_t option_list[] = {
 	{ 'h', "help",          NULL,
 	  "Print Help"                                                                   },
+	{ 'w', "webserver",          NULL,
+	  "Enable the webserver to run"                                                  },
 	{ 'v', "version",       NULL,
 	  "Print Version Information"                                    },
 	{ 'f', NULL,            "filename",
@@ -118,7 +128,7 @@ static int tool_cmd_clear(int argc, char *argv[])
 struct command_info_s commandList[] = {
 	WPANCTL_CLI_COMMANDS,
 	{"quit", "Terminate command line mode.", NULL},
-	{"help", "Display this help.", &tool_cmd_help},
+	{"help", "Display this help.  \nFor more Information about the various commands that can be run,\nplease view the ti_wisun_commands.MD file.", &tool_cmd_help},
 	{"clear", "Clear shell.", &tool_cmd_clear},
 	{"?", NULL, &tool_cmd_help, 1},
 	{NULL}
@@ -224,7 +234,7 @@ void
 process_input_line(char *l)
 {
 	char *inputstring;
-	char *argv2[100];
+	char *argv2[100] = {NULL};
 	char **ap = argv2;
 	int argc2 = 0;
 
@@ -240,7 +250,6 @@ process_input_line(char *l)
 #endif // HAVE_LIBREADLINE
 
 	inputstring = l;
-
 	while ((*ap = get_next_arg(inputstring, &inputstring))) {
 		if (**ap != '\0') {
 			ap++;
@@ -278,12 +287,12 @@ get_current_prompt()
 	if (!gInterfaceName[0]) {
 		snprintf(prompt,
 		         sizeof(prompt),
-		         "wpanctl> "
+		         "wfanctl> "
 		         );
 	} else {
 		snprintf(prompt,
 		         sizeof(prompt),
-		         "wpanctl:%s> ",
+		         "wfanctl:%s> ",
 		         gInterfaceName
 		         );
 	}
@@ -344,7 +353,7 @@ bail:
 static void
 print_version()
 {
-	printf("wpanctl " PACKAGE_VERSION );
+	printf("wfanctl " PACKAGE_VERSION );
 	if ((internal_build_source_version[0] == 0) || strequal(SOURCE_VERSION, internal_build_source_version)) {
 		if (strequal(PACKAGE_VERSION, SOURCE_VERSION)) {
 			printf(" (%s)\n", internal_build_date);
@@ -445,6 +454,7 @@ int main(int argc, char * argv[])
 		static struct option long_options[] = {
 			{"help", no_argument, 0, 'h'},
 			{"version", no_argument, 0, 'v'},
+			{"webserver",	no_argument,	0,	'w'},
 			{"ignore-mismatch", no_argument, 0, 'i'},
 			{"debug", no_argument, 0, 'd'},
 			{"interface", required_argument, 0, 'I'},
@@ -460,12 +470,11 @@ int main(int argc, char * argv[])
 			break;
 	}
 
-		c = getopt_long(argc, argv, "hvidI:f:", long_options,
+		c = getopt_long(argc, argv, "hvwidI:f:", long_options,
 				&option_index);
-
 		if (c == -1)
 			break;
-
+		
 		switch (c) {
 		case 'h':
 		print_version();
@@ -475,12 +484,15 @@ int main(int argc, char * argv[])
 		print_commands();
 		gRet = ERRORCODE_HELP;
 		goto bail;
-
+		
 		case 'v':
 			print_version();
 			gRet = 0;
 			goto bail;
 
+		case 'w':
+			WEBSERVER_APP = 1;
+			break;
 		case 'd':
 			gDebugMode++;
 			break;
@@ -507,7 +519,7 @@ int main(int argc, char * argv[])
 			fprintf(stderr,
 				"%s: Cannot read from file \"%s\" : Missing readline library.\n",
 				argv[0], optarg);
-			return ERRORCODE_BADARG;
+			return ERRORCODE_BADARG; 
 #endif
 		default:
 		break;
@@ -627,20 +639,10 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	if (optind < argc) {
-			if (gDebugMode >= 1) {
-			fprintf(stderr, "DEBUG: Executing command '%s'. . .\n",
-				argv[optind]);
-		}
-
-		argc -= optind;
-		argv += optind;
-
-		optind = 0;
-		gRet = exec_command(argc, argv);
-		goto bail;
+	if(WEBSERVER_APP == 1)
+	{
+		goto webserver_line;
 	}
-
 	if (istty) {
 #if !HAVE_LIBREADLINE
 		fprintf(stderr,
@@ -654,6 +656,8 @@ int main(int argc, char * argv[])
 		gRet = ERRORCODE_NOCOMMAND;
 		goto bail;
 #else   // HAVE_LIBREADLINE
+		fprintf(stderr, "Initializing readline\n");
+				
 		setenv("WPANCTL_HISTORY_FILE", tilde_expand("~/.wpanctl_history"), 0);
 
 		gRet = initialize_readline();
@@ -672,10 +676,10 @@ int main(int argc, char * argv[])
 		optind = 0;
 #if HAVE_LIBREADLINE
 		if (istty) {
+
 			int dbus_fd = -1;
 
 			dbus_connection_get_unix_fd(connection, &dbus_fd);
-
 			struct pollfd polltable[2] = {
 				{ fileno(stdin), POLLIN | POLLHUP,               0                         },
 				{ dbus_fd,               POLLIN | POLLHUP,               0                         },
@@ -706,7 +710,102 @@ int main(int argc, char * argv[])
 
 		dbus_connection_read_write_dispatch(connection, 0);
 	}
-	printf("\n");
+	
+	if (optind < argc) {
+			if (gDebugMode >= 1) {
+			fprintf(stderr, "DEBUG: Executing command '%s'. . .\n",
+				argv[optind]);
+		}
+
+		argc -= optind;
+		argv += optind;
+
+		optind = 0;
+		gRet = exec_command(argc, argv);
+		goto bail;
+	}
+
+webserver_line:
+    // This is required because optind is treated as a global variable,
+    // and the length of optind is used to determine whether additional
+    // optional arguments must be passed.
+    optind = 0;
+    fprintf(stdout, "WEBSERVER_APP=%d", WEBSERVER_APP);
+
+	if(WEBSERVER_APP == 1)
+	{
+		FILE * fp = NULL;
+	    char * line = NULL;
+	    size_t len = 0;
+	    ssize_t read;
+	    char sp = ' ';
+	    char * space = &sp;
+	    char list_title[] = "List ";
+	  	char * list_str = list_title;
+
+		fprintf(stdout, "Calling command: %s", set_interface_up_cmd);
+	    process_input_line((char *)set_interface_up_cmd);
+
+	    sleep(5);
+
+
+	    fprintf(stdout, "Calling command: %s", set_stack_up_cmd);
+	    process_input_line((char *)set_stack_up_cmd);
+
+	    sleep(5);
+	    while(1)
+	    {
+	    	fprintf(stdout, "Updating connecteddevices and numconnected files, polling every %d seconds\n", FILE_UPDATE_RATE);
+			fprintf(stdout, "Calling command: %s", get_connected_devices_cmd);
+			process_input_line((char*)get_connected_devices_cmd);
+			fprintf(stdout, "Calling command: %s", get_num_connected_cmd);
+			process_input_line((char*)get_num_connected_cmd);
+
+		
+		fp = fopen(all_connecteddevices_filename, "r");
+			
+		if(fp != NULL)
+		{
+			while ((read = getline(&line, &len, fp)) != -1)
+			{
+				char *pch = strstr(line, list_str);
+				char *pch2 = strstr(line, space);
+
+				// if there is not a space or 'List' string, then this is an ip address
+				if(!pch && !pch2 && line[0] != ':' && line[0] != sp && line[0] != '\n')
+				{
+					fprintf(stdout, "IP Address Found: %s", line);
+
+					// create new cmd
+					char set_dodag_dest_cmd2[50];
+
+					// copy previous command to new command
+					strcpy(set_dodag_dest_cmd2, set_dodag_dest_cmd);
+
+					// concat the ip address to set dodag dest cmd
+					strcat(set_dodag_dest_cmd2, line);
+					fprintf(stdout, "Calling command: %s", set_dodag_dest_cmd2);
+					process_input_line((char*) &set_dodag_dest_cmd2);
+					fprintf(stdout, "Calling command: %s", get_dodag_route_cmd);
+					process_input_line((char*) &get_dodag_route_cmd);
+				}
+			}
+
+			fclose(fp);
+		
+		}
+		else
+		{
+			fprintf(stdout, "\n Waiting for nodes to join");
+		}
+
+		// get dodag for each of the nodes in the file
+		
+		sleep(FILE_UPDATE_RATE);
+	    }
+
+	}
+
 
 bail:
 #if HAVE_LIBREADLINE

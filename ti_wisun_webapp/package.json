@@ -1,0 +1,27 @@
+{
+  "name": "ti_wisun_webapp",
+  "version": "1.0.0",
+  "description": "Webserver App for TI Wi-SUN FAN Solution",
+  "main": "ti_wisunfan_webserver.js",
+  "dependencies": {
+    "bl": "^5.0.0",
+    "coap": "^0.25.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "ip6addr": "^0.2.4",
+    "package.json": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "14.0.27"
+  },
+  "scripts": {
+    "test": "node ti_wisunfan_webserver.js"
+  },
+  "keywords": [
+    "TI",
+    "Wi-SUN",
+    "FAN"
+  ],
+  "author": "Texas Instruments Inc",
+  "license": "ISC"
+}

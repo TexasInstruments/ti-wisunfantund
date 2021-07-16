@@ -1,0 +1,587 @@
+<!--
+    Copyright (c) 2017, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-menu/paper-submenu.html">
+<link rel="import" href="../ti-core-assets/ti-core-assets.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+
+<!--
+`ti-widget-listbox` is a drop down selection widget.
+
+Example:
+
+    <ti-widget-listbox></ti-widget-listbox>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-listbox
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-listbox'>
+
+	<template>
+		<style include="iron-flex iron-flex-alignment"></style>
+		<style is="custom-style">
+			:host {
+				text-decoration: inherit;
+				overflow-y:auto;
+			}
+			#selectorList {
+				display: inline-block;
+				font-size: inherit;
+				text-decoration: inherit;
+				font-weight: inherit;
+				font-style: inherit;
+				color: inherit;
+				height: auto;
+				padding: 0px;
+				margin: 0px;
+				width: 100%;
+				background-color:#F0F0F0;
+			}
+			#selectorList.disabled {
+				opacity: 0.5;
+			}
+			/*			.listItem[focused]{ */
+			/* background-color: green; TODO: figure out how to use theme colors unless user overrides them */
+			/*			}
+                        .listItem {
+                            color: inherit;
+                            background-color: inherit;
+
+
+                        }
+                        .listItem.iron-selected  { */
+			/* background-color: green; TODO: figure out how to use theme colors unless user overrides them */
+			/*	} */
+			#context_menu_div {
+				position:absolute;
+				width: auto;
+				min-width:300px;
+				min-height:60px;
+				border:solid grey 1px;
+				padding-left:20px;
+				padding-right:20px;
+				padding-top:3px;
+				padding-bottom:3px;
+				background-color:white;
+				box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+				overflow-y:hidden;
+			}
+			.listItem {
+				@apply(--layout-horizontal);
+				padding-right:5px;
+			}
+			.closeIcon {
+				height:15px;
+				width:15px;
+				margin-right:0px;
+				padding-right:0px;
+			}
+			.closeIconSpan {
+				width: 15px;
+				padding-right:5px;
+				margin-right:0px;
+				text-align:center;
+				display:none;
+			}
+			.closeIconSpan:hover {
+				cursor: pointer
+			}
+			#inputBox .hide {
+				display: none;
+			}
+			#inputBox .show {
+				background-color:white;
+				color:black;
+				width:calc(100% - 10px);
+				left: 5px;
+			}
+		</style>
+
+
+		<div id="listBoxDiv" style$="[[_getHeightStyles(_resizeCtr)]]">
+			<paper-listbox class="form-control" id="selectorList" on-change="_onChangeHdlr" style="height:100%;">
+				<template restamp is="dom-repeat" items="{{_items}}" as="item">
+					<!-- TODO: figure out how to use theme colors unless user overrides them:
+                    <paper-item class="listItem" style$="min-height:[[itemHeight]];color:[[fontColor]];background-color:[[backgroundColor]];font-style:[[fontStyle]];font-size:[[fontSize]];font-weight:[[fontWeight]];text-align:[[textAlign]];text-decoration:[[textDecoration]];">[[item]]</paper-item> -->
+					<paper-item id="paperItem[[index]]" class="listItem horizontal layout" title$="[[_getTooltip(item,index,tooltips,_displayedOptionsSorted)]]"    style$="min-height:[[_itemHeight]];height:[[itemHeight]];font-size:[[fontSize]];" >
+						<span class="flex" id="itemText_[[index]]" >[[item]]</span>
+						<span id$="deleteBtn_[[index]]" style$="{{_getDeleteBtnStyle(index,selectedIndex,enableItemDeleteBtn,_displayedOptionsSorted)}}" class="closeIconSpan" on-click="_removeItemHdlr">x</span>
+					</paper-item>
+				</template>
+			</paper-listbox>
+
+		</div>
+
+	</template>
+	<script>
+        Polymer({
+            is: 'ti-widget-listbox',
+            /**
+             * Fired when an item in the list is selected by the user.
+             * Add the attribute on-selected="myHandler" to receive callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("selected",function(event){...});
+             *
+             * @event selected
+             */
+            /**
+             * Fired when one or more labels have been removed.
+             * Add the attribute on-item_removed="myHandler" to receive callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("item_removed,function(event){...});
+             *
+             * @event item_removed
+             */
+            behaviors: [TiWidgetBase, TiWidgetBaseText, TiWidgetBaseSelector,Polymer.IronResizableBehavior],
+            listeners: {
+                'iron-resize': 'onResize'
+            },
+            properties: {
+
+                /**
+                 * Array of labels to be displayed in the drop-down list.
+                 *
+                 * @attribute _items
+                 * @type Array
+                 * @default undefined
+                 */
+                _items: {
+                    notify: true,
+                    type: Array,
+                    value: undefined
+                },
+                _itemHeight: {
+                    type: String,
+                    value: "48px"
+                },
+                _resizeCtr: {
+                    type: Number,
+                    value: 0,
+                    notify: true
+                },
+				/**
+				 * comma-separated list of tooltip text, one per label.  If not set, the label is shown as the tooltip
+				 *
+				 * @attribute tooltips
+				 * @type string
+				 * @default ""
+				 */
+				tooltips: {
+                    type: String,
+					value: "",
+					notify: true
+				},
+                /**
+                 * if true, a small x will be displayed at the right side of the
+                 * selected item.  Clicking on this x will remove the item from
+                 * the list.  Set to false if you do not wish users to be able to
+                 * remove items from the list
+                 *
+                 * @attribute enableItemDeleteBtn
+                 * @type Boolean
+                 * @default false
+                 */
+                enableItemDeleteBtn: {
+                    reflectToAttribute: true,
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    observer: 'enableItemDeleteBtnChanged'
+                }
+                /**
+                 * Controls the currently selected item by its textual label value.
+                 *
+                 * @attribute selectedText
+                 * @type string
+                 */
+
+                /**
+                 * Provides a list of textual labels to be displayed for the options in the selection.
+                 *
+                 * @attribute labels
+                 * @type array of string separated by ',', ';', or '|'
+                 */
+
+                /**
+                 * Controls the currently selected item by its zero based index in the list of options.
+                 *
+                 * @attribute selectedIndex
+                 * @type number
+                 * @default 0
+                 */
+
+                /**
+                 * Controls the currently selected item by its value.  Values are provided by the values
+                 * attribute.  For convenience, if no values attribute is specified, the option values
+                 * are automatically defined as their one based index.  If you need a zero based index,
+                 * use the selectedIndex attribute instead.
+                 *
+                 * @attribute selectedValue
+                 * @type number
+                 * @default 1
+                 */
+
+                /**
+                 * Provides a list of values for the list of options.  This list should be the
+                 * same length as the list of labels provided for the options; otherwise the
+                 * extra options will have undefined values.  The values need not be numeric.  String
+                 * values are also allowed.
+                 *
+                 * @attribute values
+                 * @type list of strings|numbers separated by ',', ';', or '|'
+                 * @default undefined
+                 */
+
+                /**
+                 * Controls whether the list of options are sorted or not.  Sorting is for display purposes
+                 * only.  It will not effect the selectedIndex or selectedValue in anyway.  Sorting is
+                 * alphabetical based on the lowercase version of each options label text.
+                 *
+                 * @attribute sorted
+                 * @type boolean
+                 * @default false
+                 */
+
+                /**
+                 * Provides the initial selection for the list of options.  This is usually not necessary.
+                 * Usually the widget will respond to data bindings to get the initial selection.
+                 * Use this only when you want to force the initial value of the selection and drive other
+                 * bindings with it.
+                 *
+                 * @attribute initialIndex
+                 * @type zero based index into the list of options
+                 * @default undefined
+                 */
+
+            },
+            _getTooltip: function(item,indexArg,tooltips,_displayedOptionsSorted){
+              	var result = item;
+              	var index = this.getIndexAfterSorting(indexArg);
+              	if (tooltips && tooltips.length > 0){
+              	    var tooltipsArray = this.parseArray(tooltips);
+              	    if (tooltipsArray.length > index) {
+              	        result = tooltipsArray[index];
+              	        if (result.trim().length === 0) {
+              	            result = item;
+						}
+					}
+				}
+				return result;
+			},
+            _getDeleteBtnStyle: function(index,selectedIndex,enableItemDeleteBtn,_displayedOptionsSorted){
+                var result="display:none";
+                if  (enableItemDeleteBtn) {
+                    if (((!_displayedOptionsSorted) && (index === selectedIndex)) ||
+                    	((_displayedOptionsSorted) && (index === this.getIndexAfterSorting(selectedIndex))) )  {
+                        result = "display:inline-block";
+                    }
+				}
+				return result;
+			},
+            _getHeightStyles: function(resizeCtr){
+                var height = window.getComputedStyle(this,null).getPropertyValue("height");
+                var result =  "height:"+height+";min-height:"+height+";max-height:"+height+";";
+                return result;
+            },
+            _getDelimiter: function(){
+                var delimiter = '|';
+                if (this.labels && this.labels.length > 0) {
+                    if (this.labels.indexOf(',') > 0) {
+                        delimiter = ',';
+                    } else if (this.labels.indexOf(';') > 0) {
+                        delimiter = ';';
+                    }
+                }
+                return delimiter;
+            },
+			/**
+			 * add an item to the listbox
+			 * @param newLabel - label for the new item
+			 * @param newValue - value to assign to the new item
+			 * @param selectNewValue - if true, automatically select the newly added item
+			 * @param newTooltip - tooltip for the new item (optional)
+			 */
+            addItem: function(newLabel, newValue, selectNewValue, newTooltip){
+                var labelsArray = this.parseArray(this.labels);
+                var valuesArray = this.parseArray(this.values);
+                var tooltipsArray = this.parseArray(this.tooltips);
+                labelsArray.push(newLabel);
+                valuesArray.push(newValue);
+                var delimiter = this._getDelimiter();
+                this.labels = labelsArray.join(delimiter);
+                this.values = valuesArray.join(delimiter);
+                if (newTooltip) {
+                    tooltipsArray.push(newTooltip);
+                    this.tooltips = tooltipsArray.join(delimiter);
+                }
+                if (selectNewValue){
+                    // the values can be re-sorted by the change monitor, so we need
+                    // to determine what index to use after this happens
+                    this.async(function(){
+                        var newValuesArray = this.parseArray(this.values);
+                        var newValueStr = ""+newValue;
+                        this.selectedIndex = newValuesArray.indexOf(newValueStr);
+					}.bind(this),1)
+
+                }
+
+            },
+            /**
+             * method to programmatically change the label and value for a specified index.
+             *
+             * @param index : the index of the item to be changed
+             * @param newLabel : the new label text to use for this item
+             * @param newValue : the new value to use for this item
+			 * @param newTooltip - the new tooltip to use for this item (optional)
+             */
+            changeItem: function(index,newLabel,newValue,newTooltip){
+                var labelsArray = this.parseArray(this.labels);
+                var valuesArray = this.parseArray(this.values);
+                var tooltipsArray = this.parseArray(this.tooltips);
+                if (index >= 0) {
+                    if (index < labelsArray.length) {
+                        labelsArray[index] = newLabel;
+                    }
+                    if (index < valuesArray.length) {
+                        valuesArray[index] = newValue;
+                    }
+                    if (index < tooltipsArray.length){
+                        tooltipsArray[index] = newTooltip;
+					}
+                    var delimiter = this._getDelimiter();
+                    this.values = valuesArray.join(delimiter);
+                    this.labels = labelsArray.join(delimiter);
+                    this.tooltips = tooltipsArray.join(delimiter);
+                }
+            },
+            _removeItemHdlr: function (event) {
+                if (!this.enableItemDeleteBtn) return;
+                // only the selected item can be removed.
+                // this simplifies cases where there is sorting, etc.
+                var labelsArray = this.parseArray(this.labels);
+                var valuesArray = this.parseArray(this.values);
+                var tooltipsArray = this.parseArray(this.tooltips);
+                var index = this.selectedIndex;
+                if (index >= 0) {
+                    labelsArray.splice(index, 1);
+                    valuesArray.splice(index, 1);
+                    tooltipsArray.splice(index, 1);
+                    var delimiter = this._getDelimiter();
+                    this.values = valuesArray.join(delimiter);
+                    this.labels = labelsArray.join(delimiter);
+                    this.tooltips = tooltipsArray.join(delimiter);
+                    this.selectedIndex = -1;
+                    this.fire('item_removed');
+                }
+            },
+			/**
+			 * removes all items from the listbox
+			 */
+			removeAll: function(){
+                var origLabels = this.labels;
+              	this.values = "";
+              	this.labels = "";
+              	this.tooltips = "";
+              	this.selectedIndex = -1;
+              	if (this.labels !== origLabels){
+              	    this.fire('item_removed');
+				}
+			},
+            _onChangeHdlr: undefined,
+            created: function () {
+                this.setOptions = this._setOptions.bind(this);
+            },
+            ready: function () {
+                this.onResize = this._onResize.bind(this);
+                this.onResizedByDesigner = this._onResizedByDesigner.bind(this);
+                this._onChangeHdlr = this.onUserInputChanged.bind(this);
+            },
+            getElement: function () {
+                return this.$ && this.$.selectorList;
+            },
+            setSelectedIndex: function (newIndex) {
+                if (this.$) {
+                    this.$.selectorList.selected = newIndex;
+                }
+            },
+            getSelectedIndex: function () {
+                return this.$ ? this.$.selectorList.selected : -1;
+            },
+            autoAdjustHeight: function (fontSize) {
+                var size = fontSize;
+                if (!size) {
+                    size = this.fontSize;
+                }
+                try {
+                    var canvas = document.createElement("canvas");
+                    var ctx = canvas.getContext("2d");
+                    var fontSizeInPx = fontSize;
+					/* The following is here just in case some browser doesn't support
+					 converting these automatically:
+					 switch(fontSize){
+					 case 'xx-small': fontSizeInPx = "9px";break;
+					 case 'x-small': fontSizeInPx = "10px";break;
+					 case 'smaller': fontSizeInPx = "11px";break;
+					 case 'small': fontSizeInPx = "13px";break;
+					 case 'medium': fontSizeInPx = "16px";break;
+					 case 'large': fontSizeInPx = "18px";break;
+					 case 'larger': fontSizeInPx = "24px";break;
+					 case 'x-large': fontSizeInPx = "24px";break;
+					 case 'xx-large': fontSizeInPx = "32px";break;
+					 }
+					 */
+                    switch (fontSize) {
+                        case 'smaller': fontSize = "11px"; break;
+                        case 'larger': fontSize = '24px'; break;
+                    }
+
+                    ctx.font = fontSize + " sans-serif";
+                    var magicScaleFactor = 3.6; // this value causes the listbox to be the same size as the default paper-listbox is with a medium font
+                    var lineHeight = magicScaleFactor * ctx.measureText("M").width; // M is aproximately square, so the width ~= height
+                    this._itemHeight = "" + lineHeight + "px";
+                    Polymer.updateStyles();
+                }
+                catch (ex) {
+                    console.log("ti-widget-listbox.autoAdjustHeight: exception=" + ex);
+                }
+
+            },
+            _setOptions: function (newOptions) {
+                if (this.$) {
+                    if (!this._items) {
+                        this._items = [];
+                    }
+                    // remove existing options
+
+               /* Can get stuck in this loop forever if first child is not removable (e.g.style setting)
+                 while (this.$.selectorList.firstChild) {
+                        this.$.selectorList.removeChild(this.$.selectorList.firstChild);
+                    }
+*/
+                    var numChildren = this.$.selectorList.children.length;
+                    try {
+                        for (var j = numChildren - 1; j >= 0; j++) {
+                            var child = this.$.selectorList.children[j];
+                            this.$.selectorList.removeChild(child);
+                        }
+                    } catch(ex){
+
+                    }
+                    // add new options
+                    for (var i = 0; i < newOptions.length; i++) {
+                        var opt = document.createElement('option');
+                        var newOption = newOptions[i];
+                        opt.value = newOption.value;
+                        opt.text = newOption.text;
+                        if (newOption.disabled) {
+                            opt.setAttribute("disabled", "disabled");
+                        }
+                        this.$.selectorList.appendChild(opt);
+                    }
+
+                    this._options = newOptions;
+                    //splice(path, index, removeCount, [item1, ..., itemN])
+                    this.splice("_items", 0, this._items.length);
+                    for (var i = 0; i < this._options.length; i++) {
+                        var option = this._options[i];
+                        var label = option.text;
+                        if (label) {
+                            this.push("_items", label);
+                        }
+                    }
+
+                }
+                else {
+                    console.log('called with this.$=' + this.$);
+                }
+
+            },
+            setOptions: undefined,
+            onSelectedColorChanged: function (newValue, oldValue) {
+				/* TODO: this doesn't get called */
+                this.customStyle['--paper-item-selected'] = newValue;
+                this.updateStyles();
+            },
+            onItemSelectedHdlr: function (event) {
+                this.onUserInputChanged();
+            },
+            _onResize: function () {
+                if (!this.$) return;
+                this._resizeCtr++;
+                this.notifyPath('_resizeCtr',this._resizeCtr);
+                this.async(function(){
+                    this.updateStyles(); // ensure css style is updated
+                    Polymer.dom.flush();
+                }.bind(this),null,5);
+
+            },
+            onResize: undefined,
+            _onResizedByDesigner: function () {
+                this.onResize();
+            },
+            onResizedByDesigner: undefined,
+            _getScrollOffsets: function(element,parentElement) {
+
+                var offsets = {
+                    left:  0,
+                    top: 0
+                };
+
+                var el = parentElement;
+                if (!el) {
+                    el = element.offsetParent;
+                }
+                // loop through ancestors while ancestor is an offsetParent
+                if (el) {
+                    // sum the offset values
+                    offsets.left += el.scrollLeft || 0;
+                    offsets.top += el.scrollTop || 0;
+                }
+
+                return offsets;
+            },
+            attached: function () {
+                this.async(function () {
+                    this.$.selectorList.addEventListener('iron-select', this.onItemSelectedHdlr.bind(this));
+                    this.autoAdjustHeight();
+                    this._resizeCtr = 1;
+                }.bind(this));
+            }
+        });
+	</script>
+</dom-module>

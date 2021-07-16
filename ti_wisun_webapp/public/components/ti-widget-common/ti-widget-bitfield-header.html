@@ -1,0 +1,165 @@
+
+<!--
+    Copyright (c) 2014, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+
+<!--
+`ti-widget-bitfield-header`
+
+Displays a header consisting of a horizontal string of boxes, each displaying a value from the comma-separated values in the bitValues property.
+Intended for use in pages that provide a GUI for interacting with target registers.
+
+@group Ti Elements
+@element ti-widget-bitfield-header
+@demo demo.html
+-->
+<dom-module id='ti-widget-bitfield-header'  >
+
+    <template>
+        <style>
+            <style>
+            :host {
+                display: inline-block;
+                position: static;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            th {
+                font-weight: bold;
+            }
+
+        </style>
+    <table id="bitfield" class="bitfield-content"  >
+      <th height="[[_computeBinding0(rowHeight)]]" >
+          <template  is="dom-repeat" items="{{bits}}" as="bit" index-as="bitIndex" >
+              <td id="[[_computeBinding1(bitIndex)]]" width="[[_computeBinding2(maxColWidth)]]"  align="center" style$="[[_computeBinding3(borderColor,backgroundColor)]]">{{bit}}</td>
+          </template>
+      </th>
+    </table>
+    </template>
+    <script>
+        Polymer ({
+          is: 'ti-widget-bitfield-header',  
+         
+            bits: undefined,
+            hostAttributes: {
+            },
+            _computeBinding0: function(rowHeight) {
+                return(rowHeight+"px");
+            },
+            _computeBinding1: function(bitIndex) {
+                return("bit"+bitIndex);
+            },
+            _computeBinding2: function(maxColWidth) {
+                return(maxColWidth+"px");
+            },
+            _computeBinding3: function(borderColor,backgroundColor) {
+                return("align:center;border:solid thin;border-color:"+borderColor+";color:{{borderColor}};background-color:"+backgroundColor+";");
+            },
+            behaviors: [TiWidgetBase],
+            properties: {
+                /**
+                 * the comma-separated list of values to display in the header.
+                 *
+                 * @attribute bitValues
+                 * @type string
+                 * @default "7,6,5,4,3,2,1,0"
+                 */
+                bitValues: {
+                  notify: true,
+                  type: String,
+                  value: "7,6,5,4,3,2,1,0",
+                  observer: "bitValuesChanged"
+                },
+                /**
+                 * the maximum width (in pixels) of a box in the header.  Do not specify any units(i.e. no px after number).
+                 *
+                 * @attribute maxColWidth
+                 * @type number
+                 * @default 50
+                 */
+                maxColWidth: {
+                  notify: true,
+                  type: Number,
+                  value: 50
+                },
+                /**
+                 * the height of the header (in pixels).  Do not specify any units(i.e. no px after number).
+                 *
+                 * @attribute rowHeight
+                 * @type number
+                 * @default 18
+                 */
+                rowHeight: {
+                  notify: true,
+                  type: Number,
+                  value: 18
+                },
+                /**
+                 * the color of the box border AND the color of the text within the box.
+                 *
+                 * @attribute borderColor
+                 * @type color
+                 * @default 'grey'
+                 */
+                borderColor: {
+                  notify: true,
+                  type: String,
+                  value: "grey"
+                },
+                /**
+                 * the color of the header background.
+                 *
+                 * @attribute backgroundColor
+                 * @type color
+                 * @default 'transparent'
+                 */
+                backgroundColor: {
+                  notify: true,
+                  type: String,
+                  value: "transparent"
+                }
+            },
+            bitValuesChanged: function(){
+                this.bits = this.bitValues.split(',');
+            },
+            getBitValue : function(index) {
+                var result = this.bits[this.bits.length-1-index];
+                return result;
+            },
+            ready: function(){
+                this.bitValuesChanged();
+            }
+        });
+    </script>
+</dom-module>

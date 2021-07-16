@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #ifndef __wpantund__NCPTypes__
@@ -23,6 +25,8 @@
 #include <stdint.h>
 #include "time-utils.h"
 #include <string>
+
+#define MAC_FILTER_LIST_SIZE          10
 
 namespace nl {
 namespace wpantund {
@@ -98,6 +102,16 @@ std::string ncp_state_to_string(NCPState state);
 NCPState string_to_ncp_state(const std::string& state_string);
 
 std::string node_type_to_string(NodeType node_type);
+
+std::string ncp_protocol_version_to_string(const int major, const int minor);
+
+std::string ncp_region_to_string(uint8_t region);
+
+std::string ch_spacing_to_string(const int ch_spacing);
+
+std::string mac_filter_list_to_string(std::string filter_list[]);
+
+std::string ch0_center_freq_to_string(const int ch0_mhz, const int ch0_khz);
 
 NodeType string_to_node_type(const std::string& node_type_string);
 

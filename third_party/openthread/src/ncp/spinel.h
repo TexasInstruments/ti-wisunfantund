@@ -23,6 +23,9 @@
  *    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *    Modified by Texas Instruments - 2021
+ *
  */
 
 /**
@@ -342,8 +345,12 @@
 
 // ----------------------------------------------------------------------------
 
-#define SPINEL_PROTOCOL_VERSION_THREAD_MAJOR 4
-#define SPINEL_PROTOCOL_VERSION_THREAD_MINOR 3
+//#define SPINEL_PROTOCOL_VERSION_THREAD_MAJOR 4
+//#define SPINEL_PROTOCOL_VERSION_THREAD_MINOR 3
+
+// new values to reflect NCP response
+#define SPINEL_PROTOCOL_VERSION_THREAD_MAJOR 87
+#define SPINEL_PROTOCOL_VERSION_THREAD_MINOR 105
 
 /**
  * @def SPINEL_FRAME_MAX_SIZE
@@ -605,7 +612,8 @@ enum
 {
     SPINEL_PROTOCOL_TYPE_BOOTLOADER = 0,
     SPINEL_PROTOCOL_TYPE_ZIGBEE_IP  = 2,
-    SPINEL_PROTOCOL_TYPE_THREAD     = 3,
+    //SPINEL_PROTOCOL_TYPE_THREAD     = 3,
+    SPINEL_PROTOCOL_TYPE_THREAD     = 4,    // real NCP protocol type
 };
 
 enum
@@ -2167,59 +2175,15 @@ enum
 
     SPINEL_PROP_THREAD__BEGIN = 0x50,
 
-    /// Thread Leader IPv6 Address
-    /** Format `6` - Read only
-     *
-     */
-    SPINEL_PROP_THREAD_LEADER_ADDR = SPINEL_PROP_THREAD__BEGIN + 0,
+    SPINEL_PROP_PHY_REGION = SPINEL_PROP_THREAD__BEGIN + 0, // < [C]
 
-    /// Thread Parent Info
-    /** Format: `ESLccCC` - Read only
-     *
-     *  `E`: Extended address
-     *  `S`: RLOC16
-     *  `L`: Age (seconds since last heard from)
-     *  `c`: Average RSS (in dBm)
-     *  `c`: Last RSSI (in dBm)
-     *  `C`: Link Quality In
-     *  `C`: Link Quality Out
-     *
-     */
-    SPINEL_PROP_THREAD_PARENT = SPINEL_PROP_THREAD__BEGIN + 1,
+    SPINEL_PROP_PHY_MODE_ID = SPINEL_PROP_THREAD__BEGIN + 1, // < [C]
 
-    /// Thread Child Table
-    /** Format: [A(t(ESLLCCcCc)] - Read only
-     *
-     * Data per item is:
-     *
-     *  `E`: Extended address
-     *  `S`: RLOC16
-     *  `L`: Timeout (in seconds)
-     *  `L`: Age (in seconds)
-     *  `L`: Network Data version
-     *  `C`: Link Quality In
-     *  `c`: Average RSS (in dBm)
-     *  `C`: Mode (bit-flags)
-     *  `c`: Last RSSI (in dBm)
-     *
-     */
-    SPINEL_PROP_THREAD_CHILD_TABLE = SPINEL_PROP_THREAD__BEGIN + 2,
+    SPINEL_PROP_PHY_UNICAST_CHANNEL_LIST = SPINEL_PROP_THREAD__BEGIN + 2, // < [D]
 
-    /// Thread Leader Router Id
-    /** Format `C` - Read only
-     *
-     * The router-id of the current leader.
-     *
-     */
-    SPINEL_PROP_THREAD_LEADER_RID = SPINEL_PROP_THREAD__BEGIN + 3,
+    SPINEL_PROP_PHY_BROADCAST_CHANNEL_LIST = SPINEL_PROP_THREAD__BEGIN + 3, // < [D]
 
-    /// Thread Leader Weight
-    /** Format `C` - Read only
-     *
-     * The leader weight of the current leader.
-     *
-     */
-    SPINEL_PROP_THREAD_LEADER_WEIGHT = SPINEL_PROP_THREAD__BEGIN + 4,
+    SPINEL_PROP_PHY_ASYNC_CHANNEL_LIST = SPINEL_PROP_THREAD__BEGIN + 4, // < [D]
 
     /// Thread Local Leader Weight
     /** Format `C` - Read only
@@ -2326,6 +2290,10 @@ enum
      */
     SPINEL_PROP_THREAD_MODE = SPINEL_PROP_THREAD__BEGIN + 14,
 
+    SPINEL_PROP_DODAG_ROUTE_DEST = SPINEL_PROP_THREAD__BEGIN + 15,
+
+    SPINEL_PROP_DODAG_ROUTE = SPINEL_PROP_THREAD__BEGIN + 16,
+
     SPINEL_PROP_THREAD__END = 0x60,
 
     SPINEL_PROP_THREAD_EXT__BEGIN = 0x1500,
@@ -2336,13 +2304,9 @@ enum
      *
      *  Used when operating in the Child role.
      */
-    SPINEL_PROP_THREAD_CHILD_TIMEOUT = SPINEL_PROP_THREAD_EXT__BEGIN + 0,
+    SPINEL_PROP_PHY_CH_SPACING = SPINEL_PROP_THREAD_EXT__BEGIN + 0, // < [S]
 
-    /// Thread RLOC16
-    /** Format: `S`
-     *
-     */
-    SPINEL_PROP_THREAD_RLOC16 = SPINEL_PROP_THREAD_EXT__BEGIN + 1,
+    SPINEL_PROP_PHY_CHO_CENTER_FREQ = SPINEL_PROP_THREAD_EXT__BEGIN + 1, // < t[SS]
 
     /// Thread Router Upgrade Threshold
     /** Format: `C`
@@ -3164,6 +3128,20 @@ enum
      */
     SPINEL_PROP_THREAD_BACKBONE_ROUTER_LOCAL_REGISTRATION_JITTER = SPINEL_PROP_THREAD_EXT__BEGIN + 59,
 
+    SPINEL_PROP_MAC_UC_DWELL_INTERVAL = SPINEL_PROP_THREAD_EXT__BEGIN + 86, // < [C]
+
+    SPINEL_PROP_MAC_BC_DWELL_INTERVAL = SPINEL_PROP_THREAD_EXT__BEGIN + 87, // < [C]
+
+    SPINEL_PROP_MAC_BC_INTERVAL = SPINEL_PROP_THREAD_EXT__BEGIN + 88, // < [L]
+
+    SPINEL_PROP_MAC_UC_CHANNEL_FUNCTION = SPINEL_PROP_THREAD_EXT__BEGIN + 89, // < [C]
+
+    SPINEL_PROP_MAC_BC_CHANNEL_FUNCTION = SPINEL_PROP_THREAD_EXT__BEGIN + 90, // < [C]
+
+    SPINEL_PROP_MAC_MAC_FILTER_LIST = SPINEL_PROP_THREAD_EXT__BEGIN + 91, // < [A(E)]
+
+    SPINEL_PROP_MAC_FILTER_MODE = SPINEL_PROP_THREAD_EXT__BEGIN + 92, // < [C]
+
     SPINEL_PROP_THREAD_EXT__END = 0x1600,
 
     SPINEL_PROP_IPV6__BEGIN = 0x60,
@@ -3174,11 +3152,6 @@ enum
      */
     SPINEL_PROP_IPV6_LL_ADDR = SPINEL_PROP_IPV6__BEGIN + 0, ///< [6]
 
-    /// Mesh Local IPv6 Address
-    /** Format: `6` - Read only
-     *
-     */
-    SPINEL_PROP_IPV6_ML_ADDR = SPINEL_PROP_IPV6__BEGIN + 1,
 
     /// Mesh Local Prefix
     /** Format: `6C` - Read-write
@@ -3217,15 +3190,18 @@ enum
      *
      * Default value is `false`.
      */
-    SPINEL_PROP_IPV6_ICMP_PING_OFFLOAD = SPINEL_PROP_IPV6__BEGIN + 5,
-
-    /// IPv6 Multicast Address Table
-    /** Format: `A(t(6))`
+    //SPINEL_PROP_IPV6_ICMP_PING_OFFLOAD = SPINEL_PROP_IPV6__BEGIN + 5,
+    /// NCP Connected Nodes
+    /** Format: 'i' - Read-only
      *
-     * This property provides all multicast addresses.
+     * This value identifies how many nodes are connected to the NCP
      *
      */
-    SPINEL_PROP_IPV6_MULTICAST_ADDRESS_TABLE = SPINEL_PROP_IPV6__BEGIN + 6,
+    SPINEL_PROP_NUM_CONNECTED_DEVICES = SPINEL_PROP_IPV6__BEGIN + 5,
+
+    SPINEL_PROP_CONNECTED_DEVICES = SPINEL_PROP_IPV6__BEGIN + 6,    //[CA(6)]
+
+    SPINEL_PROP_IPV6_MULTICAST_ADDRESS_TABLE = SPINEL_PROP_IPV6__BEGIN + 1,
 
     /// IPv6 ICMP Ping Offload
     /** Format: `C`

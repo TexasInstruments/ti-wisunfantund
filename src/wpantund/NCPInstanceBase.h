@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #ifndef __wpantund__NCPInstanceBase__
@@ -24,6 +26,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <vector>
 #include "FirmwareUpgrade.h"
 #include "EventHandler.h"
 #include "NCPTypes.h"
@@ -297,6 +300,44 @@ public:
 
 	virtual void remove_service(uint32_t enterprise_number, const Data &service_data, CallbackWithStatus cb = NilReturn());
 
+	void set_ncp_region(uint8_t region);
+	void set_ncp_mode_id(int mode_id);
+	void set_ncp_protocol_version(const int protocol_version_major, const int protocol_version_minor);
+	void set_ncp_interface_type(const int interface_type);
+	void set_ncp_cca_threshold(const int cca_threshold);
+	void set_stack_up(const bool stack_up);
+	void set_if_up(const bool if_up);
+	void set_connected_devices(const int connected_devices);
+	void set_num_connected_devices(const int connected_devices);
+	void set_ch0_center_freq(const int ch0_mhz, const int ch0_khz);
+	void set_ch_spacing(const int ch_spacing);
+	void set_bc_interval(const int bc_interval);
+	void set_mac_filter_mode(const int filter_mode);
+	void set_mac_filter_list(int filter_list[]);
+	void set_mac_filter_list_string(std::string filter_list[]);
+	void set_uc_dwell_interval(const int uc_dwell_interval);
+	void set_bc_dwell_interval(const int bc_dwell_interval);
+	void set_uc_channel_function(const int uc_channel_function);
+	void set_bc_channel_function(const int bc_channel_function);
+	void set_unicast_channel_list(std::string unicast_channel_list);
+	void set_unicast_array(int unicast_array[]);
+	void set_broadcast_channel_list(std::string broadcast_channel_list);
+	void set_broadcast_array(int broadcast_array[]);
+	void set_async_channel_list(std::string async_channel_list);
+	void set_async_array(int async_array[]);
+	void set_dodag_route_string(std::string dodag_route_dest_string);
+	void set_dodag_route_array(int dodag_route_dest_array[]);
+
+	void convert_to_bitmask_unicast(std::string value);
+	void convert_to_bitmask_broadcast(std::string value);
+	void convert_to_bitmask_async(std::string value);
+
+	void convert_to_filter_list(std::string value);
+
+	#define CHANNEL_LIST_SIZE             17
+	#define MAC_FILTER_LIST_SIZE          10
+	#define DODAG_ROUTE_SIZE	          16
+
 protected:
 
 	// `PropGetHanlder` is used for "get" operation. `PropUpdateHandler` is used
@@ -322,17 +363,42 @@ protected:
 private:
 	void regsiter_all_get_handlers(void);
 
+	void get_prop_DodagRouteDest(CallbackWithStatusArg1 cb);
+	void get_prop_NCPPhyRegion(CallbackWithStatusArg1 cb);
+	void get_prop_NCPModeID(CallbackWithStatusArg1 cb);
+	void get_prop_NCPProtocolVersion(CallbackWithStatusArg1 cb);
+	void get_prop_NCPVersion(CallbackWithStatusArg1 cb);
+	void get_prop_NCPInterfaceType(CallbackWithStatusArg1 cb);
+	void get_prop_NCPHardwareAddress(CallbackWithStatusArg1 cb);
+	void get_prop_NCPCCAThreshold(CallbackWithStatusArg1 cb);
+	void get_prop_NCPTXPower(CallbackWithStatusArg1 cb);
+	void get_prop_NCPFrequency(CallbackWithStatusArg1 cb);
+	void get_prop_NetworkPANID(CallbackWithStatusArg1 cb);
+	void get_prop_StackUp(CallbackWithStatusArg1 cb);
+	void get_prop_NumConnectedDevices(CallbackWithStatusArg1 cb);
+	void get_prop_ConnectedDevices(CallbackWithStatusArg1 cb);
+	void get_prop_Ch0CenterFreq(CallbackWithStatusArg1 cb);
+	void get_prop_ChSpacing(CallbackWithStatusArg1 cb);
+	void get_prop_BCInterval(CallbackWithStatusArg1 cb);
+	void get_prop_MacFilterList(CallbackWithStatusArg1 cb);
+	void get_prop_MacFilterMode(CallbackWithStatusArg1 cb);
+	void get_prop_UCDwellInterval(CallbackWithStatusArg1 cb);
+	void get_prop_BCDwellInterval(CallbackWithStatusArg1 cb);
+	void get_prop_UCChFunction(CallbackWithStatusArg1 cb);
+	void get_prop_BCChFunction(CallbackWithStatusArg1 cb);
+	void get_prop_UnicastChList(CallbackWithStatusArg1 cb);
+	void get_prop_BroadcastChList(CallbackWithStatusArg1 cb);
+	void get_prop_AsyncChList(CallbackWithStatusArg1 cb);
+
 	void get_prop_empty(CallbackWithStatusArg1 cb);
 	void get_prop_ConfigTUNInterfaceName(CallbackWithStatusArg1 cb);
 	void get_prop_DaemonEnabled(CallbackWithStatusArg1 cb);
 	void get_prop_InterfaceUp(CallbackWithStatusArg1 cb);
 	void get_prop_DaemonReadyForHostSleep(CallbackWithStatusArg1 cb);
-	void get_prop_NCPVersion(CallbackWithStatusArg1 cb);
 	void get_prop_NetworkName(CallbackWithStatusArg1 cb);
 	void get_prop_NetworkIsCommissioned(CallbackWithStatusArg1 cb);
 	void get_prop_NestLabs_LegacyEnabled(CallbackWithStatusArg1 cb);
 	void get_prop_NestLabs_NetworkAllowingJoin(CallbackWithStatusArg1 cb);
-	void get_prop_NetworkPANID(CallbackWithStatusArg1 cb);
 	void get_prop_NetworkXPANID(CallbackWithStatusArg1 cb);
 	void get_prop_NCPChannel(CallbackWithStatusArg1 cb);
 	void get_prop_DaemonVersion(CallbackWithStatusArg1 cb);
@@ -346,13 +412,11 @@ private:
 	void get_prop_DaemonSetDefRouteForAutoAddedPrefix(CallbackWithStatusArg1 cb);
 	void get_prop_NestLabs_NetworkPassthruPort(CallbackWithStatusArg1 cb);
 	void get_prop_NCPMACAddress(CallbackWithStatusArg1 cb);
-	void get_prop_NCPHardwareAddress(CallbackWithStatusArg1 cb);
 	void get_prop_IPv6SetSLAACForAutoAddedPrefix(CallbackWithStatusArg1 cb);
 	void get_prop_DaemonOffMeshRouteAutoAddOnInterface(CallbackWithStatusArg1 cb);
 	void get_prop_DaemonOffMeshRouteFilterSelfAutoAdded(CallbackWithStatusArg1 cb);
 	void get_prop_DaemonOnMeshPrefixAutoAddAsIfaceRoute(CallbackWithStatusArg1 cb);
 	void get_prop_IPv6MeshLocalPrefix(CallbackWithStatusArg1 cb);
-	void get_prop_IPv6MeshLocalAddress(CallbackWithStatusArg1 cb);
 	void get_prop_IPv6LinkLocalAddress(CallbackWithStatusArg1 cb);
 	void get_prop_NestLabs_LegacyMeshLocalPrefix(CallbackWithStatusArg1 cb);
 	void get_prop_NestLabs_LegacyMeshLocalAddress(CallbackWithStatusArg1 cb);
@@ -371,6 +435,16 @@ private:
 
 	void set_prop_DaemonEnabled(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_InterfaceUp(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_StackUp(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_MacFilterMode(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_BCInterval(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_UCDwellInterval(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_BCDwellInterval(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_UCChFunction(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_BCChFunction(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_UnicastChList(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_BroadcastChList(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_AsyncChList(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_DaemonAutoAssociateAfterReset(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_NestLabs_NetworkPassthruPort(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_DaemonAutoFirmwareUpdate(const boost::any &value, CallbackWithStatus cb);
@@ -391,10 +465,13 @@ private:
 	void regsiter_all_insert_handlers(void);
 
 	void insert_prop_IPv6MulticastAddresses(const boost::any &value, CallbackWithStatus cb);
+	void insert_prop_MacFilterList(const boost::any &value, CallbackWithStatus cb);
 
 	void regsiter_all_remove_handlers(void);
 
 	void remove_prop_IPv6MulticastAddresses(const boost::any &value, CallbackWithStatus cb);
+	void remove_prop_MacFilterList(const boost::any &value, CallbackWithStatus cb);
+
 
 private:
 
@@ -676,8 +753,41 @@ protected:
 
 	time_t mCommissioningExpiration;
 
+	uint8_t mNCPRegion;
+	int mNCPModeID;
+	int mNCPProtocolVersionMajor;
+	int mNCPProtocolVersionMinor;
 	std::string mNCPVersionString;
-
+	int mNCPInterfaceTypeInt;
+	int mNCPCCAThresholdInt;
+	int mNCPTXPowerInt;
+	int mNCPFrequencyDouble;
+	bool mIfUp;
+	bool mStackUp;
+	std::string mDodagRouteDest;
+	int mDodagRouteDestArray [DODAG_ROUTE_SIZE];
+	int mConnectedDevices;
+	int mNumConnectedDevices;
+	int mMacFilterList[MAC_FILTER_LIST_SIZE * 2];
+	std::string mMacFilterListString[MAC_FILTER_LIST_SIZE];
+	int mMacFilterMode;
+	int mCh0mhz;
+	int mCh0khz;
+	int mChSpacing;
+	int mBCInterval;
+	int mUCDwellInterval;
+	int mBCDwellInterval;
+	int mUCChFunction;
+	int mBCChFunction;
+	std::string mUnicastChList;
+	unsigned char mUnicastArray [129];
+	int mUnicastBytes [17];
+	std::string mBroadcastChList;
+	unsigned char mBroadcastArray [129];
+	int mBroadcastBytes [17];
+	std::string mAsyncChList;
+	unsigned char mAsyncArray [129];
+	int mAsyncBytes [17];
 	bool mEnabled;
 	bool mTerminateOnFault;
 	bool mAutoUpdateFirmware;

@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ * 
  */
 
 #if HAVE_CONFIG_H
@@ -40,6 +42,8 @@
 #include "SpinelNCPTaskJoin.h"
 #include "SpinelNCPTaskWake.h"
 #include "SpinelNCPTaskDeepSleep.h"
+
+#include "wisun_config.h"
 
 using namespace nl;
 using namespace wpantund;
@@ -333,7 +337,32 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 
 	remove_ncp_originated_address_prefix_route_entries();
 
+	mNCPRegion = region;
+	mNCPModeID = 0;
+	mNCPProtocolVersionMajor = 0;
+	mNCPProtocolVersionMinor = 0;
 	mNCPVersionString = "";
+	mNCPInterfaceTypeInt = 0;
+	mNCPCCAThresholdInt = ccathreshold;
+	mNCPTXPowerInt = txpower;
+	mNCPFrequencyDouble = 0;
+	mStackUp = false;
+	mIfUp = false;
+	mConnectedDevices = 0;
+	mNumConnectedDevices = 0;
+	mMacFilterMode = 0;
+	mCh0mhz = 0;
+	mCh0khz = 0;
+	mChSpacing = 0;
+	mBCInterval = bcinterval;
+	mUCChFunction = ucchfunction;
+	mBCChFunction = bcchfunction;
+	mUCDwellInterval = ucdwellinterval;
+	mBCDwellInterval = bcdwellinterval;
+	mUnicastChList = "";
+	mBroadcastChList = "";
+	mAsyncChList = "";
+	mDodagRouteDest = "";
 
 	mDriverState = INITIALIZING_WAITING_FOR_RESET;
 
@@ -357,6 +386,7 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 	do {
 		EH_SLEEP_FOR(0.1);
 
+#ifndef TI_WISUN_FAN
 		if (mFailureCount > mFailureThreshold) {
 			syslog(LOG_ALERT, "The NCP is misbehaving: Repeatedly unable to initialize NCP. Entering fault state.");
 			change_ncp_state(FAULT);
@@ -399,6 +429,7 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 				on_error
 			);
 		}
+#endif
 
 		// This next line causes any resets received after this
 		// point to cause the control protothread to be restarted.
@@ -408,8 +439,10 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 		CONTROL_REQUIRE_PREP_TO_SEND_COMMAND_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
 		GetInstance(this)->mOutboundBufferLen = spinel_cmd_prop_value_get(GetInstance(this)->mOutboundBuffer, sizeof(GetInstance(this)->mOutboundBuffer), SPINEL_PROP_PROTOCOL_VERSION);
 		CONTROL_REQUIRE_OUTBOUND_BUFFER_FLUSHED_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
-
+#ifndef TI_WISUN_FAN
+		/* Known Issue: Junk Char Observed at start of wfantund */		
 		CONTROL_REQUIRE_COMMAND_RESPONSE_WITHIN(NCP_DEFAULT_COMMAND_RESPONSE_TIMEOUT, on_error);
+#endif
 
 		status = peek_ncp_callback_status(event, args);
 		require_noerr(status, on_error);
@@ -419,9 +452,8 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 			CONTROL_REQUIRE_PREP_TO_SEND_COMMAND_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
 			GetInstance(this)->mOutboundBufferLen = spinel_cmd_prop_value_get(GetInstance(this)->mOutboundBuffer, sizeof(GetInstance(this)->mOutboundBuffer), SPINEL_PROP_NET_STACK_UP);
 			CONTROL_REQUIRE_OUTBOUND_BUFFER_FLUSHED_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
-
+			//
 			CONTROL_REQUIRE_COMMAND_RESPONSE_WITHIN(NCP_DEFAULT_COMMAND_RESPONSE_TIMEOUT, on_error);
-
 			require(get_ncp_state() != UNINITIALIZED, on_error);
 		}
 
@@ -443,35 +475,30 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 				spinel_prop_key_t property;
 				unsigned int capability;     // Use 0 if not tied to any capability.
 			} props_to_fetch[] = {
+				{ SPINEL_PROP_PROTOCOL_VERSION, 0 },
 				{ SPINEL_PROP_NCP_VERSION, 0 },
 				{ SPINEL_PROP_INTERFACE_TYPE, 0 },
-				{ SPINEL_PROP_VENDOR_ID, 0 },
-				{ SPINEL_PROP_CAPS, 0 },
 				{ SPINEL_PROP_HWADDR, 0 },
-				{ SPINEL_PROP_PHY_CHAN, 0 },
-				{ SPINEL_PROP_PHY_CHAN_SUPPORTED, 0 },
-				{ SPINEL_PROP_PHY_CHAN_PREFERRED, 0 },
+				{ SPINEL_PROP_PHY_CCA_THRESHOLD, 0 },
+				{ SPINEL_PROP_PHY_TX_POWER, 0 },
+				{ SPINEL_PROP_PHY_REGION, 0 },
+				{ SPINEL_PROP_PHY_MODE_ID, 0 },
+				{ SPINEL_PROP_PHY_UNICAST_CHANNEL_LIST, 0 },
+				{ SPINEL_PROP_PHY_BROADCAST_CHANNEL_LIST, 0 },
+				{ SPINEL_PROP_PHY_ASYNC_CHANNEL_LIST, 0 },
+				{ SPINEL_PROP_PHY_CH_SPACING, 0 },
+				{ SPINEL_PROP_PHY_CHO_CENTER_FREQ, 0 },
 				{ SPINEL_PROP_MAC_15_4_PANID, 0 },
-				{ SPINEL_PROP_MAC_15_4_LADDR, 0 },
-				{ SPINEL_PROP_NET_MASTER_KEY, 0 },
-				{ SPINEL_PROP_NET_KEY_SEQUENCE_COUNTER, 0 },
-				{ SPINEL_PROP_NET_NETWORK_NAME, 0 },
-				{ SPINEL_PROP_NET_XPANID, 0 },
-				{ SPINEL_PROP_IPV6_LL_ADDR, 0 },
-				{ SPINEL_PROP_IPV6_ML_ADDR, 0 },
-				{ SPINEL_PROP_IPV6_ADDRESS_TABLE, 0 },
-				{ SPINEL_PROP_IPV6_MULTICAST_ADDRESS_TABLE, 0 },
-				{ SPINEL_PROP_THREAD_ON_MESH_NETS, 0 },
-				{ SPINEL_PROP_THREAD_OFF_MESH_ROUTES, 0 },
-				{ SPINEL_PROP_THREAD_ASSISTING_PORTS, 0 },
-				{ SPINEL_PROP_THREAD_MODE, 0 },
-				{ SPINEL_PROP_NET_SAVED, 0 },
+				{ SPINEL_PROP_MAC_UC_DWELL_INTERVAL, 0 },
+				{ SPINEL_PROP_MAC_BC_DWELL_INTERVAL, 0 },
+				{ SPINEL_PROP_MAC_BC_INTERVAL, 0 },
+				{ SPINEL_PROP_MAC_UC_CHANNEL_FUNCTION, 0 },
+				{ SPINEL_PROP_MAC_BC_CHANNEL_FUNCTION, 0 },
+				{ SPINEL_PROP_MAC_MAC_FILTER_LIST, 0 },
 				{ SPINEL_PROP_NET_IF_UP, 0 },
 				{ SPINEL_PROP_NET_STACK_UP, 0 },
 				{ SPINEL_PROP_NET_ROLE, 0 },
-				{ SPINEL_PROP_SLAAC_ENABLED, SPINEL_CAP_SLAAC },
-				{ SPINEL_PROP_RCP_VERSION , SPINEL_CAP_POSIX },
-				{ SPINEL_PROP_SERVER_SERVICES, SPINEL_CAP_THREAD_SERVICE },
+				{ SPINEL_PROP_NET_NETWORK_NAME, 0 },
 			};
 
 			for (mSubPTIndex = 0; mSubPTIndex < sizeof(props_to_fetch) / sizeof(props_to_fetch[0]); mSubPTIndex++) {
@@ -486,7 +513,10 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 					GetInstance(this)->mOutboundBuffer, sizeof(GetInstance(this)->mOutboundBuffer),
 					props_to_fetch[mSubPTIndex].property);
 				CONTROL_REQUIRE_OUTBOUND_BUFFER_FLUSHED_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
+#ifndef TI_WISUN_FAN
+				/* Known Issue: Junk Char Observed at start of wfantund */
 				CONTROL_REQUIRE_COMMAND_RESPONSE_WITHIN(NCP_DEFAULT_COMMAND_RESPONSE_TIMEOUT, on_error);
+#endif
 
 				status = peek_ncp_callback_status(event, args);
 
@@ -500,7 +530,7 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 			// Restore all the saved settings
 			for (mSettingsIter = mSettings.begin(); mSettingsIter != mSettings.end(); mSettingsIter++) {
 
-				syslog(LOG_INFO, "Restoring property \"%s\" on NCP", mSettingsIter->first.c_str());
+				syslog(LOG_NOTICE, "Restoring property \"%s\" on NCP", mSettingsIter->first.c_str());
 
 				// Skip the settings if capability is not present.
 				if ((mSettingsIter->second.mCapability != 0) &&!mCapabilities.count(mSettingsIter->second.mCapability)) {
@@ -525,7 +555,10 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 				memcpy(GetInstance(this)->mOutboundBuffer, mSettingsIter->second.mSpinelCommand.data(), mSettingsIter->second.mSpinelCommand.size());
 
 				CONTROL_REQUIRE_OUTBOUND_BUFFER_FLUSHED_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
+#ifndef TI_WISUN_FAN
+				/* Known Issue: Junk Char Observed at start of wfantund */
 				CONTROL_REQUIRE_COMMAND_RESPONSE_WITHIN(NCP_DEFAULT_COMMAND_RESPONSE_TIMEOUT, on_error);
+#endif
 
 				status = peek_ncp_callback_status(event, args);
 

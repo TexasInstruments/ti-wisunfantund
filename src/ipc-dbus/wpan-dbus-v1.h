@@ -14,7 +14,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
+ * 
+ * Modified by Texas Instruments - 2021
+ * 
  */
 
 #ifndef wpantund_wpan_dbus_v1_h
@@ -111,7 +113,7 @@
 // ============================================================================
 // NestLabs Internal API Interface
 
-#define WPANTUND_DBUS_NLAPIv1_INTERFACE       "com.nestlabs.wpantund.v1"
+#define WPANTUND_DBUS_NLAPIv1_INTERFACE       "ti_Wi-SUN_FAN.wfantund.v1"
 
 #define WPANTUND_IF_CMD_PERMIT_JOIN           "PermitJoin"
 #define WPANTUND_IF_CMD_NETWORK_WAKE_BEGIN    "NetworkWakeBegin"

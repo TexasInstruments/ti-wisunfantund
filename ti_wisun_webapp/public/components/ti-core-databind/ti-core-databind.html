@@ -1,0 +1,183 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+	<link rel="import" href="../polymer/polymer.html">
+    <link rel="import" href="../ti_logger/ti-core-logger.html">
+    <link rel="import" href="../ti-core-assets/ti-core-assets.html">
+    <link rel="import" href="../ti-core-connection-manager/ti-core-connection-manager.html">
+
+<!--
+`ti-core-databind` adds databinding support for backplane data models like program model.
+    -
+Example:
+
+    <ti-core-databind></ti-core-databind>
+
+See ../demo.html for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-core-databind
+@homepage elements/ti-guicomposer-helpindex/demo.html
+@description Manages bindings between application variables and supported TI embedded devices.
+@demo demo.html
+-->
+
+
+<!-- gulp begin -->
+<!--
+    <script src='src/internal/Events.js'></script>
+    <script src='src/IDisposable.js'></script>
+    <script src='src/IBind.js'></script>
+    <script src='src/IBindValue.js'></script>
+    <script src='src/IBindFactory.js'></script>
+    <script src='src/IBindAction.js'></script>
+    <script src='src/IStatusListener.js'></script>
+    <script src='src/IBindProvider.js'></script>
+    <script src='src/IChangedListener.js'></script>
+    <script src='src/IProgressCounter.js'></script>
+    <script src='src/IStreamingListener.js'></script>
+    <script src='src/ProgressCounter.js'></script>
+    <script src='src/internal/QualifierFactoryMap.js'></script>
+    <script src='src/IFinishedWithResult.js'></script>
+    <script src='src/ILookupBindValue.js'></script>
+    <script src='src/IStaleListener.js'></script>
+    <script src='src/IStatus.js'></script>
+    <script src='src/IStatusIndicator.js'></script>
+    <script src='src/IDataBinder.js'></script>
+    <script src='src/ITrigger.js'></script>
+    <script src='src/AbstractBind.js'></script>
+    <script src='src/AbstractBindValue.js'></script>
+    <script src='src/AbstractLookupBindValue.js'></script>
+    <script src='src/AbstractBindFactory.js'></script>
+    <script src='src/AbstractStatus.js'></script>
+    <script src='src/BindListenerAdapter.js'></script>
+    <script src='src/VariableBindValue.js'></script>
+    <script src='src/VariableLookupBindValue.js'></script>
+    <script src='src/ConstantBindValue.js'></script>
+    <script src='src/UserPreferenceBindValue.js'></script>
+    <script src='src/FunctionBindValue.js'></script>
+    <script src='src/CollectionBindValue.js'></script>
+    <script src='src/DataConverter.js'></script>
+    <script src='src/internal/expressionParser/IOperator.js'></script>
+    <script src='src/internal/expressionParser/IUriBindingFactory.js'></script>
+    <script src='src/internal/expressionParser/AbstractLiteralBinding.js'></script>
+    <script src='src/internal/expressionParser/AbstractUnaryOperator.js'></script>
+    <script src='src/internal/expressionParser/AbstractBinaryOperator.js'></script>
+    <script src='src/internal/expressionParser/AbstractComparisonOperator.js'></script>
+    <script src='src/internal/expressionParser/AbstractUriBindingFactory.js'></script>
+    <script src='src/internal/expressionParser/AbstractLookupOperator.js'></script>
+    <script src='src/internal/expressionParser/AdditionOperator.js'></script>
+    <script src='src/internal/expressionParser/ArithmeticNotOperator.js'></script>
+    <script src='src/internal/expressionParser/ArrayLiteral.js'></script>
+    <script src='src/internal/expressionParser/BooleanLiteral.js'></script>
+    <script src='src/internal/expressionParser/StringLiteral.js'></script>
+    <script src='src/internal/expressionParser/NumberLiteral.js'></script>
+    <script src='src/internal/expressionParser/ArrayOperator.js'></script>
+    <script src='src/internal/expressionParser/FunctionOperator.js'></script>
+    <script src='src/internal/expressionParser/ConditionalOperator.js'></script>
+    <script src='src/internal/expressionParser/DivisionOperator.js'></script>
+    <script src='src/internal/expressionParser/DotOperator.js'></script>
+    <script src='src/internal/expressionParser/EqualsOperator.js'></script>
+    <script src='src/internal/expressionParser/GreaterThanOperator.js'></script>
+    <script src='src/internal/expressionParser/GreaterThanOrEqualsOperator.js'></script>
+    <script src='src/internal/expressionParser/LessThanOperator.js'></script>
+    <script src='src/internal/expressionParser/LessThanOrEqualsOperator.js'></script>
+    <script src='src/internal/expressionParser/NotEqualsOperator.js'></script>
+    <script src='src/internal/expressionParser/LogicalNotOperator.js'></script>
+    <script src='src/internal/expressionParser/LogicalAndOperator.js'></script>
+    <script src='src/internal/expressionParser/LogicalOrOperator.js'></script>
+    <script src='src/internal/expressionParser/MultiplicationOperator.js'></script>
+    <script src='src/internal/expressionParser/NegationOperator.js'></script>
+    <script src='src/internal/expressionParser/OperatorList.js'></script>
+    <script src='src/internal/expressionParser/RemainderOperator.js'></script>
+    <script src='src/internal/expressionParser/SubtractionOperator.js'></script>
+    <script src='src/internal/expressionParser/ExpressionParser.js'></script>
+    <script src='src/internal/expressionParser/QFunctionOperator.js'></script>
+    <script src='src/internal/DataBinder.js'></script>
+    <script src='src/internal/StatusIndicator.js'></script>
+    <script src='src/BindingRegistry.js'></script>
+    <script src='src/DataFormatter.js'></script>
+    <script src='src/AbstractAsyncBindValue.js'></script>
+    <script src='src/RefreshIntervalBindValue.js'></script>
+    <script src='src/internal/WidgetModel.js'></script>
+    <script src='src/internal/PropertyModel.js'></script>
+    <script src='src/internal/Math.js'></script>
+    <script src='src/IPacketCodec.js'></script>
+    <script src='src/IPollingPacketCodec.js'></script>
+    <script src='src/PacketCodecFactory.js'></script>
+    <script src='src/internal/DelimitedTextPacketCodec.js'></script>
+    <script src='src/AbstractFrameDecoder.js'></script>
+    <script src='src/internal/JsonCodec.js'></script>
+    <script src='src/internal/MessagePackCodec.js'></script>
+    <script src='src/internal/RawPacketCodec.js'></script>
+    <script src='src/internal/Base64PacketCodec.js'></script>
+    <script src='src/internal/HidPacketCodec.js'></script>
+    <script src='src/AbstractStreamingDataModel.js'></script>
+    <script src='src/AbstractPollingDataModel.js'></script>
+    <script src='src/AbstractMessageBasedCodec.js'></script>
+    <script src='src/internal/Trigger.js'></script>
+-->
+<!-- gulp end -->
+
+    <script src='src.min/build/bundle.js'></script>
+    <script src='src/internal/Scripting.js'></script>
+
+    <script>
+        addEventListener('WebComponentsReady', function() 
+        {
+            // Fire ready event for gc.databind.ready
+            window.setTimeout(function() 
+            {
+                gc.databind.codecsReady.done();
+                
+                gc.databind.modelsReady.done();
+                gc.databind.modelsReady.then(function() 
+                {
+                    document.dispatchEvent(new CustomEvent("gc-databind-ready", { "detail": "Databinding Ready" }));
+                    if (!gc.designer)
+                    {
+                        gc.databind.registry.loadBindingsFromFile();
+                    }
+                });
+            }, 0);
+        });
+        
+        // define gc in the parent window frame as gc.app so the designer has access to the applications databinding 
+        // and services api's
+        window.parent.gc = window.parent.gc || {};
+        window.parent.gc.app = gc;
+        </script>
+        
+<dom-module id='ti-core-databind'>
+	<script>
+	    Polymer ({
+		    is: 'ti-core-databind'
+	   	});
+    </script>
+</dom-module>

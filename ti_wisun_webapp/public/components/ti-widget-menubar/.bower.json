@@ -1,0 +1,17 @@
+{
+  "name": "ti-widget-menubar",
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer#~1.7.0"
+  },
+  "version": "1.0.0",
+  "_release": "01f2d0db7e",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "01f2d0db7e3db8febfa430db7a1c90b0c70bf1ff"
+  },
+  "_source": "git@bitbucket.itg.ti.com/gc/ti-guicomposer-components.git",
+  "_target": "*",
+  "_originalSource": "git@bitbucket.itg.ti.com/gc/ti-guicomposer-components.git"
+}

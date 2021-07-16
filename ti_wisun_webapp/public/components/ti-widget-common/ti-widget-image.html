@@ -1,0 +1,397 @@
+
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="ti-widget-button.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+
+<!--
+`ti-widget-image` is a bindable img widget.
+
+Example:
+
+    <ti-widget-image imagePath="images/myImage.svg"></ti-widget-image>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-image
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-image'>
+
+    <template>
+        <style>
+            * {
+                -webkit-box-sizing : border-box;
+                -moz-box-sizing : border-box;
+                box-sizing : border-box;
+
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            :host {
+                display : inline-block;
+                text-align: center;
+            }
+            #imageWidget {
+                width:auto;
+                height:auto;
+                max-width: 100%;
+                max-height: 100%;
+                vertical-align: inherit;
+
+                -webkit-transition: all .3s ease-in-out;
+                transition: all .3s ease-in-out;
+            }
+            #imageWidget.stretchHeight {
+                height: 100%;
+            }
+            #imageWidget.stretchWidth {
+                width: 100%;
+            }
+            #imageWidget.topAlign {
+                vertical-align: top;
+            }
+            #imageWidget.bottomAlign {
+                vertical-align: bottom;
+            }
+            #imageWidget.colorEffect,
+            #imageWidget.colorEffect.disabled:hover,
+            #imageWidget.colorEffect:hover:active,
+            #imageWidget.disabled {
+                filter: grayscale(1); /* Firefox 3.5+ */
+                filter: gray; /* IE5+ */
+                -webkit-filter: grayscale(1); /* Webkit Nightlies & Chrome Canary */
+            }
+            #imageWidget.colorEffect:hover {
+                filter: grayscale(0);
+                -webkit-filter: grayscale(0);
+            }
+            #imageWidget.enlargeEffect:hover {
+                -ms-transform: scale(1.1);
+                -webkit-transform: scale(1.1);
+                transform: scale(1.1);
+            }
+            #imageWidget.enlargeEffect,
+            #imageWidget.enlargeEffect.disabled:hover,
+            #imageWidget.enlargeEffect:hover:active {
+                -ms-transform: none;
+                -webkit-transform: none;
+                transform: none;
+            }
+            #imageWidget.buttonEffect,
+            #imageWidget.buttonEffect.disabled:hover,
+            #imageWidget.buttonEffect.disabled:active,
+            #imageWidget.buttonEffect.disabled:hover:active {
+                border: 3px outset transparent;
+                border-radius: 9px;
+            }
+
+            #imageWidget.buttonEffect:hover:active {
+                border: 3px inset #F0F0F0;
+            }
+            #imageWidget.buttonEffect:hover {
+                border: 3px outset #F0F0F0;
+            }
+            .alignMiddleHelper {
+                height: 100%;
+                width:2px;
+                background-color: blue;
+                vertical-align: middle;
+            }
+        </style>
+        <img id="imageWidget" src="{{imagePath}}" alt="" ondragstart="return false;"
+             on-error="_imageNotFoundHandler" on-load="_imageLoadHandler"></img>
+    </template>
+    <script>
+        var gc = gc || {};
+        if (window.parent.gc)
+        {
+            // take the designer from the parent iframe, if available.
+            gc.designer = gc.designer || window.parent.gc.designer;
+        }
+        if (window.global && global.document && global.document.gc)
+        {
+            // take the designer from the global node-webkit document if available
+            gc.designer = gc.designer || global.document.gc.designer;
+        }
+
+        Polymer (
+            {
+                is: 'ti-widget-image',
+
+                _retries: 0,
+
+                behaviors: [TiWidgetBase],
+
+                properties:
+                    {
+                        /**
+                         * Fired when the image is selected with a click action.  use on-selected="myHandler" to receive callback
+                         *
+                         * @event click
+                         */
+
+                        /**
+                         * Provides a relative path to the image file or the data:image url to be displayed.
+                         *
+                         * @attribute imagePath
+                         * @type string
+                         */
+                        imagePath:
+                            {
+                                notify: false,
+                                type: String,
+                                value: "",
+                                observer: "imagePathChanged"
+                            },
+
+                        /**
+                         * Controls whether or not the image's aspect ratio should be fixed when resizing the image.
+                         * All images are automatically resized to fill the dimensions of this widget.  Setting this
+                         * flag ensures that the image is not stretched more in one direction than the other.
+                         *
+                         * @attribute lockAspectRatio
+                         * @type boolean
+                         * @default false
+                         */
+                        lockAspectRatio:
+                            {
+                                notify: false,
+                                type: Boolean,
+                                value: false,
+                                observer: "lockAspectRatioChanged"
+                            },
+                        /**
+                         * <p>Controls optional animated effects that apply when the user hovers the mouse over this image.
+                         * The available effects are:</p>
+                         * <ul><li>enlarge - cause the image to expanded slightly when hovering.</li>
+                         * <li>button - cause a 3D border effect to appear when hovering.</li>
+                         * <li>color - cause the image to be displayed in gray scale unless hovering.</li></ul>
+                         *
+                         * @attribute hoverEffect
+                         * @type none|enlarge|button|color
+                         * @default none
+                         */
+                        hoverEffect:
+                            {
+                                notify: false,
+                                type: String,
+                                value: "no",
+                                observer: "hoverEffectChanged"
+                            },
+
+                        /*
+                         * Turns off stretching of the image so that it can be used as part of a composite image.
+                         * Set true by ti-widget-multiimage-radio-group
+                         */
+                        _imageGroupItem:
+                            {
+                                notify: false,
+                                type: Boolean,
+                                value: false,
+                                observer: "lockAspectRatioChanged"
+                            },
+                        _initialized:
+                            {
+                                notify: true,
+                                type: Boolean,
+                                value: false
+                            }
+                    },
+                getRawImageHeight: function()
+                {
+                    var img = this.$.imageWidget;
+                    var result = 0;
+                    if (img)
+                    {
+                        result = img.naturalWidth;
+                    }
+                    return  result;
+                },
+                getRawImageWidth: function()
+                {
+                    var img = this.$.imageWidget;
+                    var result = 0;
+                    if (img)
+                    {
+                        result = img.naturalHeight;
+                    }
+                    return  result;
+                },
+                imagePathChanged : function()
+                {
+                    this._retries = 0;
+                    this._altImagePath = undefined;
+                    this.updateImagePath(this.imagePath);
+                },
+                getElement : function()
+                {
+                    return this.$ && this.$.imageWidget;
+                },
+                updateImagePath: function(imgPath)
+                {
+                    var img = this.$.imageWidget;
+                    if (imgPath && imgPath.indexOf('data:image') === 0) {
+                        img.src = imgPath;
+
+                    } else if (imgPath && imgPath.length > 0) {
+                        var img = this.$.imageWidget;
+
+                        // Get the project from document's baseURI path
+                        var project;
+                        var uri = document.baseURI.split('/workspaceserver/gc/default/');
+                        if(uri.length > 1) {
+                            project = uri[1].substring(0, uri[1].indexOf('/'));
+                        }
+
+                        if (project)
+                        {
+                            var projectPath = encodeURI(gc.designer.workspace.folderName + '/' + project + '/' + imgPath);
+
+                            img.src = encodeURI(projectPath);
+                        }
+                        else
+                        {
+                            img.src = encodeURI(imgPath);
+                        }
+
+                    }
+                },
+                _imageNotFoundHandler : function()
+                {
+                    /* HACK: looks like there is a timing issue, firefox failed to load the image on the first try */
+                    this._retries++;
+                    if (this._retries < 5) {
+                        return this.updateImagePath(this.imagePath);
+                    }
+
+                    if (this.imagePath && this.imagePath.length > 0)
+                    {
+                        if (this._altImagePath === undefined)
+                        {
+                            this._altImagePath = encodeURI('app/' + this.imagePath);
+                            this.updateImagePath(this._altImagePath);
+                        }
+                        else if (gc.widget)
+                        {
+                            // put an error indication on the widget
+                            var message = "Can't find image located here: " + this.$.imageWidget.src;
+                            gc.widget.StatusIndicator.Factory.get(this).addMessage(message);
+                        }
+                    }
+                },
+                _imageLoadHandler : function()
+                {
+                    this.lockAspectRatioChanged();
+                },
+                lockAspectRatioChanged : function(newValue, oldValue)
+                {
+                    var img = this.$.imageWidget;
+
+                    this.addRemoveClassName(this.disabled, 'disabled', img);
+
+                    if (this.lockAspectRatio)
+                    {
+                        var height = img.naturalHeight; // || img.clientHeight;
+                        var width = img.naturalWidth; // || img.clientWidth;
+
+                        if ((width > 0) && (this.clientWidth > 0)) {
+                            var naturalRatio = height / width;
+                            var actualRatio = this.clientHeight / this.clientWidth;
+                            if (actualRatio < naturalRatio) {
+                                img.classList.add('stretchHeight');
+                                img.classList.remove('stretchWidth');
+                            } else {
+                                img.classList.add('stretchWidth');
+                                img.classList.remove('stretchHeight');
+                            }
+                        }
+                    }
+                    else if (!this._imageGroupItem)
+                    {
+                        img.classList.add('stretchHeight');
+                        img.classList.add('stretchWidth');
+                    }
+                    else
+                    {
+                        img.classList.remove('stretchHeight');
+                        img.classList.remove('stretchWidth');
+                    }
+                },
+                _lastHoverEffect : 'noEffect',
+                hoverEffectChanged : function(newValue,oldValue)
+                {
+                    var effect = 'no';
+                    var effects = [ 'button', 'enlarge', 'color' ];
+                    for(var i = effects.length; i--> 0; )
+                    {
+                        if (this.hoverEffect.indexOf(effects[i]) === 0)
+                        {
+                            effect = effects[i];
+                            break;
+                        }
+                    }
+                    effect = effect + 'Effect';
+                    if (effect !== this._lastHoverEffect)
+                    {
+                        this.removeClassName(this._lastHoverEffect, this.$.imageWidget);
+                        this._lastHoverEffect = effect;
+                        this.addClassName(effect, this.$.imageWidget);
+                    }
+                },
+                _clickhandler : function(e)
+                {
+                    if (this.disabled && e.stopPropagation)
+                    {
+                        e.stopPropagation();
+                    }
+                },
+                attached : function()
+                {
+                    this.$.imageWidget && this.$.imageWidget.addEventListener('click', this.__clickhandler);
+                },
+                detached: function()
+                {
+                    this.$.imageWidget && this.$.imageWidget.removeEventListener('click', this.__clickhandler);
+                },
+                _statusIndicatorLocationHint : "center-middle",
+                ready : function()
+                {
+                    this.initialized = true;
+                    this.__clickhandler = this._clickhandler.bind(this);
+                }
+            });
+    </script>
+</dom-module>

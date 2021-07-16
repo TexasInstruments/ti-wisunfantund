@@ -1,0 +1,35 @@
+	/* styles that are common to all themes */
+
+	html .ti-theme,
+	body {
+	  margin: 0px;
+	  padding: 0px;
+	}
+
+	html * {
+	    -webkit-box-sizing : border-box;
+	    -moz-box-sizing : border-box;
+	    box-sizing : border-box;
+	}
+	html #core_drawer_panel  #edgeSwipeOverlay {
+		display: none;
+	}
+	html#designer-frame .designer-theme paper-checkbox {
+	    padding: 20px;
+	}
+	html a:hover {
+	    color: #c00;
+	    text-decoration: underline;
+	    cursor: pointer;
+	}
+	html a {
+		color: #189;
+		text-decoration: none;
+	}
+	html .iron-header a:hover {
+	    text-decoration: none;
+	}
+	html ti-widget-button[link],
+	html paper-button[link] {
+	    text-decoration: underline;
+	}

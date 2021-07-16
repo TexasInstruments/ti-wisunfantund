@@ -1,0 +1,254 @@
+
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!--
+`ti-widget-container` is an empty container widget to host child widgets.
+
+Example:
+
+    <ti-widget-container></ti-widget-container>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-banner
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../ti-widget-common/ti-widget-label.html">
+<link rel="import" href="../ti-widget-common/ti-widget-container.html">
+<link rel="import" href="../ti-widget-icon-button/ti-widget-icon-button.html">
+<dom-module id='ti-widget-banner'  >
+
+    <template>
+        <style>
+            :host {
+                display : inline-block;
+                text-decoration: inherit;
+                position : relative;
+                width:calc(100% - 40px);
+                height: 50px;
+                border-bottom: solid 1px #ccc;
+                left:0;
+                top:0;
+                margin-right: 20px;
+                margin-left: 20px;
+                overflow:hidden;
+            }
+            #banner_icon {
+                width:40px;
+                height:40px;
+                position:relative;
+            }
+            #banner_title {
+                text-align: left;
+                text-decoration: none;
+                font-weight: normal;
+                font-style: normal;
+                font-size: inherit;
+                white-space: nowrap;
+                display: inline-flex;
+                position: relative;
+                margin-top: 10px;
+                margin-left: 0px;
+            }
+        </style>
+        <!-- <div class="layoutOwner _container_"><content></content></div> -->
+        <ti-widget-icon-button id="banner_icon" icon="[[_getIcon(icon,_defaultIcon,_refreshCtr)]]"  icon-color="[[iconColor]]" style$="[[iconStyle]]" ></ti-widget-icon-button>
+        <ti-widget-label id="banner_title" label="[[_getTitle(titleLabel,_defaultTitle,_refreshCtr)]]" text-align="left" font-size="custom" custom-font-size="[[customFontSize]]" font-color="[[fontColor]]" font-style="[[fontStyle]]" font-weight="[[fontWeight]]" text-decoration="none" visible ></ti-widget-label>
+        <content></content>
+
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-widget-banner',
+
+            behaviors: [TiWidgetBase, TiWidgetBaseText, TiBehaviorContainer],
+            properties: {
+                /**
+                 * Sets the icon for this banner.  For use in vtabs, leave blank so that it will follow the vtab icon
+                 *
+                 * @attribute icon
+                 * @type string
+                 * @default "build:
+                 */
+                icon: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * Set the color of the icon.
+                 *
+                 * @attribute iconColor
+                 * @type string
+                 * @default #c00
+                 */
+                iconColor: {
+                    notify: true,
+                    type: String,
+                    value: "#c00000"
+                },
+                /**
+                 * CSS style string to use to display the icon
+                 *
+                 * @attribute iconStyle
+                 * @type string
+                 * @default "width:20px;left:5px;"
+                 */
+                iconStyle: {
+                    notify: true,
+                    type: String,
+                    value: "width:40px;height:40px;"
+                },
+                /**
+                 * text displayed in the banner.  For use in vtabs, leave blank so that it will follow the vtab name
+                 *
+                 * @attribute titleLabel
+                 * @type string
+                 * @default "Title"
+                 */
+                titleLabel: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * Controls the color of the text that is displayed.  Use inherit if
+                 * you wish to inherit the color from the parent container.  The color can either
+                 * a name of a color, like 'orange', or a hex color value like #FFFFFF.
+                 *
+                 * @attribute fontColor
+                 * @type string
+                 * @default inherit
+                 */
+                fontColor: {
+                    notify: false,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * Controls the font size of the text that is displayed.  e.g. 24px
+                 *
+                 * @attribute customFontSize
+                 * @type string
+                 * @default "24px"
+                 */
+                customFontSize: {
+                    type: String,
+                    value: "24px"
+                },
+                /**
+                 * Controls the boldness of the font for the text that is displayed.  Use inherit if
+                 * you wish to inherit the font weight value from the parent container.
+                 *
+                 * @attribute fontWeight
+                 * @type normal|bold|inherit
+                 * @default normal
+                 */
+                fontWeight: {
+                    notify: false,
+                    type: String,
+                    value: "normal"
+                },
+                /**
+                 * Controls the style of the text that is displayed.
+                 *
+                 * @attribute fontStyle
+                 * @type normal,italic,inherit
+                 * @default normal
+                 */
+                fontStyle: {
+                    notify: false,
+                    type: String,
+                    value: "normal"
+                },
+                _defaultIcon: {
+                    notify: true,
+                    type: String,
+                    value: "build"
+                },
+                _defaultTitle: {
+                    notify: true,
+                    type: String,
+                    value: "Title"
+                },
+                _refreshCtr: {
+                    notify: true,
+                    type: Number,
+                    value: 0
+                }
+
+            },
+            getElement : function()
+            {
+                return this;
+            },
+            _getIcon: function(icon,_defaultIcon){
+                var result = this._defaultIcon;
+                if (this.icon && this.icon.length > 0){
+                    result = this.icon;
+                }
+                return result;
+            },
+            _getTitle: function(titleLabel,_defaultTitle){
+                var result = this._defaultTitle;
+                if (this.titleLabel && this.titleLabel.length > 0){
+                    result = this.titleLabel;
+                }
+                return result;
+            },
+            _getParentIconAndName: function(){
+                if (this.parentElement) {
+                    if (this.parentElement.icon) {
+                        this._defaultIcon = this.parentElement.icon;
+                    }
+
+                    if (this.parentElement.name) {
+                        this._defaultTitle = this.parentElement.name;
+                    }
+                    this._refreshCtr++;
+                }
+            },
+            attached: function() {
+                this.async(function(){
+                    if (this.parentElement.localName === 'ti-widget-vtab') {
+
+                        this.parentElement.addEventListener('tabPropertyChanged', function (event) {
+                            this._getParentIconAndName();
+                        }.bind(this))
+                    }
+                    this._getParentIconAndName();
+                }.bind(this))
+            }
+        });
+    </script>
+</dom-module>

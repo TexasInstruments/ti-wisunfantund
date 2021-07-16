@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -666,10 +668,11 @@ NCPInstanceBase::unicast_address_was_added(Origin origin, const struct in6_addr 
 		if ((origin == kOriginThreadNCP) || (origin == kOriginUser)) {
 			mPrimaryInterface->add_address(&address, prefix_len);
 		}
-
+#ifndef TI_WISUN_FAN		
 		if (((origin == kOriginPrimaryInterface) && mAutoUpdateInterfaceIPv6AddrsOnNCP) || (origin == kOriginUser)) {
 			add_address_on_ncp_and_update_prefixes(address, entry);
 		}
+#endif
 	}
 
 bail:

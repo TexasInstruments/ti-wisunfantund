@@ -1,0 +1,549 @@
+<!--
+    Copyright (c) 2014, 2021 Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-service-programloader/ti-service-programloader.html">
+<link rel="import" href="../ti-core-assets/ti-core-assets.html">
+<link rel="import" href="../ti-core-connection-manager/ti-core-connection-manager.html">
+<link rel="import" href="ti-core-transport-base-behavior.html">
+<link rel="import" href="../ti-core-databind/ti-core-persistent-settings-behavior.html">
+
+<!--
+`ti-core-programloader` handles downloading a binary file, erasing the target flash and burning the program into flash.
+It differs from ti-service-programloader in that it is driven by the ti-core-connection-mgr instead of by backplane events,
+and is not intended for 'standalone' use (e.g. in a project 0 application context).
+
+Example:
+
+    <ti-core-programloader></ti-core-programloader>
+
+See demo.html for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-core-programloader
+@demo demo.html
+@homepage ../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-core-programloader'  >
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 175px;
+                height: 175px;
+            }
+        </style>
+        <ti-service-programloader id="programLoaderService" 
+                                  selected-device="[[selectedDevice]]" device-name="[[deviceName]]" target-program="[[targetProgram]]"
+                                  connection-id="[[connectionId]]" target-program-verify-image="[[targetProgramVerifyImage]]"
+                                  target-folder="{{targetFolder}}" sram="{{sram}}" strStatus="{{status}}" is-program-download-disabled  is-auto-download-enabled="{{isAutoDownloadEnabled}}"
+                                  is-program-download-btn-visible="{{isProgramDownloadBtnVisible}}"  core-program-loader-id="[[_getId(initialized)]]"
+                                  was-program-download-successful="{{wasProgramDownloadSuccessful}}" initialized="{{initialized}}"
+                                  target-program-blob="[[targetProgramBlob]]" core-name=[[coreName]]
+                                  transport-id="{{transportId}}"  default-ccxml="{{defaultCcxml}}" backplane="{{backplane}}">
+        </ti-service-programloader>
+    </template>
+    <script>
+        var gc = gc || {};
+        (function() {
+            var programLoaderCoreInstances = [];
+
+            Polymer ({
+                is: 'ti-core-programloader',
+                behaviors: [TICorePersistentSettingsBehavior, TICoreTransportBaseBehavior],
+                properties: {
+                    /** @private */
+                    backplane: {
+                        notify: true,
+                        type: String,
+                        value: undefined
+                    },
+                    /**
+                     * An object that represents the device that is being interacted with.
+                     * The object must have the following fields:
+                     *  <p> {<br/>
+                         *   boardName:     'MSP-EXP430G2 v1.5',<br/>
+                         *   deviceName:      'MSP430G2553',<br/>
+                         *   fileName:      'ReadTempAndSendToSerialPort.cpp.hex',<br/>
+                         *   ccxmlString:   'the target ccxml file serialized as a string'<br/>
+                         *   ccxmlFileName: 'name to use for the ccxml file to be used by TICloudAgent'
+                         *   runTargetToReadMemory: 'true if a monitor on the target is used to read target memory'
+                         *
+                         *   }<br/>
+                     *   <p>Additional fields can be added for other device-specific information.  e.g.
+                     *   {
+                         *   startBtnName:  'Name of button to press to start target running: e.g. P1.3',<br/>
+                         *   boardImage:    'Name of image file of target board to display e.g. launchpad-mspexp430g2-02.jpg',<br/>
+                         *   startBtnImage  'Name of image file showing location of start button e.g. startbutton-mspexp430g2-02.jpg'<br/>
+                         *   }<br/>
+                     * <p>
+                     *
+                     * @attribute selectedDevice
+                     * @type object
+                     * @default undefined
+                     */
+                    selectedDevice: {
+                        notify: true,
+                        type: Object,
+                        value: undefined
+                    },
+
+                    /**
+                     * the name of the target device for serial communications with the target.  This is only needed to auto program the
+                     * the target device with an image.
+                     *
+                     * @attribute deviceName
+                     * @type String
+                     */
+                    deviceName: {
+                        type: String,
+                        value: undefined
+                    },
+
+                    /**
+                     * The name of the connection for programming the target.
+                     *
+                     * @attribute connectionId
+                     * @type String
+                     */
+                    connectionId: {
+                        type: String,
+                        value: undefined
+                    },
+                    
+                    /** 
+                     * In a multi-core device, the name of the specific core for loading the program.  The default is to load the program
+                     * on the first programmable core.
+                     */
+                    coreName: {
+                        type: String,
+                        value: undefined,
+                        notify: false
+                    },
+
+                    /**
+                     * The name of the program to load onto the target device.  See 'targetFolder'
+                     * @attribute targetProgram
+                     * @type string
+                     */
+                    targetProgram: {
+                        type: String,
+                        value: undefined
+                    },
+                    /**
+                     * If set, this property specifies the content to be programmed into the target, overriding
+                     * the targetProgram and targetFolder property values.  This is only intended for rare situations
+                     * where the user needs to dynamically modify the content to be programmed using Javascript.  In
+                     * all other situations it is preferable to upload the file to be programmed into the application's
+                     * target folder and to specify which file to program using the targetProgram and targetFolder
+                     * properties
+                     * @attribute targetProgramBlob
+                     * @type object
+                     * @default undefined
+                     */
+                    targetProgramBlob: {
+                        type: Object,
+                        value: undefined
+                    },
+                    /**
+                     * The name of the program image to use to verify the program loaded into the target device.
+                     * If specified, this will be used to determine whether or not the targetProgram is to be programmed
+                     * into the device or not.  Stored in the same targetFolder as the targetProgram (See 'targetFolder')
+                     * @attribute targetProgramVerifyImage
+                     * @type string
+                     */
+                    targetProgramVerifyImage: {
+                        type: String,
+                        value: undefined
+                    },
+                    /**
+                     * The relative or absolute path to the folder where the target program is located.
+                     * this attribute is optional, and if omitted, the default folder is 'target/'.
+                     * @attribute targetFolder
+                     * @type string
+                     */
+                    targetFolder: {
+                        notify: true,
+                        type: String,
+                        value: 'target'
+                    },
+                    /**
+                     * when true, indicates the program is to be loaded into volatile (static RAM) memory
+                     *
+                     * @attribute sram
+                     * @type boolean
+                     */
+                    sram: {
+                        notify: true,
+                        type: Boolean,
+                        value: false
+                    },
+                    /**
+                     * a string representing the current status of the interactions with the target device.
+                     *
+                     * @attribute strStatus
+                     * @type string
+                     * @default 'Disconnected.'
+                     */
+                    strStatus: {
+                        notify: true,
+                        type: String,
+                        value: ""
+                    },
+                    /**
+                     * isProgramDownloadDisabled is set to true by the application in situations where
+                     * there is no program to download to the target (e.g. the program has already
+                     * been downloaded to the target)
+                     *
+                     * @attribute isProgramDownloadDisabled
+                     * @type boolean
+                     * @default false
+                     */
+                    isProgramDownloadDisabled: {
+                        notify: true,
+                        type: Boolean,
+                        value: false
+                    },
+                    /**
+                     * isAutoDownloadEnabled is set by the application in situations where the program
+                     * should always be automatically downloaded to the target after connection to the
+                     * target has been established.  If false, the application should provide a button
+                     * that the user can click on to initiate the program download, and call the
+                     * initiateProgramDownload function in response.
+                     *
+                     * @attribute isAutoDownloadEnabled
+                     * @type boolean
+                     * @default false
+                     */
+                    isAutoDownloadEnabled: {
+                        notify: true,
+                        type: Boolean,
+                        value: false
+                    },
+                    /**
+                     * isProgramDownloadBtnVisible indicates whether a button labeled 'Download program' with an on-click handler
+                     * of onDownloadProgramBtnClicked should be displayed or not.
+                     * Note that this is NOT passed through to the ti-service-programloader in order to allow the service to be
+                     * controlled from this component.
+                     *
+                     * @attribute isProgramDownloadBtnVisible
+                     * @type boolean
+                     * @default false
+                     */
+                    isProgramDownloadBtnVisible: {
+                        notify: true,
+                        type: Boolean,
+                        value: false
+                    },
+                    /**
+                     * wasProgramDownloadSuccessful indicates whether the program has been successfully downloaded into the
+                     * target's flash memory or not.  Read this value in response to the programDownloadComplete event
+                     * to determine whether the target is ready to use or not.
+                     *
+                     * @attribute wasProgramDownloadSuccessful
+                     * @type boolean
+                     * @default false
+                     */
+                    wasProgramDownloadSuccessful: {
+                        notify: true,
+                        type: Boolean,
+                        value: false
+                    },
+                    /**
+                     * Set to true when ti-service-programloader's ready callback has occurred
+                     *
+                     * @attribute initialized
+                     * @type boolean
+                     * @default false
+                     */
+                    initialized: {
+                        notify: true,
+                        type: Boolean,
+                        value: false
+                    },
+                    /**
+                     * ID of the transport associated with this program loader
+                     *
+                     * @attribute transportId
+                     * @type String
+                     * @defualt null
+                     */
+                    transportId: {
+                        notify: false,
+                        type: String,
+                        value: null
+                    },
+                    /**
+                     * callback function that is called when a status message has been received from ti-service-programloader.
+                     * Callback function takes two parameters: a string containing the status message that was received,
+                     * and a string that is set to either 'error' or 'info' to indicate the type of status message
+                     *
+                     * @attribute statusUpdateCallback
+                     * @type function
+                     * @default null
+                     */
+                    statusUpdateCallback: {
+                        notify: false,
+                        type: Function,
+                        value: null
+                    },
+                    /**
+                     * the ccxml file for the target
+                     * @attribute defaultCcxml
+                     * @type string
+                     * @default null
+                     */
+                    defaultCcxml: {
+                        notify: false,
+                        type: String,
+                        value: null,
+                        observer: "_defaultCcxmlChanged"
+                    },
+                    /**
+                     * For binary files, this specifies the first program address that the binary file is to be loaded into.
+                     * (Note: this property is not used for .out files or .cpp.hex files)
+                     *
+                     * @attribute loadAddress
+                     * @type Number
+                     * @default 0x000000
+                     */
+                    loadAddress: {
+                        notify: true,
+                        type: Number,
+                        value: 0,
+                        observer: "_loadAddressChanged"
+                    }
+                },
+                dialog: undefined,
+                getSuccessMsg: function() {
+                    return this.$.programLoaderService.getSuccessMsg();
+                },
+                getProgramLoader: function () {
+                    return this.$.programLoaderService;
+                },
+                _showProgrammingStatusMsgs: false,
+                _getId: function(){
+                    return this.id;
+                },
+                _defaultCcxmlChanged: function(newValue,oldValue){
+                    if (!newValue) return;
+                    if (newValue.indexOf('%SERIAL') > 0){
+                        console.error("defaultCcxml file has unresolved serial port! - see error from ti-service-programloader for more info.");
+                    } else {
+                        console.log("ti-core-programloader.defaultCcxml updated - ok.")
+                    }
+                },
+                startConnecting: function (selectedDeviceObj, preventClientAgentInstallCallback,isReconnectNeeded) {
+                    var sequencer = gc.connectionManager.sequencer;
+                    if (!(gc.desktop && gc.desktop.isCCS())) {
+                        if (this.isAutoDownloadEnabled && !this.isProgramDownloadDisabled) {
+                            this._showProgrammingStatusMsgs = true;
+                            var _self = this;
+                            var _skippingDownload = false;
+                            if (selectedDeviceObj) {
+                                this.backplane.selectedDevice = selectedDeviceObj;
+                            }
+
+                            // update the reference count.  Does not actually cause initAgent to be called on backplane.
+                            _self.startBackplane(selectedDeviceObj, preventClientAgentInstallCallback);
+                            return Q.promise(function (resolve, reject) {
+                                return sequencer.when('downloadProgram').thenDo(function () {
+                                    if (_self.isBackplaneReady()) {
+	                                    return _self.waitForEvent(_self.$.programLoaderService, 'programDownloadUIVisibilityChanged', '_currentStateName', 'targetProgrammed', 'isReplugNoticeVisible', true).then(function () {
+	                                        if (_self.isAutoDownloadEnabled && !_self.isProgramDownloadDisabled) {
+	                                            return _self.$.programLoaderService.doProgramTargetDevice(_self.addConsoleMessage.bind(_self)).then(resolve).fail(reject);
+	                                        } else {
+	                                            _skippingDownload = true;
+	                                            resolve();
+	                                        }
+	                                    }).then(function () {
+	                                        if (!_skippingDownload) {
+	
+	                                            if (isReconnectNeeded || true) {
+	                                                sequencer.after('downloadProgram').schedule(
+	                                                    'reconnect', gc.connectionManager.reconnectBackplane.bind(gc.connectionManager));
+	                                            }
+	                                        }
+	                                    }).fail(function (error) {
+	                                        reject(error);
+	                                    }).finally(function () {
+	                                        console.log("startConnecting.finally")
+	                                    });
+                                    }
+                                });
+                            }).fail(function (error) {
+                                console.log("startConnecting: error="+error);
+                            }).finally(function () {
+                                _self.stopBackplane();
+                                _self.onConnected();
+                            });
+
+                        }
+                    }
+                    this.onConnected();
+                },
+                flashDevice: function (selectedDeviceObj, preventClientAgentInstallCallback,isReconnectNeeded) {
+                    this.forwardMessage(" ",'info');  // clear out any stale messages
+                    var _self = this;
+                    if (selectedDeviceObj){
+                        this.backplane.selectedDevice = selectedDeviceObj;
+                    }
+                    var forceConfigure = false;
+                    if (this.backplane.selectedDevice) {
+                        forceConfigure = (this.connectionId !== this.backplane.selectedDevice.connectionID);
+                    }
+                    return this.$.programLoaderService.setSelectedDeviceIfNeeded(forceConfigure).then(function() {
+                        // update the reference count.  Does not actually cause initAgent to be called on backplane.
+                        _self.startBackplane(selectedDeviceObj, preventClientAgentInstallCallback);
+                        return Q.promise(function (resolve, reject) {
+                            // need to ensure that we are actually connected and that backplane.initAgent has been called before
+                            // trying to flash the device, so call the program loader service's connect function first
+                            var sequencer = gc.connectionManager.sequencer;
+                            sequencer.when('downloadProgram').thenDo(function () {
+                                return _self.$.programLoaderService.flashDevice().then(function(){
+                                    _self.forwardMessage(_self.getSuccessMsg());
+                                    resolve();
+                                }).fail(reject);
+                            });
+                            if (isReconnectNeeded){
+                                sequencer.after('downloadProgram').schedule(
+                                    'reconnect', gc.connectionManager.reconnectBackplane.bind(gc.connectionManager));
+                            }
+                        });
+                    }).fail(function(error) {
+                        throw error;
+                    }).finally(function(){
+                        _self.stopBackplane();
+                    });
+                },
+                _getCurrentStateName: function(){
+                    return this.$.programLoaderService.getCurrentStateName();
+                },
+                getCurrentStateName: undefined,
+                // The following are simple wrappers for ti-service-programloader APIs:
+                _updateStateMachine: function(strEventName) {
+                    return this.$.programLoaderService.updateStateMachine(strEventName);
+                },
+                /** @private */
+                updateStateMachine: undefined,
+                _getPathToTargetProgram: function(targetFolderPath, targetProgramName, isVerifyImage) {
+                    return this.$.programLoaderService.getPathToTargetProgram(targetFolderPath, targetProgramName, isVerifyImage);
+                },
+                /** @private */
+                getPathToTargetProgram: undefined,
+                /**
+                 * Programs the flash memory of the connected device.  Automatically disconnects if already connected and then
+                 * connects to the target device in order to allow multiple calls to the API to be made.
+                 * If no parameters are passed in, the deviceName, fileName and fileFolderPath property values will be used.
+                 *
+                 * @param stayConnectedWhenDone: if true, the target is not disconnected upon completion of programming the device
+                 * @param attrOverridesObj: (optional) - object that contains override values for the following properties:
+                 *  * deviceName: (optional) the name of the device (see ti-core-backplane demo for a list of supported devices)
+                 *  * targetProgram: (optional) the name of the .cpp.hex or .out file to program the device with
+                 *  * targetFolder: (optional) the relative path to the .cpp.hex or .out file
+                 *  * connectionIdArg: (optional) the connection ID to use for the Cloud Agent
+                 * @return a promise that resolves when the programming has completed.
+                 */
+                programDevice: function (stayConnectedWhenDone, attrOverridesObj) {
+                    return this.$.programLoaderService.programDevice(stayConnectedWhenDone, attrOverridesObj);
+                },
+                downloadProgram: function(coreObj, symbolsOnly, programPathURL, programVerifyPathURL) {
+                    return this.$.programLoaderService.downloadProgram(coreObj, symbolsOnly, programPathURL, programVerifyPathURL);
+                },
+                _initiateReconnect: function () {
+                    return this.$.programLoaderService.initiateReconnect();
+                },
+                _loadAddressChanged: function(newValue,oldValue){
+                    if (this.$ && this.$.programLoaderService) {
+                        this.$.programLoaderService.loadAddress = this.loadAddress;
+                    }
+                },
+                /**
+                 * If ti-service-targetaccess exists, call its initiateReconnect method, else wait for 1 second and call connect
+                 */
+                initiateReconnect: undefined,
+                doProgramTargetDevice: function (progressCallback) {
+                    return this.$.programLoaderService.doProgramTargetDevice(progressCallback);
+                },
+                /** @private */
+                doSaveSettingsToProjectDatabase: function (modelObjData, projectName) {
+                    modelObjData.ccxmlText = {};
+                    if (this.backplane) {
+                        if (this.deviceName && this.connectionId) {
+                            return this.backplane.generateCcxmlFile(this.deviceName, this.connectionId).then(function (jtagCcxml) {
+                                this.defaultCcxml = jtagCcxml;
+                                modelObjData.ccxmlText.jtag = jtagCcxml;
+                            }.bind(this));
+                        }
+                    }
+                    return Q.resolve();
+                },
+                /** @private */
+                _forwardMessage: function(msg, msgType){
+                    if (this.statusUpdateCallback){
+                        this.statusUpdateCallback(msg,msgType);
+                    }
+                    if (this._showProgrammingStatusMsgs) {
+                        this.addConsoleMessage(msg, msgType, msg);
+                    }
+                    this.fire('statusMsgUpdated',{statusMsg: msg, msgType: msgType});
+                },
+                /** @private */
+                forwardMessage: undefined,
+                created: function () {
+                    this.initiateReconnect = this._initiateReconnect.bind(this);
+                    this.forwardMessage = this._forwardMessage.bind(this);
+                    this.updateStateMachine = this._updateStateMachine.bind(this);
+                    this.getPathToTargetProgram = this._getPathToTargetProgram.bind(this);
+                    this.getCurrentStateName = this._getCurrentStateName.bind(this);
+                },
+                attached: function () {
+                    TICoreTransportBaseBehavior.attached.call(this);
+                    // don't bind isAutoDownloadEnabled because the programLoaderService needs to be able to disable
+                    // this flag once it has done the initial program loading.
+                    gc.services = gc.services || {};
+                    programLoaderCoreInstances.push(this);
+                    this.dialog = this.$.programLoaderService._getDialog();
+                    gc.services['ti-core-programloader'] = programLoaderCoreInstances[0];
+                    this.$.programLoaderService.statusUpdateCallback = this.forwardMessage;
+                    this._loadAddressChanged();
+                },
+                detached: function () {
+                    TICoreTransportBaseBehavior.detached.call(this);
+                    for (var i = programLoaderCoreInstances.length; i-- > 0;) {
+                        if (programLoaderCoreInstances[i] === this) {
+                            programLoaderCoreInstances.splice(i, 1);
+                        }
+                    }
+                    gc.services['ti-core-programloader'] = programLoaderCoreInstances[0];
+                }
+            });
+        }());
+    </script>
+
+</dom-module>

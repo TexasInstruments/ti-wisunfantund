@@ -1,0 +1,227 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="ti-tile-base.html">
+<link rel="import" href="ti-tile-styles.html">
+<!--
+`ti-tile-string` is an empty container widget to host child widgets.
+
+Example:
+
+    <ti-tile-string></ti-tile-string>
+
+See demo for a full working example of how to use this component.
+
+@group Instrument Tiles
+@element ti-tile-string
+@demo demo.html
+@extends ti-tile-base
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-tile-string'  >
+
+    <template>
+        <style include="ti-tile-styles">
+            :host {
+                width: 150px;
+                min-width:100px;
+                min-height:100px;
+            }
+            #instrument_div {
+            	padding-left: 1em;
+            	padding-right: 1em;
+                text-align: center;
+            }
+            #instrument {
+                position: static;
+            }
+        </style>
+        <div id="containerDiv" layout vertical style$="background-color:{{backgroundColor}};">
+	        <div id="shadow-bottom" fit  class$="paper-material-bottom-z-[[elevation]]"></div>
+	        <div id="shadow-top" fit  class$="paper-material-top-z-[[elevation]]"></div>
+            <div id="tileTitle" style$="[[_getTileTitleStyle(titleStyle,titleBackgroundColor,_defaultTitleBackgroundColor)]];">
+                <span>{{titleText}}</span>
+            </div>
+            <div id="instrument_div" flex layout vertical center-justified style$="[[tileBodyStyle]]">
+            	<div layout horizontal center-justified>
+                    <label id="label_div" style$="{{_getDecoratedLabelStyle(valueFontColor,valueFontSize,valueFontWeight,textDecoration)}}">{{_displayString}}</label>
+                </div>
+            </div>
+            <template is="dom-if" restamp="true" if="{{_isInDesigner}}">
+                <paper-icon-button id="editIcon"  class="pointer" icon="create" on-tap="editProperties" title="edit tile properties" style$="[[_getIconStyle(_iconColor)]]" ></paper-icon-button>
+                <paper-icon-button id="moveLeftIcon" class="pointer" icon="arrow-back" on-tap="moveLeft" title="move tile left" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="moveRightIcon" class="pointer" icon="arrow-forward" on-tap="moveRight" title="move tile right" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="resizeIcon" class="resize" icon="device:signal-cellular-0-bar"  title="resize tile"  style$="[[_getIconStyle(_resizeCornerColor)]]"></paper-icon-button>
+                <paper-icon-button id="pinIcon" class="pointer" icon="{{_pinIcon}}" on-tap="togglePin" style$="[[_getIconStyle(_iconColor)]]"></paper-icon-button>
+            </template>
+        </div>
+        <content></content>
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-tile-string',
+
+
+            hostAttributes: {
+            },
+            behaviors: [TiTileBase],
+            properties: {
+                _displayString: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * The string value to display in the tile
+                 *
+                 * @attribute value
+                 * @type String
+                 * @default ""
+                 */
+                value: {
+                    notify: true,
+                    type: String,
+                    value: "",
+                    observer: "valueChanged"
+                },
+                /**
+                 * The color of font
+                 *
+                 * @attribute valueFontColor
+                 * @type String
+                 * @default "#333333"
+                 */
+                valueFontColor: {
+                    notify: true,
+                    type: String,
+                    value: "#333333"
+                },
+				/**
+                 * The font weight to use for the string used to display the value
+                 *
+                 * @attribute units
+                 * @type string
+                 * @default ""
+                 */
+                valueFontWeight: {
+                    notify: true,
+                    type: String,
+                    value: "bold"
+                },
+				/**
+                 * The font size to use for the string used to display the value
+                 *
+                 * @attribute valueFontSize
+                 * @type string
+                 * @default undefined
+                 */
+                valueFontSize: {
+                    notify: true,
+                    type: String,
+                    value: undefined
+                },
+				/**
+                 * If the value to display is a number, this determines how many decimal places will be displayed
+                 *
+                 * @attribute decimalPlaces
+                 * @type Number
+                 * @default 0
+                 */
+                decimalPlaces: {
+                    notify: true,
+                    type: Number,
+                    value: 0
+                },
+				/**
+                 * The textDecoration CSS value (e.g. underline) to use for the string used to display the value
+                 *
+                 * @attribute textDecoration
+                 * @type string
+                 * @default "none"
+                 */
+                textDecoration: {
+                    notify: true,
+                    type: String,
+                    value: "none"
+                },
+                /**
+                 * The title to display at the top of the tile
+                 *
+                 * @attribute titleText
+                 * @type string
+                 * @default ''
+                 */
+                titleText: {
+                    notify: true,
+                    type: String,
+                    value: "String"
+                },
+				/**
+                 * The units string to display after the text showing the value
+                 * (For use if the value to be displayed is a number)
+				 *
+                 * @attribute units
+                 * @type string
+                 * @default ""
+                 */
+                units: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                }
+            },
+            valueChanged: function(){
+                try {
+                    if (!isNaN(this.value)) {
+                        this._displayString = Number(this.value).toFixed(this.decimalPlaces);
+                        if (this.units.length > 0) {
+                            this._displayString += " " + this.units;
+                        }
+                    } else {
+                        this._displayString = this.value;
+                    }
+                }
+                catch(ex){
+                    this._displayString = this.value;
+                }
+            },
+
+
+            getCategory: function() {
+                return 'Status';
+            },
+            getComponentName: function() {
+                return 'String';
+            }
+        });
+    </script>
+</dom-module>

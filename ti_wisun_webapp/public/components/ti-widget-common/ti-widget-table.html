@@ -1,0 +1,241 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<!--
+`ti-widget-table` implements a property-driven table.
+
+Example:
+
+    <ti-widget-table headings="col1 heading,col2 heading" rows="row1 col1 text, row1 col2 text;row2 col1 text,row2 col2 text" ></ti-widget-table>
+
+
+
+@group Ti Elements
+@element ti-widget-table
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-table'  >
+
+    <template>
+        <style>
+            :host {
+                display: inline;
+                background-color: transparent;
+                text-decoration: inherit;
+            }
+            .trow {
+                border: solid 1px black;
+                padding:10px;
+            }
+            .thead {
+                border: solid 1px black;
+                padding: 10px;
+                text-align:center;
+            }
+            .tcell {
+                border: solid 1px black;
+                padding: 10px;
+                text-align:center;
+            }
+            #table {
+                width: 100%;
+                height:100%;
+                border: solid 1px black;
+                border-collapse:collapse;
+            }
+
+
+        </style>
+        <table id="table" align="left" style="border-top:white 0px;height:calc(100% - 30px);width:100%;font-size:15px;overflow-y:auto;">
+
+            <tr >
+                <template is="dom-repeat" items="{{_headingItems}}" as="heading" index-as="hColIndex" >
+                    <th class="thead"  style$="[[_getColStyle(_headingStyleItems,hColIndex)]];">[[_getHeadingText(_headingItems,hColIndex)]]</th>
+                </template>
+            </tr>
+            <template is="dom-repeat" items="{{_rowItems}}" as="rowItem" index-as="rowIndex" >
+                <tr class="trow" >
+                    <template is="dom-repeat" items="{{rowItem}}" as="col" index-as="colIndex" >
+                        <td  class="tcell" style$="[[_getColStyle(_colStyleItems,colIndex)]];">[[col]]</td>
+                    </template>
+                </tr>
+            </template>
+        </table>
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-widget-table',
+
+            behaviors: [TiWidgetBase, TiWidgetBaseText],
+
+            properties:
+                {
+                    /**
+                     * Provides the text to display for each heading column.  Comma separated.
+                     *
+                     * @attribute headings
+                     * @type string
+                     */
+                    headings: {
+                        notify: true,
+                        type: String,
+                        value: "heading1,heading2",
+                        observer: "_headingsChanged"
+                    },
+
+                    _headingItems: {
+                        notify: true,
+                        type: Array,
+                        value: undefined
+                    },
+                    /**
+                     * Provides the text to display for each row.  Comma separated columns, semicolon separated rows.
+                     *
+                     * @attribute label
+                     * @type string
+                     */
+                    rows: {
+                        notify: true,
+                        type: String,
+                        value: "row1 col1,row1 col2;row2 col1,row2 col2",
+                        observer: "_rowsChanged"
+                    },
+                    /**
+                     * a 2-dimensional array indexed by _rowItems[rowIndex][colIndex]
+                     */
+                    _rowItems: {
+                        notify: true,
+                        type: Array,
+                        value: undefined
+                    },
+                    /**
+                     * Horoizintal align, left or right for each column, comma separated
+                     *
+                     * @attribute hAlign
+                     * @type string
+                     */
+                    colStyles: {
+                        notify: true,
+                        type: String,
+                        value: "width:150px;font-weight:bold;font-size:small;,width:200px;font-weight:normal;font-size:small;",
+                        observer: "_colStylesChanged"
+                    },
+                    _colStyleItems: {
+                        notify: true,
+                        type: Array,
+                        value: undefined
+                    },
+                    headingStyles: {
+                        notify: true,
+                        type: String,
+                        value: "font-weight:bold;font-size:medium;width:50%;text-align:center;",
+                        observer: "_headingStylesChanged"
+                    },
+                    _headingStyleItems: {
+                        notify: true,
+                        type: Array,
+                        value: []
+                    }
+                },
+            /*
+             * returns the style for the specified column.
+             * If the index > number of items, returns the last
+             * item specified so that a single item can cover all columns
+             */
+            _getColStyle: function(items, index){
+                var result = "";
+                var i=index;
+                if (items) {
+                    if (i >= items.length) {
+                        i = items.length - 1;
+                    }
+                    if (i >= 0) {
+                        result = items[i];
+                    }
+                }
+                return result;
+            },
+            _getHeadingText: function(items, colIndex){
+                var result = "";
+                if ((items) && (colIndex < items.length)){
+                    result = items[colIndex];
+                }
+                return result;
+            },
+            _headingsChanged: function(newValue, oldValue){
+                if (!this.$) return;
+                if ((this.headings) && (this.headings.length > 0)){
+                    this._headingItems = this.headings.split(',');
+                }
+            },
+            _headingStylesChanged: function(newValue, oldValue){
+                if (!this.$) return;
+                if ((this.headingStyles) && (this.headingStyles.length > 0)) {
+                    this._headingStyleItems = this.headingStyles.split(',');
+                }
+            },
+            _rowsChanged: function(newValue, oldValue){
+                if (!this._rowItems) return;
+                if ((this.rows) && (this.rows.length > 0)) {
+                    this.splice("_rowItems",0,this._rowItems.length);
+
+                    var rowArray = this.rows.split(';');
+                    for (var i=0; i<rowArray.length; i++) {
+                        var cols = rowArray[i].split(',');
+                        this.push("_rowItems", cols);
+                    }
+                }
+            },
+            _colStylesChanged: function(newValue, oldValue){
+                if (!this.$) return;
+                if ((this.colStyles) && (this.colStyles.length > 0)) {
+                    this._colStyleItems = this.colStyles.split(',');
+                }
+            },
+            ready: function() {
+                this._headingItems = [];
+                this._headingStyleItems = [];
+                this._rowItems = [];
+                this._colStyleItems = [];
+            },
+            attached: function(){
+                this.async(function(){
+                    this._rowsChanged(this.rows);
+                    this._colStylesChanged(this.colStyles);
+                    this._headingsChanged(this.headings);
+                    this._headingStylesChanged(this.headingStyles);
+                }.bind(this),1)
+            }
+
+        });
+    </script>
+</dom-module>

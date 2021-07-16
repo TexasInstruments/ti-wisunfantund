@@ -1,0 +1,199 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="../ti-widget-common/ti-widget-led.html">
+<link rel="import" href="ti-tile-base.html">
+<link rel="import" href="ti-tile-styles.html">
+<!--
+`ti-tile-led` is a tile containing an "LED" image, which can be
+  used to display the true / false value of another widget or a target variable
+
+Example:
+
+    <ti-tile-led value="true" ></ti-tile-led>
+
+See demo for a full working example of how to use this component.
+
+@group Instrument Tiles
+@element ti-tile-led
+@demo demo.html
+@extends ti-tile-base
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-tile-led'  >
+
+    <template>
+        <style include="ti-tile-styles">
+            :host {
+                width: 150px;
+				min-width:100px;
+                min-height:100px;
+            }
+            #instrument_div {
+            	padding-left: 1em;
+            	padding-right: 1em;
+                text-align: center;
+            }
+            #instrument {
+                position: static;
+            }
+            #label_div {
+            	text-align:center;
+            }
+        </style>
+        <div id="containerDiv" layout vertical style$="background-color:{{backgroundColor}};">
+	        <div id="shadow-bottom" fit class$="paper-material-bottom-z-[[elevation]]"></div>
+	        <div id="shadow-top" fit class$="paper-material-top-z-[[elevation]]"></div>
+            <div id="tileTitle" style$="[[_getTileTitleStyle(titleStyle,titleBackgroundColor,_defaultTitleBackgroundColor)]];">
+                <span>{{titleText}}</span>
+            </div>
+            <div id="instrument_div" flex layout vertical center-justified style$="[[tileBodyStyle]]">
+            	<div layout horizontal center-justified>
+                    <ti-widget-led id="instrument" on="{{_getLEDState(value)}}"  color="{{_getLEDColor(value,color)}}" glow="true" style$="width:{{size}};height:{{size}};padding-bottom:5px;"></ti-widget-led>
+                </div>
+                <label id="label_div">{{_getLEDtext(value)}}</label>
+            </div>
+            <template is="dom-if" restamp="true" if="{{_isInDesigner}}">
+                <paper-icon-button id="editIcon"  class="pointer" icon="create" on-tap="editProperties" title="edit tile properties" style$="[[_getIconStyle(_iconColor)]]" ></paper-icon-button>
+                <paper-icon-button id="moveLeftIcon" class="pointer" icon="arrow-back" on-tap="moveLeft" title="move tile left" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="moveRightIcon" class="pointer" icon="arrow-forward" on-tap="moveRight" title="move tile right" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="resizeIcon" class="resize" icon="device:signal-cellular-0-bar"  title="resize tile"  style$="[[_getIconStyle(_resizeCornerColor)]]"></paper-icon-button>
+                <paper-icon-button id="pinIcon" class="pointer" icon="{{_pinIcon}}" on-tap="togglePin" style$="[[_getIconStyle(_iconColor)]]"></paper-icon-button>
+            </template>
+        </div>
+        <content></content>
+    </template>
+    <script>
+
+        Polymer ({
+            is: 'ti-tile-led',
+
+
+            hostAttributes: {
+            },
+            behaviors: [TiTileBase],
+            properties: {
+			    /**
+                 * The title to display at the top of the tile
+                 *
+                 * @attribute titleText
+                 * @type string
+                 * @default ''
+                 */
+                titleText: {
+                    notify: true,
+                    type: String,
+                    value: "LED"
+                },
+                /**
+                 * The color to use for the LED when it is on.  A darker version of this color will be displayed when the LED is off.
+                 *
+                 * @attribute color
+                 * @type String
+                 * @default "#ff0000"
+                 */
+                color: {
+                    notify: true,
+                    type: String,
+                    value: "#ff0000"
+                },
+                /**
+                 * The value to display in the LED: true = ON, false = OFF.
+                 *
+                 * @attribute value
+                 * @type Boolean
+                 * @default false
+                 */
+                value: {
+                    notify: true,
+                    type: Boolean,
+                    value: false
+                },
+				/**
+                 * The diameter of the LED in pixels.  Include the 'px' suffix in the value.
+                 *
+                 * @attribute size
+                 * @type string
+                 * @default "20px"
+                 */
+                size: {
+                    notify: true,
+                    type: String,
+                    value: "30px"
+                }
+
+            },
+
+            getCategory: function() {
+                return 'Status';
+            },
+            getComponentName: function() {
+                return 'LED';
+            },
+            _getLEDtext: function(value){
+                var isOn = this._getLEDState(value);
+                var result = 'OFF';
+
+                if (isOn){
+                    result = 'ON';
+                }
+                return result;
+            },
+            _getLEDColor: function(value,color){
+                var result = color;
+                //if (!value){
+                //    result = '#000000';
+                //}
+                return result;
+            },
+            _getLEDState: function(value){
+                var result = false;
+                if ((value !== undefined) && (value !== null)) {
+                    if (value === true) {
+                        result = true;
+                    } else {
+                        if (isNaN(value)) {
+                            if ((value.toLowerCase() === 'true') || (value.toLowerCase() === 'on')) {
+                                result = true;
+                            }
+                        } else {
+                            if (Number(value) !== 0) {
+                                result = true;
+                            }
+                        }
+                    }
+                }
+                return result;
+            }
+        });
+    </script>
+</dom-module>

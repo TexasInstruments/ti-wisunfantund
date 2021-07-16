@@ -1,0 +1,733 @@
+<script>
+
+    (function()
+    {
+
+        var getTargetStructSymbol = function(symbol)
+        {
+            var result = symbol.id || symbol.name;
+            if (symbol && symbol.parentGroup.structName && (symbol.parentGroup.structName.length > 0)) {
+                result = symbol.parentGroup.structName + "." + result;
+            }
+            return result;
+        };
+
+        var targetAccessCodec = function(){};
+
+        targetAccessCodec.prototype.readValue = function(symbol)
+        {
+            return gc.target.access.readValue(getTargetStructSymbol(symbol));
+        };
+
+        targetAccessCodec.prototype.writeValue = function(symbol, value)
+        {
+            return gc.target.access.writeValue(getTargetStructSymbol(symbol), value);
+        };
+
+        var SingleChannelEncoder = function(data)
+        {
+            if (this._ready)
+            {
+                var that = this;
+                return this._ready.promise.then(function()
+                {
+                    that._codec.encoder(data);
+                });
+            }
+            else
+            {
+                this._codec.encoder(data);
+            }
+        };
+
+        var MultiChannelEncoder = function(channelName, data)
+        {
+            var packet = {};
+            packet[channelName] = data;
+            SingleChannelEncoder.call(this, packet);
+        };
+
+        var MultiChannelDecoder = function(target, channelName, data)
+        {
+            var modelData = data[channelName];
+            if (modelData !== undefined)
+            {
+                this.decoder(modelData);
+            }
+            return target(data);
+        };
+
+        var SingleChannelDecoder = function(target, data)
+        {
+            this.decoder(data);
+            return target(data);
+        };
+
+        getModelBinding = function(children, bindExpression)
+        {
+            var result;
+
+            if (children)
+            {
+                for(var i = 0; i < children.length; i++ )
+                {
+                    var child = children[i];
+                    var model = child && child.id && ( (child.getModel && child.getModel()) || gc.databind.registry.getModel(child.id) );
+                    if (model)
+                    {
+                        result = model;
+                        if (bindExpression.startsWith(child.id + '.'))
+                        {
+                            bindExpression = bindExpression.substring((child.id + '.').length);
+                            break;
+                        }
+                    }
+                }
+            }
+            return result ? result.getBinding(bindExpression) : gc.databind.registry.getBinding(bindExpression);
+        };
+
+        doReadWriteValue = function(expression, isWrite, value)
+        {
+            var bind = getModelBinding(Polymer.dom(this).children, expression);
+
+            return Q.promise(function(resolve, reject)
+            {
+                if (bind)
+                {
+                    if (isWrite)
+                    {
+                        bind.setValue(gc.databind.DataConverter.convert(value, undefined, bind.getType()));
+                        resolve();
+                    }
+                    else
+                    {
+                        var callback = function(wasDataReceived)
+                        {
+                            var status = bind.getStatus();
+                            if (status)
+                            {
+                                reject(status.getMessage());
+                            }
+                            else if (wasDataReceived)
+                            {
+                                resolve(gc.databind.DataConverter.convert(bind.getValue(), bind.getType(), 'string'));
+                            }
+                            else
+                            {
+                                reject('Timeout on reading value.');
+                            }
+                            bind.removeStreamingListener(listener);
+                        };
+                        var listener =
+                            {
+                                onDataReceived: function()
+                                {
+                                    clearTimeout(this.timer);
+                                    callback(true);
+                                },
+                                timer: setTimeout(callback, 500)
+                            };
+                        bind.addStreamingListener(listener);
+                    }
+                }
+                else
+                {
+                    reject('Binding "' + expression + '" does not exist');
+                }
+            });
+
+        };
+
+        /** @polymerBehavior TICoreTransportBaseBehavior */
+        window.TICoreTransportBaseBehavior =
+            {
+                properties:
+                    {
+                        /**
+                         * Automatic connect the target
+                         */
+                        autoConnect:
+                            {
+                                type: Boolean,
+                                notify: true,
+                                value: false
+                            },
+                        /**
+                         * Connection status.  One of 'connected', 'connecting', 'disconnected', or 'disconnecting'.
+                         */
+                        status:
+                            {
+                                type: String,
+                                value: 'disconnected',
+                                notify: true,
+                                observer: "_statusChanged"
+                            },
+                        /**
+                         * Connection optional flag.  If true, this transport is not necessary for the overall 
+                         * connection state to the target in a multi-transport situation.
+                         */
+                        optional:
+                            {
+                                type: Boolean,
+                                value: false
+                            }
+                    },
+
+                /**
+                 * Send a message to the target
+                 */
+                send: function(message)
+                {
+                    var that = this;
+                    var args = message.split("=");
+                    for(var i = args.length; i --> 0; )
+                    {
+                        args[i] = args[i].trim();
+                    }
+
+                    if (args.length === 1)
+                    {
+                        that.readValue(args[0]).then(function(value)
+                        {
+                            that.addConsoleMessage(gc.utils.value2string(value));
+                        }).fail(function(errMsg)
+                        {
+                            that.addConsoleError(errMsg);
+                        });
+                    }
+                    else if (args.length === 2)
+                    {
+                        that.writeValue(args[0], gc.utils.string2value(args[1])).fail(function(errMsg)
+                        {
+                            that.addConsoleError(errMsg);
+                        });
+                    }
+                    else
+                    {
+                        that.addConsoleError("syntax error: too many equals '=' operators.");
+                    }
+                },
+                readValue: function(expression)
+                {
+                    return doReadWriteValue.call(this, expression, false);
+                },
+                writeValue: function(expression, value)
+                {
+                    return doReadWriteValue.call(this, expression, true, value);
+                },
+                setUpTargetAccessForModel: function(model)
+                {
+                    this.pm  = true;          /* sets the transport pm property to enable USB transport to conditionally include target access */
+
+                    if (this.getTargetAccess)
+                    {
+                        if (model.setCodec)
+                        {
+                            model.setCodec(new targetAccessCodec());
+                        }
+                        var _self = this;
+                        /* configure target access and subscribe to state update event to disconnect binding when the target is disconnected */
+                        var promise = Q();
+                        if (model.localName === 'ti-model-register')
+                        {
+                            promise = gc.databind.modelsReady.then(function()
+                            {
+                                return Q.delay(10);
+                            }).then(function() {
+                                var controllerName = _self.getControllerName();
+                                if (controllerName)
+                                {
+                                    return _self.createProtocol(controllerName).then(function (settings)
+                                    {
+                                        return _self._codec.connect(settings);
+                                    });
+                                }
+                            });
+                        }
+                        promise.then(this.getTargetAccess.bind(this)).then(function (targetAccess)
+                        {
+                            var programLoader = document.querySelector("#" + model.programloaderId);
+
+                            /* set target access programloaderIds to the program loader id */
+                            /* TODO: add support for multiple cores                          */
+                            targetAccess.programloaderIds = programLoader.id;
+
+                            targetAccess.addEventListener('currentStateUpdated', function (event)
+                            {
+                                var activeDebugContext = event.detail['activeDebugContext'];
+                                var activeDebugContextName = event.detail['activeDebugContextName'];
+
+                                if (targetAccess.currentState.name.indexOf('disconnect') === 0)
+                                {
+                                    _self.setConnectedState(false);
+
+                                    if (_self._codec)
+                                    {
+                                        _self._codec.disconnect();
+                                    }
+                                }
+                                else if (targetAccess.currentState.name.indexOf('backplaneReady') === 0 && activeDebugContext !== undefined)
+                                {
+                                    if (model.localName !== 'ti-model-register')
+                                    {
+                                        gc.databind.registry.getBinding(model.id + '.$active_context_name').setValue(activeDebugContextName || "");
+                                    }
+                                }
+                            });
+                        });
+                    }
+                },
+                addConsoleMessage: function(message, type, tooltip, toast)
+                {
+                    if (message)
+                    {
+                        this.fire('console-output', { message: message, type: type || 'data', tooltip: tooltip, showToast: toast } );
+                    }
+                    if (this._myId)
+                    {
+                        gc.databind.internal.AbstractTargetConnection.prototype.addConsoleMessage.call(this, message, type, tooltip, toast);
+                    }
+                },
+
+                addConsoleError: function(errMsg, tooltip, toast)
+                {
+                    this.addConsoleMessage(errMsg, 'error', tooltip, toast);
+                },
+
+                addConsoleProgress: function(message, tooltip)
+                {
+                    this.addConsoleMessage(message, 'info', tooltip);
+                },
+
+                addConsoleDataReceived: function(value, channel)
+                {
+                    this.addConsoleMessage((channel ? 'channel ' + channel + ': ' : '') + gc.utils.value2string(value), 'data');
+                },
+
+                setConnectedState: function(connected)
+                {
+                    gc.connectionManager.setConnectedState(this._myId, connected && this._receivingData);
+                },
+
+                setReceivingDataState: function(receivingData)
+                {
+                    if (receivingData !== this._receivingData)
+                    {
+                        this._receivingData = receivingData;
+
+                        if (!receivingData)
+                        {
+                            this.setConnectedState(false);
+                            this.onStartConnecting();
+
+                            if (this._connTimeoutIntervalHdlr) {
+                                clearInterval(this._connTimeoutIntervalHdlr);
+                                this._connTimeoutIntervalHdlr = null;
+                            }
+                        }
+                        else
+                        {
+                            var models = this.getModels();
+
+                            for(var i = 0; i < models.length; i++ )
+                            {
+                                models[i].setConnectedState(receivingData);
+                            }
+
+                            this.stateMachine = this.stateMachine.onConnect() || this.stateMachine;
+
+                            if (this._codec && this._codec.isStillConnected) {
+                                this._connTimeoutIntervalHdlr = setInterval(function() {
+                                    if (this._rxDataReceived) {
+                                        this._rxDataReceived = false;
+                                    } else {
+                                        this._codec.isStillConnected().fail(function(err) {
+                                            this.onDisconnected(err);
+                                            clearInterval(this._connTimeoutIntervalHdlr);
+                                            this._connTimeoutIntervalHdlr = null;
+                                        }.bind(this));
+                                    }
+                                }.bind(this), 2500);
+                            }
+                        }
+                    }
+                },
+
+                decodeDataReceived: function(buffer)
+                {
+                    var isConnected = this._codec && this._codec.decoder(buffer);
+                    this.stateMachine = this.stateMachine.onData(isConnected) || this.stateMachine;
+                    this._rxDataReceived = true;
+                },
+
+                setControllerName: function(name)
+                {
+                    var children = Polymer.dom(this).children;
+
+                    for(var i = 0; i < children.length; i++ )
+                    {
+                        children[i].selectedController = name;
+                    }
+                },
+
+                getModels: function()
+                {
+                    var children = Polymer.dom(this).children;
+
+                    var models = [];
+
+                    if (children)
+                    {
+                        for(var i = 0; i < children.length; i++ )
+                        {
+                            var child = children[i];
+                            var model = child && child.id && ( (child.getModel && child.getModel()) || gc.databind.registry.getModel(child.id) );
+                            if (model)
+                            {
+                                models.push(model);
+                            }
+                        }
+                    }
+                    return models;
+                },
+
+                getControllerName: function()
+                {
+                    var children = Polymer.dom(this).children;
+
+                    var result;
+                    var controllerNameMap = {};
+
+                    if (children)
+                    {
+                        for(var i = 0; i < children.length; i++ )
+                        {
+                            var child = children[i];
+                            var model = child && child.id && ( (child.getModel && child.getModel()) || gc.databind.registry.getModel(child.id) );
+                            if (model && !(model.transmitPacket && model.decoder && model.setCodec))
+                            {
+                                var bind = model.getBinding('$selectedController');
+                                result = bind && bind.getValue();
+                                result = result || child.protocol;
+
+                                controllerNameMap[result || 'undefined'] = true;
+                            }
+                        }
+                    }
+                    if (Object.keys(controllerNameMap).length > 1)
+                    {
+                        throw "Error, Cannot use different controllers/protocols on the same transport, aborting connection.";
+                    }
+                    return result;
+                },
+
+                getSelectedDevices: function()
+                {
+                    var models = this.getModels();
+
+                    var result = [];
+
+                    for(var i = 0; i < models.length; i++ )
+                    {
+                        var model = models[i];
+                        var bind = model.getBinding('$selectedDevice');
+                        var deviceName = bind && bind.getValue();
+                        if (deviceName)
+                        {
+                            result.push(deviceName);
+                        }
+                    }
+                    return result;
+                },
+
+                createProtocol: function(protocol, useSerialFrameDecoder)
+                {
+                    var children = Polymer.dom(this).children;
+                    var decoder = function() { return true; };
+                    var models = [];
+                    var channelNames = [];
+                    var promises = [];
+                    var sharedCodec = false;
+                    
+                    if (this._codec)
+                    {
+                        this._codec.disconnect();
+                        this._codec = undefined;
+                    }
+
+                    if (children)
+                    {
+                        for(var i = 0; i < children.length; i++ )
+                        {
+                            var child = children[i];
+                            var model = child && child.id && ( (child.getModel && child.getModel()) || gc.databind.registry.getModel(child.id) );
+                            if (model)
+                            {
+                                if(model.transmitPacket && model.decoder && model.setCodec)
+                                {
+                                    // private-channel
+                                    var codec = gc.databind.internal.PacketCodecFactory.create(child.protocol || protocol, model.transmitPacket.bind(model), model.decoder.bind(model), useSerialFrameDecoder);
+                                    promises.push(Q(model.setCodec(codec)));
+                                    channelNames.push(undefined);
+                                }
+                                else {
+                                    var channelName = child.channel;
+                                    if (channelName)
+                                    {
+                                        // multi-channel
+                                        sharedCodec = true;
+                                        if (model.decoder)
+                                        {
+                                            decoder = MultiChannelDecoder.bind(model, decoder, channelName);
+                                        }
+                                        model.encoder = MultiChannelEncoder.bind(this, channelName);
+                                    }
+                                    else
+                                    {
+                                        // single-channel
+                                        sharedCodec = true;
+                                        if (model.decoder)
+                                        {
+                                            decoder = SingleChannelDecoder.bind(model, decoder);
+                                        }
+                                        model.encoder = SingleChannelEncoder.bind(this);
+                                    }
+                                    if (model.setCodec)
+                                    {
+                                        models.push(model);
+                                        channelNames.push(channelName);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
+                    if(sharedCodec && protocol)
+                    {
+                        var encoder = this.sendPacket && this.sendPacket.bind(this);
+                        this._codec = gc.databind.internal.PacketCodecFactory.create(protocol, encoder, decoder, useSerialFrameDecoder);
+
+                        for(var j = 0; j < models.length; j++ )
+                        {
+                            promises.push(Q(models[j].setCodec(this._codec)));
+                        }
+                    }
+                    return Q.all(promises).then(function(settings)
+                    {
+                        var result = [];
+                        for(var k = 0; k < channelNames.length; k++ )
+                        {
+                            if (settings[k] !== undefined)
+                            {
+                                if (channelNames[k])
+                                {
+                                    settings[k]._channelName = channelNames[k];
+                                }
+                                result.push(settings[k]);
+                            }
+                        }
+                        return result;
+                    });
+                },
+
+                verifyConnection: function(portName)
+                {
+                    var promises = [];
+
+                    var children = Polymer.dom(this).children;
+
+                    if (children)
+                    {
+                        for(var i = 0; i < children.length; i++ )
+                        {
+    	                    if (children[i].verifyConnection)
+    	                    {
+    	                        promises.push(children[i].verifyConnection(portName));
+    	                    }
+                        }
+                    }
+                    if (promises.length > 0)
+                   	{
+                    	return Q.all(promises);
+                   	}
+	                return Q();
+                },
+
+                created: function()
+                {
+                    var nullOperation = function() { return this };
+                    var endState =
+                        {
+                            onData: this.setConnectedState.bind(this),
+                            onConnect: nullOperation
+                        };
+
+                    var gotoEndState = function(isConnected)
+                    {
+                        if (isConnected)
+                        {
+                            this.onConnected();
+                            this.setConnectedState(true);
+                            return endState;
+                        }
+                    };
+
+                    var wait4data =
+                        {
+                            onData: gotoEndState.bind(this),
+                            onConnect: nullOperation
+                        };
+
+                    var wait4connect =
+                        {
+                            onData: nullOperation,
+                            onConnect: gotoEndState.bind(this, true)
+                        };
+
+                    var startState =
+                        {
+                            onData: function(isConnected) { if (isConnected) return wait4connect; },
+                            onConnect: function() { return wait4data; }
+                        };
+
+                    this.onStartConnecting = function()
+                    {
+                        this.stateMachine = startState;
+                    };
+
+                    this.onStartConnecting();
+                },
+
+                /**
+                 * Returns the bindable object
+                 *
+                 * name - consoleOutput, targetStatus, etc...
+                 *
+                 * eg.	getBinding("console").addListener()
+                 *		getBinding("console").removeListener()
+                 *		getBinding("console").getValue()
+                 */
+                getBinding: function(name)
+                {
+                    return getModelBinding(Polymer.dom(this).children, name);
+                },
+
+                attached: function()
+                {
+                    this._myId = this.id;
+                    gc.connectionManager.register(this._myId, this);
+                },
+
+                detached: function()
+                {
+                    gc.connectionManager.unregister(this._myId);
+
+                    if (this._targetAccessConnectedStateListener)
+                    {
+                        gc.target.access.removeTargetConnectedChangedListener(this._targetAccessConnectedStateListener);
+                        this._targetAccessConnectedStateListener = undefined;
+                    }
+                },
+
+                _statusChanged: function()
+                {
+                    gc.console.debug('gc.connectionManager', 'status for transport #' + this._myId + ' changed to ' + this.status);
+                },
+
+                getConnectionManager: function()
+                {
+                    return gc.connectionManager;
+                },
+
+                startDSLite: function(ds, isUartConnection)
+                {
+                    this.onStartConnecting();
+
+                    if (gc.target && gc.target.access)
+                    {
+                        if (!this._targetAccessConnectedStateListener)
+                        {
+                            this._targetAccessConnectedStateListener = function(isConnected)
+                            {
+                                this.setReceivingDataState(isConnected);
+                                this.stateMachine = this.stateMachine.onData(isConnected) || this.stateMachine;
+                            }.bind(this);
+                            gc.target.access.addTargetConnectedChangedListener(this._targetAccessConnectedStateListener);
+                        }
+                    }
+
+                    var that = this;
+                    if (gc.desktop && gc.desktop.isCCS())
+                    {
+                        ds._connectDSLite();
+                    }
+                    else
+                    {
+                        ds.doConnectOnTargetReady(that).fail(function(err)
+                        {
+                            that.onDisconnected(err);
+                        });
+                    }
+                },
+
+                stopDSLite: function(ds)
+                {
+                    ds.updateStateMachine('reconnect');
+                },
+
+                saveSettingsToProjectDatabase: function(modelDataObj, projectName)
+                {
+                    var promises = [];
+                    var children = Polymer.dom(this).children;
+                    for(var id in children)
+                    {
+                        if (children.hasOwnProperty(id))
+                        {
+                            var child = children[id];
+                            if (child && child.id && child.saveSettingsToProjectDatabase)
+                            {
+                                var promise = child.saveSettingsToProjectDatabase(modelDataObj, projectName);
+                                if (promise)
+                                {
+                                    promises.push(promise);
+                                }
+                            }
+                        }
+                    }
+
+                    var basePromise = TICorePersistentSettingsBehavior.saveSettingsToProjectDatabase.call(this, modelDataObj, projectName);
+                    if (basePromise)
+                    {
+                        promises.push(basePromise);
+                    }
+
+                    return promises.length > 0 ? Q.all(promises) : Q();
+                },
+
+                onConnectedStateChanged: function(connected)
+                {
+                    // update $target_connected bindings in child modules to the transport
+                    var models = this.getModels();
+
+                    for(var i = 0; i < models.length; i++ )
+                    {
+                        models[i].setConnectedState(connected);
+                    }
+                }
+
+            };
+
+        // The following code, mixes in the AbstractTargetConnection methods to the TICoreTransportBaseBehavior, like connect() and disconnect().
+        var methods = gc.databind.internal.AbstractTargetConnection.prototype;
+
+        for(methodName in methods)
+        {
+            if (methods.hasOwnProperty(methodName) && !TICoreTransportBaseBehavior[methodName])
+            {
+                TICoreTransportBaseBehavior[methodName] = methods[methodName];
+            }
+        }
+    })();
+</script>

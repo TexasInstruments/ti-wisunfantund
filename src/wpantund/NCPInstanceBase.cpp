@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -33,6 +35,8 @@
 #include "wpantund.h"
 #include "any-to.h"
 #include "IPv6Helpers.h"
+#include <math.h>
+#include <vector>
 
 using namespace nl;
 using namespace wpantund;
@@ -45,7 +49,7 @@ NCPInstanceBase::NCPInstanceBase(const Settings& settings):
 	mCommissioningRule(),
 	mCommissioningExpiration(0)
 {
-	std::string wpan_interface_name = "wpan0";
+	std::string wpan_interface_name = "wfan0";
 
 	mResetSocket_BeginReset = '0';
 	mResetSocket_EndReset = '1';
@@ -85,6 +89,20 @@ NCPInstanceBase::NCPInstanceBase(const Settings& settings):
 	mTerminateOnFault = false;
 	mWasBusy = false;
 	mNCPIsMisbehaving = false;
+
+	/* Initialize mMacFilterListString */
+	std::string ret_string = "";
+	int string_count = 0;
+
+	for (int x = 0; x < (MAC_FILTER_LIST_SIZE * 2); x += 2){
+		char str_to_add[17];
+		sprintf(str_to_add, "%08x", mMacFilterList[x]);
+		ret_string = str_to_add;
+		sprintf(str_to_add, "%08x", mMacFilterList[x + 1]);
+		ret_string.append(str_to_add);
+		mMacFilterListString[string_count] = ret_string;
+		string_count ++;
+	}
 
 	regsiter_all_get_handlers();
 	regsiter_all_set_handlers();
@@ -273,65 +291,135 @@ NCPInstanceBase::set_ncp_version_string(const std::string& version_string)
 	return status;
 }
 
+void NCPInstanceBase::set_ncp_region(uint8_t region){
+	mNCPRegion = region;
+}
+void NCPInstanceBase::set_ncp_mode_id(int mode_id){
+	mNCPModeID = mode_id;
+}
+void NCPInstanceBase::set_ncp_protocol_version(const int protocol_version_major, const int protocol_version_minor){
+	mNCPProtocolVersionMajor = protocol_version_major;
+	mNCPProtocolVersionMinor = protocol_version_minor;
+}
+void NCPInstanceBase::set_ncp_interface_type(const int interface_type){
+	mNCPInterfaceTypeInt = interface_type;
+}
+void NCPInstanceBase::set_ncp_cca_threshold(const int cca_threshold){
+	mNCPCCAThresholdInt = cca_threshold;
+}
+void NCPInstanceBase::set_stack_up(const bool stack_up){
+	mStackUp = stack_up;
+}
+void NCPInstanceBase::set_if_up(const bool if_up){
+	mIfUp = if_up;
+}
+void NCPInstanceBase::set_connected_devices(const int connected_devices){
+	mConnectedDevices = connected_devices;
+}
+void NCPInstanceBase::set_num_connected_devices(const int connected_devices){
+	mNumConnectedDevices = connected_devices;
+}
+void NCPInstanceBase::set_ch0_center_freq(const int ch0_mhz, const int ch0_khz){
+	mCh0khz = ch0_khz;
+	mCh0mhz = ch0_mhz;
+}
+void NCPInstanceBase::set_ch_spacing(const int ch_spacing){
+	mChSpacing = ch_spacing;
+}
+void NCPInstanceBase::set_bc_interval(const int bc_interval){
+	mBCInterval = bc_interval;
+}
+void NCPInstanceBase::set_mac_filter_list(int filter_list[]){
+	for (int x = 0; x < MAC_FILTER_LIST_SIZE * 2; x++){
+		mMacFilterList[x] = filter_list[x];
+	}
+}
+void NCPInstanceBase::set_mac_filter_list_string(std::string filter_list[]){
+	for (int x = 0; x < MAC_FILTER_LIST_SIZE; x++){
+		mMacFilterListString[x] = filter_list[x];
+	}
+}
+void NCPInstanceBase::set_mac_filter_mode(const int filter_mode){
+	mMacFilterMode = filter_mode;
+}
+void NCPInstanceBase::set_uc_dwell_interval(const int uc_dwell_interval){
+	mUCDwellInterval = uc_dwell_interval;
+}
+void NCPInstanceBase::set_bc_dwell_interval(const int bc_dwell_interval){
+	mBCDwellInterval = bc_dwell_interval;
+}
+void NCPInstanceBase::set_uc_channel_function(const int uc_channel_function){
+	mUCChFunction = uc_channel_function;
+}
+void NCPInstanceBase::set_bc_channel_function(const int bc_channel_function){
+	mBCChFunction = bc_channel_function;
+}
+void NCPInstanceBase::set_unicast_channel_list(std::string unicast_channel_list){
+	mUnicastChList = unicast_channel_list;
+}
+void NCPInstanceBase::set_unicast_array(int unicast_array[]){
+	for (int x = 0; x < CHANNEL_LIST_SIZE; x++){
+		mUnicastBytes[x] = unicast_array[x];
+	}
+}
+void NCPInstanceBase::set_broadcast_channel_list(std::string broadcast_channel_list){
+	mBroadcastChList = broadcast_channel_list;
+}
+void NCPInstanceBase::set_broadcast_array(int broadcast_array[]){
+	for (int x = 0; x < CHANNEL_LIST_SIZE; x++){
+		mBroadcastBytes[x] = broadcast_array[x];
+	}
+}
+void NCPInstanceBase::set_async_channel_list(std::string async_channel_list){
+	mAsyncChList = async_channel_list;
+}
+void NCPInstanceBase::set_async_array(int async_array[]){
+	for (int x = 0; x < CHANNEL_LIST_SIZE; x++){
+		mAsyncBytes[x] = async_array[x];
+	}
+}
+void NCPInstanceBase::set_dodag_route_string(std::string dodag_route_dest_string){
+	mDodagRouteDest = dodag_route_dest_string;
+}
+void NCPInstanceBase::set_dodag_route_array(int dodag_route_dest_array[]){
+	for (int x = 0; x < DODAG_ROUTE_SIZE; x++){
+		mDodagRouteDestArray[x] = dodag_route_dest_array[x];
+	}
+}
+
 std::set<std::string>
 NCPInstanceBase::get_supported_property_keys(void) const
 {
 	std::set<std::string> properties;
-
-	properties.insert(kWPANTUNDProperty_DaemonEnabled);
-	properties.insert(kWPANTUNDProperty_NetworkIsCommissioned);
-	properties.insert(kWPANTUNDProperty_InterfaceUp);
-	properties.insert(kWPANTUNDProperty_NetworkName);
-	properties.insert(kWPANTUNDProperty_NetworkPANID);
-	properties.insert(kWPANTUNDProperty_NetworkXPANID);
-	properties.insert(kWPANTUNDProperty_NetworkKey);
-	properties.insert(kWPANTUNDProperty_NetworkPSKc);
-	properties.insert(kWPANTUNDProperty_NetworkKeyIndex);
-	properties.insert(kWPANTUNDProperty_NetworkNodeType);
-	properties.insert(kWPANTUNDProperty_NCPState);
-	properties.insert(kWPANTUNDProperty_NCPChannel);
-	properties.insert(kWPANTUNDProperty_NCPTXPower);
-
-	properties.insert(kWPANTUNDProperty_IPv6MeshLocalPrefix);
-	properties.insert(kWPANTUNDProperty_IPv6MeshLocalAddress);
-	properties.insert(kWPANTUNDProperty_IPv6LinkLocalAddress);
-	properties.insert(kWPANTUNDProperty_IPv6AllAddresses);
-	properties.insert(kWPANTUNDProperty_IPv6MulticastAddresses);
-	properties.insert(kWPANTUNDProperty_IPv6SetSLAACForAutoAddedPrefix);
-	properties.insert(kWPANTUNDProperty_IPv6InterfaceRoutes);
-
-	properties.insert(kWPANTUNDProperty_ThreadOnMeshPrefixes);
-	properties.insert(kWPANTUNDProperty_ThreadOffMeshRoutes);
-
-	properties.insert(kWPANTUNDProperty_DaemonAutoAssociateAfterReset);
-	properties.insert(kWPANTUNDProperty_DaemonAutoDeepSleep);
-	properties.insert(kWPANTUNDProperty_DaemonReadyForHostSleep);
-	properties.insert(kWPANTUNDProperty_DaemonTerminateOnFault);
-	properties.insert(kWPANTUNDProperty_DaemonSetDefRouteForAutoAddedPrefix);
-
-	properties.insert(kWPANTUNDProperty_NestLabs_NetworkAllowingJoin);
-
-	properties.insert(kWPANTUNDProperty_DaemonVersion);
-	properties.insert(kWPANTUNDProperty_DaemonTerminateOnFault);
-
+	properties.insert(kWPANTUNDProperty_NCPProtocolVersion);
 	properties.insert(kWPANTUNDProperty_NCPVersion);
+	properties.insert(kWPANTUNDProperty_NCPInterfaceType);
 	properties.insert(kWPANTUNDProperty_NCPHardwareAddress);
 	properties.insert(kWPANTUNDProperty_NCPCCAThreshold);
-
-	properties.insert(kWPANTUNDProperty_NCPMACAddress);
-
-
-	properties.insert(kWPANTUNDProperty_ConfigTUNInterfaceName);
-
-	if (mLegacyInterfaceEnabled
-		|| mNodeTypeSupportsLegacy
-		|| buffer_is_nonzero(mNCPV6LegacyPrefix, sizeof(mNCPV6LegacyPrefix))
-	) {
-		properties.insert(kWPANTUNDProperty_NestLabs_LegacyMeshLocalAddress);
-		properties.insert(kWPANTUNDProperty_NestLabs_LegacyMeshLocalPrefix);
-	}
-
-	properties.insert(kWPANTUNDProperty_NestLabs_NetworkPassthruPort);
+	properties.insert(kWPANTUNDProperty_NCPTXPower);
+	properties.insert(kWPANTUNDProperty_NCPPhyRegion);
+	properties.insert(kWPANTUNDProperty_UnicastChList);
+	properties.insert(kWPANTUNDProperty_BroadcastChList);
+	properties.insert(kWPANTUNDProperty_AsyncChList);
+	properties.insert(kWPANTUNDProperty_ChSpacing);
+	properties.insert(kWPANTUNDProperty_Ch0CenterFreq);
+	properties.insert(kWPANTUNDProperty_NetworkPANID);
+	properties.insert(kWPANTUNDProperty_UCDwellInterval);
+	properties.insert(kWPANTUNDProperty_BCDwellInterval);
+	properties.insert(kWPANTUNDProperty_BCInterval);
+	properties.insert(kWPANTUNDProperty_UCChFunction);
+	properties.insert(kWPANTUNDProperty_BCChFunction);
+	properties.insert(kWPANTUNDProperty_MacFilterList);
+	properties.insert(kWPANTUNDProperty_MacFilterMode);
+	properties.insert(kWPANTUNDProperty_InterfaceUp);
+	properties.insert(kWPANTUNDProperty_StackUp);
+	properties.insert(kWPANTUNDProperty_NetworkRole);
+	properties.insert(kWPANTUNDProperty_NetworkName);
+	properties.insert(kWPANTUNDProperty_DodagRouteDest);
+	properties.insert(kWPANTUNDProperty_DodagRoute);
+	properties.insert(kWPANTUNDProperty_NumConnectedDevices);
+	properties.insert(kWPANTUNDProperty_ConnectedDevices);
+	properties.insert(kWPANTUNDProperty_IPv6AllAddresses);
 
 	return properties;
 }
@@ -366,6 +454,33 @@ NCPInstanceBase::regsiter_all_get_handlers(void)
 	register_prop_get_handler(kWPANTUNDProperty_##name, boost::bind(&NCPInstanceBase::get_prop_##name, this, _1))
 
 	register_prop_get_handler("", boost::bind(&NCPInstanceBase::get_prop_empty, this, _1));
+
+	REGISTER_GET_HANDLER(DodagRouteDest);
+	REGISTER_GET_HANDLER(NCPPhyRegion);
+	REGISTER_GET_HANDLER(NCPModeID);
+	REGISTER_GET_HANDLER(NCPProtocolVersion);
+	REGISTER_GET_HANDLER(NCPVersion);
+	REGISTER_GET_HANDLER(NCPInterfaceType);
+	REGISTER_GET_HANDLER(NCPHardwareAddress);
+	REGISTER_GET_HANDLER(NCPCCAThreshold);
+	REGISTER_GET_HANDLER(NCPTXPower);
+	REGISTER_GET_HANDLER(NCPFrequency);
+	REGISTER_GET_HANDLER(NetworkPANID);
+	REGISTER_GET_HANDLER(StackUp);
+	REGISTER_GET_HANDLER(ConnectedDevices);
+	REGISTER_GET_HANDLER(NumConnectedDevices);
+	REGISTER_GET_HANDLER(Ch0CenterFreq);
+	REGISTER_GET_HANDLER(ChSpacing);
+	REGISTER_GET_HANDLER(BCInterval);
+	REGISTER_GET_HANDLER(MacFilterList);
+	REGISTER_GET_HANDLER(MacFilterMode);
+	REGISTER_GET_HANDLER(UCDwellInterval);
+	REGISTER_GET_HANDLER(BCDwellInterval);
+	REGISTER_GET_HANDLER(UCChFunction);
+	REGISTER_GET_HANDLER(BCChFunction);
+	REGISTER_GET_HANDLER(UnicastChList);
+	REGISTER_GET_HANDLER(BroadcastChList);
+	REGISTER_GET_HANDLER(AsyncChList);
 	REGISTER_GET_HANDLER(ConfigTUNInterfaceName);
 	REGISTER_GET_HANDLER(DaemonEnabled);
 	REGISTER_GET_HANDLER(InterfaceUp);
@@ -375,7 +490,6 @@ NCPInstanceBase::regsiter_all_get_handlers(void)
 	REGISTER_GET_HANDLER(NetworkIsCommissioned);
 	REGISTER_GET_HANDLER(NestLabs_LegacyEnabled);
 	REGISTER_GET_HANDLER(NestLabs_NetworkAllowingJoin);
-	REGISTER_GET_HANDLER(NetworkPANID);
 	REGISTER_GET_HANDLER(NetworkXPANID);
 	REGISTER_GET_HANDLER(NCPChannel);
 	REGISTER_GET_HANDLER(DaemonVersion);
@@ -395,7 +509,6 @@ NCPInstanceBase::regsiter_all_get_handlers(void)
 	REGISTER_GET_HANDLER(DaemonOffMeshRouteFilterSelfAutoAdded);
 	REGISTER_GET_HANDLER(DaemonOnMeshPrefixAutoAddAsIfaceRoute);
 	REGISTER_GET_HANDLER(IPv6MeshLocalPrefix);
-	REGISTER_GET_HANDLER(IPv6MeshLocalAddress);
 	REGISTER_GET_HANDLER(IPv6LinkLocalAddress);
 	REGISTER_GET_HANDLER(NestLabs_LegacyMeshLocalPrefix);
 	REGISTER_GET_HANDLER(NestLabs_LegacyMeshLocalAddress);
@@ -431,6 +544,154 @@ NCPInstanceBase::property_get_value(const std::string &key, CallbackWithStatusAr
 		cb(kWPANTUNDStatus_PropertyNotFound, boost::any(std::string("Property Not Found")));
 	}
 }
+void
+NCPInstanceBase::get_prop_DodagRouteDest(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mDodagRouteDest));
+}
+void
+NCPInstanceBase::get_prop_NCPPhyRegion(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(ncp_region_to_string(mNCPRegion)));
+}
+void
+NCPInstanceBase::get_prop_NCPModeID(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNCPModeID));
+}
+void
+NCPInstanceBase::get_prop_NCPProtocolVersion(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(ncp_protocol_version_to_string(mNCPProtocolVersionMajor, mNCPProtocolVersionMinor)));
+}
+void
+NCPInstanceBase::get_prop_NCPVersion(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNCPVersionString));
+}
+void
+NCPInstanceBase::get_prop_NCPInterfaceType(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNCPInterfaceTypeInt));
+}
+void
+NCPInstanceBase::get_prop_NCPHardwareAddress(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(nl::Data(mMACHardwareAddress, sizeof(mMACHardwareAddress))));
+}
+
+void
+NCPInstanceBase::get_prop_NCPCCAThreshold(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNCPCCAThresholdInt));
+}
+void
+NCPInstanceBase::get_prop_NCPTXPower(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNCPTXPowerInt));
+}
+
+void
+NCPInstanceBase::get_prop_NCPFrequency(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNCPFrequencyDouble));
+}
+
+void
+NCPInstanceBase::get_prop_NetworkPANID(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(get_current_network_instance().panid));
+}
+
+void
+NCPInstanceBase::get_prop_StackUp(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mStackUp));
+}
+
+void
+NCPInstanceBase::get_prop_ConnectedDevices(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNumConnectedDevices));
+}
+
+void
+NCPInstanceBase::get_prop_NumConnectedDevices(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNumConnectedDevices));
+}
+
+void
+NCPInstanceBase::get_prop_Ch0CenterFreq(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(ch0_center_freq_to_string(mCh0mhz, mCh0khz)));
+}
+
+void
+NCPInstanceBase::get_prop_ChSpacing(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(ch_spacing_to_string(mChSpacing)));
+}
+
+void
+NCPInstanceBase::get_prop_BCInterval(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mBCInterval));
+}
+
+void
+NCPInstanceBase::get_prop_MacFilterList(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mac_filter_list_to_string(mMacFilterListString)));
+}
+
+void
+NCPInstanceBase::get_prop_MacFilterMode(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mMacFilterMode));
+}
+
+void
+NCPInstanceBase::get_prop_UCDwellInterval(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mUCDwellInterval));
+}
+
+void
+NCPInstanceBase::get_prop_BCDwellInterval(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mBCDwellInterval));
+}
+
+void
+NCPInstanceBase::get_prop_UCChFunction(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mUCChFunction));
+}
+
+void
+NCPInstanceBase::get_prop_BCChFunction(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mBCChFunction));
+}
+
+void
+NCPInstanceBase::get_prop_UnicastChList(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mUnicastChList));
+}
+
+void
+NCPInstanceBase::get_prop_BroadcastChList(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mBroadcastChList));
+}
+
+void
+NCPInstanceBase::get_prop_AsyncChList(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mAsyncChList));
+}
 
 void
 NCPInstanceBase::get_prop_empty(CallbackWithStatusArg1 cb)
@@ -453,19 +714,14 @@ NCPInstanceBase::get_prop_DaemonEnabled(CallbackWithStatusArg1 cb)
 void
 NCPInstanceBase::get_prop_InterfaceUp(CallbackWithStatusArg1 cb)
 {
-	cb(kWPANTUNDStatus_Ok, boost::any(mPrimaryInterface->is_online()));
+	//cb(kWPANTUNDStatus_Ok, boost::any(mPrimaryInterface->is_online()));
+	cb(kWPANTUNDStatus_Ok, boost::any(mIfUp));
 }
 
 void
 NCPInstanceBase::get_prop_DaemonReadyForHostSleep(CallbackWithStatusArg1 cb)
 {
 	cb(kWPANTUNDStatus_Ok, boost::any(!is_busy()));
-}
-
-void
-NCPInstanceBase::get_prop_NCPVersion(CallbackWithStatusArg1 cb)
-{
-	cb(kWPANTUNDStatus_Ok, boost::any(mNCPVersionString));
 }
 
 void
@@ -505,11 +761,6 @@ NCPInstanceBase::get_prop_NestLabs_NetworkAllowingJoin(CallbackWithStatusArg1 cb
 	cb(kWPANTUNDStatus_Ok, boost::any(get_current_network_instance().joinable));
 }
 
-void
-NCPInstanceBase::get_prop_NetworkPANID(CallbackWithStatusArg1 cb)
-{
-	cb(kWPANTUNDStatus_Ok, boost::any(get_current_network_instance().panid));
-}
 
 void
 NCPInstanceBase::get_prop_NetworkXPANID(CallbackWithStatusArg1 cb)
@@ -590,12 +841,6 @@ NCPInstanceBase::get_prop_NCPMACAddress(CallbackWithStatusArg1 cb)
 }
 
 void
-NCPInstanceBase::get_prop_NCPHardwareAddress(CallbackWithStatusArg1 cb)
-{
-	cb(kWPANTUNDStatus_Ok, boost::any(nl::Data(mMACHardwareAddress, sizeof(mMACHardwareAddress))));
-}
-
-void
 NCPInstanceBase::get_prop_IPv6SetSLAACForAutoAddedPrefix(CallbackWithStatusArg1 cb)
 {
 	cb(kWPANTUNDStatus_Ok, boost::any(mSetSLAACForAutoAddedPrefix));
@@ -627,16 +872,6 @@ NCPInstanceBase::get_prop_IPv6MeshLocalPrefix(CallbackWithStatusArg1 cb)
 		// Zero out the lower 64 bits.
 		memset(addr.s6_addr+8, 0, 8);
 		cb(kWPANTUNDStatus_Ok, boost::any(in6_addr_to_string(addr)+"/64"));
-	} else {
-		cb(kWPANTUNDStatus_FeatureNotSupported, std::string("Property is unavailable"));
-	}
-}
-
-void
-NCPInstanceBase::get_prop_IPv6MeshLocalAddress(CallbackWithStatusArg1 cb)
-{
-	if (buffer_is_nonzero(mNCPMeshLocalAddress.s6_addr, sizeof(mNCPMeshLocalAddress))) {
-		cb(kWPANTUNDStatus_Ok, boost::any(in6_addr_to_string(mNCPMeshLocalAddress)));
 	} else {
 		cb(kWPANTUNDStatus_FeatureNotSupported, std::string("Property is unavailable"));
 	}
@@ -841,6 +1076,16 @@ NCPInstanceBase::regsiter_all_set_handlers(void)
 
 	REGISTER_SET_HANDLER(DaemonEnabled);
 	REGISTER_SET_HANDLER(InterfaceUp);
+	REGISTER_SET_HANDLER(StackUp);
+	REGISTER_SET_HANDLER(MacFilterMode);
+	REGISTER_SET_HANDLER(BCInterval);
+	REGISTER_SET_HANDLER(UCDwellInterval);
+	REGISTER_SET_HANDLER(BCDwellInterval);
+	REGISTER_SET_HANDLER(UCChFunction);
+	REGISTER_SET_HANDLER(BCChFunction);
+	REGISTER_SET_HANDLER(UnicastChList);
+	REGISTER_SET_HANDLER(BroadcastChList);
+	REGISTER_SET_HANDLER(AsyncChList);
 	REGISTER_SET_HANDLER(DaemonAutoAssociateAfterReset);
 	REGISTER_SET_HANDLER(NestLabs_NetworkPassthruPort);
 	REGISTER_SET_HANDLER(DaemonAutoFirmwareUpdate);
@@ -925,6 +1170,111 @@ NCPInstanceBase::set_prop_InterfaceUp(const boost::any &value, CallbackWithStatu
 	} else {
 		cb(kWPANTUNDStatus_Ok);
 	}
+}
+
+void NCPInstanceBase::set_prop_StackUp(const boost::any &value, CallbackWithStatus cb){
+	bool isup = any_to_bool(value);
+	if (isup != mStackUp) {
+		if (isup) {
+			get_control_interface().attach(cb);
+		} else {
+			if (ncp_state_is_joining_or_joined(get_ncp_state())) {
+				get_control_interface().reset();
+			}
+		}
+	} else {
+		cb(kWPANTUNDStatus_Ok);
+	}
+}
+void NCPInstanceBase::set_prop_MacFilterMode(const boost::any &value, CallbackWithStatus cb){
+	mMacFilterMode = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_BCInterval(const boost::any &value, CallbackWithStatus cb){
+	mBCInterval = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_UCDwellInterval(const boost::any &value, CallbackWithStatus cb){
+	mUCDwellInterval = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_BCDwellInterval(const boost::any &value, CallbackWithStatus cb){
+	mBCDwellInterval = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_UCChFunction(const boost::any &value, CallbackWithStatus cb){
+	mUCChFunction = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_BCChFunction(const boost::any &value, CallbackWithStatus cb){
+	mBCChFunction = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_UnicastChList(const boost::any &value, CallbackWithStatus cb){
+	// reset bit mask
+	for (int x = 0; x < 129; x++){
+		mUnicastArray[x] = 0;
+	}
+
+	// convert input string to new bitmask
+	convert_to_bitmask_unicast(any_to_string(value));
+
+	std::string ret = "";
+	for (int x = 0; x < 16; x++){
+		char str_to_add[4];
+		sprintf(str_to_add, "%02x:", mUnicastBytes[x]);
+		ret.append(str_to_add);
+	}
+	char final_str_to_add[4];
+	sprintf(final_str_to_add, "%02x", mUnicastBytes[16]);
+	ret.append(final_str_to_add);
+	mUnicastChList = ret;
+
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_BroadcastChList(const boost::any &value, CallbackWithStatus cb){
+	// reset bit mask
+	for (int x = 0; x < 129; x++){
+		mBroadcastArray[x] = 0;
+	}
+
+	// convert input string to new bitmask
+	convert_to_bitmask_broadcast(any_to_string(value));
+
+	std::string ret = "";
+	for (int x = 0; x < 16; x++){
+		char str_to_add[4];
+		sprintf(str_to_add, "%02x:", mBroadcastBytes[x]);
+		ret.append(str_to_add);
+	}
+	char final_str_to_add[4];
+	sprintf(final_str_to_add, "%02x", mBroadcastBytes[16]);
+	ret.append(final_str_to_add);
+	mBroadcastChList = ret;
+
+	cb(kWPANTUNDStatus_Ok);
+}
+void NCPInstanceBase::set_prop_AsyncChList(const boost::any &value, CallbackWithStatus cb){
+	// reset bit mask
+	for (int x = 0; x < 129; x++){
+		mAsyncArray[x] = 0;
+	}
+
+	// convert input string to new bitmask
+	convert_to_bitmask_async(any_to_string(value));
+
+	std::string ret = "";
+	for (int x = 0; x < 16; x++){
+		char str_to_add[4];
+		sprintf(str_to_add, "%02x:", mAsyncBytes[x]);
+		ret.append(str_to_add);
+	}
+	char final_str_to_add[4];
+	sprintf(final_str_to_add, "%02x", mAsyncBytes[16]);
+	ret.append(final_str_to_add);
+	mAsyncChList = ret;
+
+	cb(kWPANTUNDStatus_Ok);
 }
 
 void
@@ -1114,6 +1464,7 @@ NCPInstanceBase::regsiter_all_insert_handlers(void)
 		boost::bind(&NCPInstanceBase::insert_prop_##name, this, _1, _2))
 
 	REGISTER_INSERT_HANDLER(IPv6MulticastAddresses);
+	REGISTER_INSERT_HANDLER(MacFilterList);
 
 #undef REGISTER_INSERT_HANDLER
 }
@@ -1154,6 +1505,11 @@ NCPInstanceBase::insert_prop_IPv6MulticastAddresses(const boost::any &value, Cal
 	multicast_address_was_joined(kOriginUser, address, cb);
 }
 
+void NCPInstanceBase::insert_prop_MacFilterList(const boost::any &value, CallbackWithStatus cb){
+	convert_to_filter_list(any_to_string(value));
+	cb(kWPANTUNDStatus_Ok);
+}
+
 // ----------------------------------------------------------------------------
 // MARK: -
 // MARK: Property Remove Handlers
@@ -1174,6 +1530,7 @@ NCPInstanceBase::regsiter_all_remove_handlers(void)
 		boost::bind(&NCPInstanceBase::remove_prop_##name, this, _1, _2))
 
 	REGISTER_REMOVE_HANDLER(IPv6MulticastAddresses);
+	REGISTER_REMOVE_HANDLER(MacFilterList);
 
 #undef REGISTER_REMOVE_HANDLER
 }
@@ -1211,6 +1568,11 @@ NCPInstanceBase::remove_prop_IPv6MulticastAddresses(const boost::any &value, Cal
 {
 	struct in6_addr address = any_to_ipv6(value);
 	multicast_address_was_left(kOriginUser, address, cb);
+}
+
+void NCPInstanceBase::remove_prop_MacFilterList(const boost::any &value, CallbackWithStatus cb){
+	convert_to_filter_list(any_to_string(value));
+	cb(kWPANTUNDStatus_Ok);
 }
 
 void
@@ -1503,11 +1865,11 @@ NCPInstanceBase::update_busy_indication(void)
 		&& (mLastChangedBusy != 0)
 		&& (current_time - mLastChangedBusy > MAX_INSOMNIA_TIME_IN_MS)
 	) {
-		syslog(LOG_ERR, "Experiencing extended insomnia. Resetting internal state.");
+		//syslog(LOG_ERR, "Experiencing extended insomnia. Resetting internal state.");
 
 		mLastChangedBusy = current_time;
 
-		ncp_is_misbehaving();
+		//ncp_is_misbehaving();
 	}
 }
 
@@ -1546,4 +1908,255 @@ bool
 NCPInstanceBase::can_upgrade_firmware(void)
 {
 	return mFirmwareUpgrade.can_upgrade_firmware();
+}
+
+void 
+NCPInstanceBase::convert_to_bitmask_unicast(std::string value){
+	// step 1 : split input string
+	std::vector<std::string> values;
+	int start = 0;
+	int end = value.find(':');
+	while(end != -1){
+		values.push_back(value.substr(start, end - start));
+		start = end + 1;
+		end = value.find(':', start);
+	}
+	values.push_back(value.substr(start, end - start));
+
+	// step 2 : get channel values
+	for (int x = 0; x < values.size(); x++){
+		int start_channel = 0;
+		int end_channel = 0;
+		end = values.at(x).find('-');
+		if (end == -1){
+			// just a single channel
+			start_channel = any_to_int(values.at(x));
+			end_channel = start_channel;
+		}
+		else{
+			// multiple channels
+			start_channel = any_to_int(values.at(x).substr(0, end));
+			end_channel = any_to_int(values.at(x).substr(end + 1, (values.at(x).length() - 1 - end)));
+		}
+
+		for (int y = 0; y <= (end_channel - start_channel); y++){
+			mUnicastArray[start_channel + y] = 1;
+		}
+	}
+
+	// step 3 : convert list of channel value bits to 17 bytes
+	int eight_multiple = 8;
+	int channel_mask_byte = 0;
+	int count = 0;
+	int value_to_store = 0;
+	for (int x = 0; x < 129; x++){
+		if (x < eight_multiple){
+			value_to_store += (mUnicastArray[x] << count);
+			count++;
+		}
+		else{
+			mUnicastBytes[eight_multiple/8 - 1] = value_to_store;
+			eight_multiple += 8;
+			count = 0;
+			value_to_store = 0;
+
+			// need to account for first bit in each byte
+			value_to_store += (mUnicastArray[x] << count);
+			count++;
+		}
+	}
+}
+void 
+NCPInstanceBase::convert_to_bitmask_broadcast(std::string value){
+	// step 1 : split input string
+	std::vector<std::string> values;
+	int start = 0;
+	int end = value.find(':');
+	while(end != -1){
+		values.push_back(value.substr(start, end - start));
+		start = end + 1;
+		end = value.find(':', start);
+	}
+	values.push_back(value.substr(start, end - start));
+
+	// step 2 : get channel values
+	for (int x = 0; x < values.size(); x++){
+		int start_channel = 0;
+		int end_channel = 0;
+		end = values.at(x).find('-');
+		if (end == -1){
+			// just a single channel
+			start_channel = any_to_int(values.at(x));
+			end_channel = start_channel;
+		}
+		else{
+			// multiple channels
+			start_channel = any_to_int(values.at(x).substr(0, end));
+			end_channel = any_to_int(values.at(x).substr(end + 1, (values.at(x).length() - 1 - end)));
+		}
+
+		for (int y = 0; y <= (end_channel - start_channel); y++){
+			mBroadcastArray[start_channel + y] = 1;
+		}
+	}
+
+	// step 3 : convert list of channel value bits to 17 bytes
+	int eight_multiple = 8;
+	int channel_mask_byte = 0;
+	int count = 0;
+	int value_to_store = 0;
+	for (int x = 0; x < 129; x++){
+		if (x < eight_multiple){
+			value_to_store += (mBroadcastArray[x] << count);
+			count++;
+		}
+		else{
+			mBroadcastBytes[eight_multiple/8 - 1] = value_to_store;
+			eight_multiple += 8;
+			count = 0;
+			value_to_store = 0;
+
+			// need to account for first bit in each byte
+			value_to_store += (mBroadcastArray[x] << count);
+			count++;
+		}
+	}
+}
+void 
+NCPInstanceBase::convert_to_bitmask_async(std::string value){
+	// step 1 : split input string
+	std::vector<std::string> values;
+	int start = 0;
+	int end = value.find(':');
+	while(end != -1){
+		values.push_back(value.substr(start, end - start));
+		start = end + 1;
+		end = value.find(':', start);
+	}
+	values.push_back(value.substr(start, end - start));
+
+	// step 2 : get channel values
+	for (int x = 0; x < values.size(); x++){
+		int start_channel = 0;
+		int end_channel = 0;
+		end = values.at(x).find('-');
+		if (end == -1){
+			// just a single channel
+			start_channel = any_to_int(values.at(x));
+			end_channel = start_channel;
+		}
+		else{
+			// multiple channels
+			start_channel = any_to_int(values.at(x).substr(0, end));
+			end_channel = any_to_int(values.at(x).substr(end + 1, (values.at(x).length() - 1 - end)));
+		}
+
+		for (int y = 0; y <= (end_channel - start_channel); y++){
+			mAsyncArray[start_channel + y] = 1;
+		}
+	}
+
+	// step 3 : convert list of channel value bits to 17 bytes
+	int eight_multiple = 8;
+	int channel_mask_byte = 0;
+	int count = 0;
+	int value_to_store = 0;
+	for (int x = 0; x < 129; x++){
+		if (x < eight_multiple){
+			value_to_store += (mAsyncArray[x] << count);
+			count++;
+		}
+		else{
+			mAsyncBytes[eight_multiple/8 - 1] = value_to_store;
+			eight_multiple += 8;
+			count = 0;
+			value_to_store = 0;
+
+			// need to account for first bit in each byte
+			value_to_store += (mAsyncArray[x] << count);
+			count++;
+		}
+	}
+}
+
+/* Custom revstr for macfilterlist */
+void custom_revstr(char *str1)  
+{  
+    // declare variable  
+    int i, len, temp1, temp2;  
+    len = strlen(str1); // use strlen() to get the length of str string  
+      
+    // use for loop to iterate the string   
+    for (i = 0; i < len/2; i+=2)  
+    {  
+        // temp variable use to temporary hold the string  
+        temp1 = str1[i];  
+		temp2 = str1[i+1]; 
+        str1[i] = str1[len - i - 2];  
+		str1[i+1] = str1[len - i - 1];  
+        str1[len - i - 1] = temp2;  
+		str1[len - i - 2] = temp1;
+    }  
+}  
+
+void 
+NCPInstanceBase::convert_to_filter_list(std::string value){
+	// step 1 add or remove?
+	if (value.substr(0,3) == "add"){
+		// perform add
+		// step 1 : check if table is full
+		int num_empty = 0;
+		int first_empty = 10;
+		for (int x = 0; x < MAC_FILTER_LIST_SIZE; x++){
+			if (mMacFilterListString[x] == "0000000000000000"){
+				num_empty++;
+				if (x < first_empty){
+					// get first empty row
+					first_empty = x;
+				}
+			}
+		}
+		if (num_empty != 0){
+			// row left to fill
+			std::string string_to_insert = value.substr(3, 8);
+			char * p1;
+			int int_to_insert = strtol(string_to_insert.c_str(), & p1, 16);
+			mMacFilterList[first_empty * 2] = int_to_insert;
+			string_to_insert = value.substr(11, 8);
+			char * p2;
+			int_to_insert = strtol(string_to_insert.c_str(), & p2, 16);
+			mMacFilterList[first_empty * 2 + 1] = int_to_insert;
+		}
+	}
+	else if (value.substr(0,3) == "rem"){
+		// perform remove
+		// step 1 : find row to remove
+		int row_remove = 10;
+		for (int x = 0; x < MAC_FILTER_LIST_SIZE; x++){
+			if (mMacFilterListString[x] == value.substr(3, 16)){
+				row_remove = x;
+			}
+		}
+		if (row_remove != 10){
+			// a row to remove was found
+			mMacFilterList[row_remove * 2] = 0;
+			mMacFilterList[row_remove * 2 + 1] = 0;
+		}
+	}
+
+	// update the string array with new filter list
+	std::string ret_string = "";
+	int string_count = 0;
+
+	for (int x = 0; x < (MAC_FILTER_LIST_SIZE * 2); x += 2){
+		char str_to_add[17];
+		sprintf(str_to_add, "%08x", mMacFilterList[x]);
+		custom_revstr(str_to_add);
+		ret_string = str_to_add;
+		sprintf(str_to_add, "%08x", mMacFilterList[x + 1]);
+		custom_revstr(str_to_add);
+		ret_string.append(str_to_add);
+		mMacFilterListString[string_count] = ret_string;
+		string_count ++;
+	}
 }

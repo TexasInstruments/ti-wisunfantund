@@ -1,0 +1,701 @@
+
+	html .lightgray-theme,
+	html#designer-frame .designer-theme {
+		font-family: 'Open Sans', sans-serif;
+		-ms-text-size-adjust: 100%;
+		-webkit-text-size-adjust: 100%;
+		font-weight: 400;
+		font-size: 14px;
+    }
+    html .lightgray-theme .no-select,
+    html#designer-frame .designer-theme .no-select {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Safari */
+         -khtml-user-select: none;   /* Konqueror HTML */
+           -moz-user-select: none;   /* Firefox */
+            -ms-user-select: none;   /* Internet Explorer/Edge */
+                user-select: none;  /* Non-prefixed version, currently
+                                       supported by Chrome and Opera */
+    }
+	html .lightgray-theme .font-special,
+	html#designer-frame .designer-theme .font-special {
+		font-family: 'Oxygen', sans-serif;
+	}
+	html .lightgray-theme iron-header-panel,
+	html#designer-frame .designer-theme iron-header-panel {
+		height: 100%;
+	}
+	html .lightgray-theme iron-header-panel[mode=cover] #mainContainer,
+	html#designer-frame .designer-theme iron-header-panel[mode=cover] #mainContainer {
+		left: 70px;
+	}
+	html .lightgray-theme .iron-header,
+	html#designer-frame .designer-theme .iron-header {
+		height: 60px;
+		font-size: 18px;
+		/* Brian: removed: padding: 0 10px; */
+		transition: height 0.2s;
+		background-color: #f2f2f2;
+		color: #1f1f1f;
+	}
+	html .lightgray-theme .iron-header a,
+	html#designer-frame .designer-theme .iron-header a {
+		color: #1f1f1f;
+	}
+	html .lightgray-theme .iron-header paper-item,
+	html#designer-frame .designer-theme .iron-header paper-item {
+		font-size: 18px;
+	}
+	html .lightgray-theme .iron-header.tall,
+	html#designer-frame .designer-theme .iron-header.tall {
+		height: 180px;
+	}
+	html .lightgray-theme .iron-header.medium-tall,
+	html#designer-frame .designer-theme .iron-header.medium-tall {
+		height: 120px;
+	}
+	html .lightgray-theme .iron-header iron-menu-button a,
+	html#designer-frame .designer-theme .iron-header iron-menu-button a {
+		color: #191919;
+	}
+	html .lightgray-theme .wrapper,
+	html#designer-frame .designer-theme .wrapper {
+		text-align: center;
+	}
+	html .lightgray-theme section,
+	html#designer-frame .designer-theme section {
+		text-align: left;  /* Brian: padding and alignment causes problems for many non-paper components */
+		padding: 0px 0px;
+	}
+	html .lightgray-theme .ti-banner,
+	html#designer-frame .designer-theme .ti-banner {
+		background-color: black;
+	}
+	html .lightgray-theme section[hero],
+	html#designer-frame .designer-theme section[hero] {
+		background-color: #f1f1f1;
+	}
+	html .lightgray-theme h1,
+	html .lightgray-theme h2,
+	html .lightgray-theme h3,
+	html .lightgray-theme h4,
+	html .lightgray-theme h5,
+	html .lightgray-theme h6,
+	html#designer-frame .designer-theme h1,
+	html#designer-frame .designer-theme h2,
+	html#designer-frame .designer-theme h3,
+	html#designer-frame .designer-theme h4,
+	html#designer-frame .designer-theme h5,
+	html#designer-frame .designer-theme h6 {
+		font-weight: 400;
+		margin: 0px;
+		padding: 0px;
+	}
+	html .lightgray-theme h1,
+	html .lightgray-theme h3,
+	html .lightgray-theme h5,
+	html#designer-frame .designer-theme h1,
+	html#designer-frame .designer-theme h3,
+	html#designer-frame .designer-theme h5 {
+		font-family: 'Oxygen', sans-serif;
+	}
+	html .lightgray-theme h1,
+	html#designer-frame .designer-theme h1 {
+		color: initial;
+		font-size: 2em;
+		margin: 5px 0px;
+	}
+	html .lightgray-theme h2,
+	html#designer-frame .designer-theme h2 {
+		color: #191919;
+		font-size: 1.6em;
+		margin: 3px 0px;
+	}
+	html .lightgray-theme h3,
+	html#designer-frame .designer-theme h3 {
+		color: initial;
+		font-size: 1.4em;
+		margin: 2px 0px;
+	}
+	html .lightgray-theme h4,
+	html#designer-frame .designer-theme h4 {
+		color: initial;
+		font-size: 1.2em;
+	}
+	html .lightgray-theme h5,
+	html#designer-frame .designer-theme h5 {
+		color: initial;
+	}
+	html .lightgray-theme h6,
+	html#designer-frame .designer-theme h6 {
+		color: initial;
+	}
+	html .lightgray-theme a,
+	html#designer-frame .designer-theme a {
+		color: #00f;
+	}
+	html .lightgray-theme a:hover,
+	html#designer-frame .designer-theme a:hover {
+	    color: #00f;
+		text-decoration: underline;
+	}
+	html .lightgray-theme [autofocus],
+	html#designer-frame .designer-theme [autofocus] {
+		color: #191919;
+	}
+	html .lightgray-theme ti-tile-title #titleDiv,
+	html .lightgray-theme ti-tile-title #containerDiv,
+	html#designer-frame .designer-theme ti-tile-title #titleDiv,
+	html#designer-frame .designer-theme ti-tile-title #containerDiv {
+		background-color: #f2f2f2 !important;
+		color: #1f1f1f !important;
+	}
+	html .lightgray-theme ti-widget-button:not(.idunno),
+	html .lightgray-theme paper-button,
+	html#designer-frame .designer-theme ti-widget-button:not(.idunno),
+	html#designer-frame .designer-theme paper-button {
+		margin: 2px;
+		color: #191919;
+	}
+	html .lightgray-theme ti-widget-button[disabled]:not(#idunno),
+	html .lightgray-theme paper-button[disabled]:not(#idunno),
+	html#designer-frame .designer-theme ti-widget-button[disabled]:not(#idunno),
+	html#designer-frame .designer-theme paper-button[disabled]:not(#idunno) {
+		color: #545660 !important;
+		background-color: #afb1b9 !important;
+	}
+	html .lightgray-theme ti-widget-button[raised]:not(.idunno),
+	html .lightgray-theme paper-button[raised],
+	html#designer-frame .designer-theme ti-widget-button[raised]:not(.idunno),
+	html#designer-frame .designer-theme paper-button[raised] {
+		background-color: #f2f2f2;
+		color: #191919;
+	}
+	html .lightgray-theme ti-widget-button[primary],
+	html .lightgray-theme paper-button[primary],
+	html#designer-frame .designer-theme ti-widget-button[primary],
+	html#designer-frame .designer-theme paper-button[primary] {
+		color: #191919 !important;
+	}
+	html .lightgray-theme ti-widget-button[primary][raised],
+	html .lightgray-theme paper-button[primary][raised],
+	html#designer-frame .designer-theme ti-widget-button[primary][raised],
+	html#designer-frame .designer-theme paper-button[primary][raised] {
+		background-color: #f2f2f2 !important;
+		color: #191919 !important;
+	}
+	html .lightgray-theme ti-widget-button[secondary],
+	html .lightgray-theme paper-button[secondary],
+	html#designer-frame .designer-theme ti-widget-button[secondary],
+	html#designer-frame .designer-theme paper-button[secondary] {
+		color: #1e88e5 !important;
+	}
+	html .lightgray-theme ti-widget-button[secondary][raised],
+	html .lightgray-theme paper-button[secondary][raised],
+	html#designer-frame .designer-theme ti-widget-button[secondary][raised],
+	html#designer-frame .designer-theme paper-button[secondary][raised] {
+		background-color: #1e88e5 !important;
+		color: #191919 !important;
+	}
+	html .lightgray-theme ti-widget-button[success],
+	html .lightgray-theme paper-button[success],
+	html#designer-frame .designer-theme ti-widget-button[success],
+	html#designer-frame .designer-theme paper-button[success] {
+		color: #8bc34a !important;
+	}
+	html .lightgray-theme ti-widget-button[success][raised],
+	html .lightgray-theme paper-button[success][raised],
+	html#designer-frame .designer-theme ti-widget-button[success][raised],
+	html#designer-frame .designer-theme paper-button[success][raised] {
+		background-color: #8bc34a !important;
+		color: #3a5718 !important;
+	}
+	html .lightgray-theme ti-widget-button[info],
+	html .lightgray-theme paper-button[info],
+	html#designer-frame .designer-theme ti-widget-button[info],
+	html#designer-frame .designer-theme paper-button[info] {
+		color: #fadd60 !important;
+	}
+	html .lightgray-theme ti-widget-button[info][raised],
+	html .lightgray-theme paper-button[info][raised],
+	html#designer-frame .designer-theme ti-widget-button[info][raised],
+	html#designer-frame .designer-theme paper-button[info][raised] {
+		background-color: #fadd60 !important;
+		color: #776413 !important;
+	}
+	html .lightgray-theme ti-widget-button[warning],
+	html .lightgray-theme paper-button[warning],
+	html#designer-frame .designer-theme ti-widget-button[warning],
+	html#designer-frame .designer-theme paper-button[warning] {
+		color: #ffb74d !important;
+	}
+	html .lightgray-theme ti-widget-button[warning][raised],
+	html .lightgray-theme paper-button[warning][raised],
+	html#designer-frame .designer-theme ti-widget-button[warning][raised],
+	html#designer-frame .designer-theme paper-button[warning][raised] {
+		background-color: #ffb74d !important;
+		color: #fff !important;
+	}
+	html .lightgray-theme ti-widget-button[error],
+	html .lightgray-theme paper-button[error],
+	html#designer-frame .designer-theme ti-widget-button[error],
+	html#designer-frame .designer-theme paper-button[error] {
+		color: #ef5350 !important;
+	}
+	html .lightgray-theme ti-widget-button[error][raised],
+	html .lightgray-theme paper-button[error][raised],
+	html#designer-frame .designer-theme ti-widget-button[error][raised],
+	html#designer-frame .designer-theme paper-button[error][raised] {
+		background-color: #ef5350 !important;
+		color: #fff !important;
+	}
+	html .lightgray-theme ti-widget-button[link],
+	html .lightgray-theme paper-button[link],
+	html#designer-frame .designer-theme ti-widget-button[link],
+	html#designer-frame .designer-theme paper-button[link] {
+		color: #000 !important;
+	}
+	html .lightgray-theme ti-widget-button[link][raised],
+	html .lightgray-theme paper-button[link][raised],
+	html#designer-frame .designer-theme ti-widget-button[link][raised],
+	html#designer-frame .designer-theme paper-button[link][raised] {
+		background-color: #fff !important;
+		color: #000 !important;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-checkbox,
+	html .lightgray-theme paper-checkbox,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-checkbox,
+	html#designer-frame .designer-theme paper-checkbox {
+		--paper-checkbox-checked-color: #191919;
+		--paper-checkbox-checked-ink-color: #191919;
+		--paper-checkbox-unchecked-color: #ccc;
+		--paper-checkbox-unchecked-ink-color: #ccc;
+		--paper-checkbox-label-color: #222;
+	}
+	html .lightgray-theme ti-widget-textbox[disabled],
+	html .lightgray-theme ti-widget-checkbox[disabled],
+	html .lightgray-theme paper-checkbox[disabled],
+	html#designer-frame .designer-theme ti-widget-textbox[disabled],
+	html#designer-frame .designer-theme ti-widget-checkbox[disabled],
+	html#designer-frame .designer-theme paper-checkbox[disabled] {
+		color: #aaa !important;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme paper-menu,
+	html .lightgray-theme paper-fab,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme paper-menu,
+	html#designer-frame .designer-theme paper-fab {
+		--iron-icon-fill-color: currentColor;
+		--paper-fab-background: #f2f2f2;
+		--paper-fab-iron-icon: {
+			fill: #191919;
+		}
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-floating-action-button,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-floating-action-button {
+		--ti-widget-floating-action-button-background: #f2f2f2;
+		--ti-widget-floating-action-button-color: #191919;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-icon-button,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-icon-button {
+		--ti-widget-icon-button-color: #191919;
+	}
+	html .lightgray-theme ti-widget-menubar ti-widget-icon-button,
+	html#designer-frame .designer-theme ti-widget-menubar ti-widget-icon-button {
+        --ti-widget-icon-button-color: #1f1f1f;
+    }
+	html .lightgray-theme iron-toolbar paper-tabs,
+	html#designer-frame .designer-theme iron-toolbar paper-tabs {
+		-webkit-box-shadow: none;
+		box-shadow: none;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-tabcontainer,
+	html .lightgray-theme paper-tabs,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-tabcontainer,
+	html#designer-frame .designer-theme paper-tabs {
+		--paper-tabs-selection-bar-color: #80cbc4;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-tabcontainer,
+	html .lightgray-theme paper-tab,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-tabcontainer,
+	html#designer-frame .designer-theme paper-tab {
+		--paper-tab-ink: #80cbc4;
+	}
+	html .lightgray-theme ti-widget-dialog #headerBackground,
+	html#designer-frame .designer-theme ti-widget-dialog #headerBackground {
+		color:  #fff !important;
+		background-color: #63666A !important;
+	}
+	html .lightgray-theme paper-tabs,
+	html .lightgray-theme iron-toolbar,
+	html#designer-frame .designer-theme paper-tabs,
+	html#designer-frame .designer-theme iron-toolbar {
+		background-color: #f2f2f2; /* this controls the background color of the unselected tabs */
+		color: #1f1f1f;
+		-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+		box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+	}
+	html .lightgray-theme paper-tabs.transparent-teal,
+	html#designer-frame .designer-theme paper-tabs.transparent-teal {
+		background-color: transparent;
+		color: #191919;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+	}
+	html .lightgray-theme paper-tabs.transparent-teal,
+	html#designer-frame .designer-theme paper-tabs.transparent-teal {
+		--paper-tabs-selection-bar-color: #f2f2f2;
+	}
+	html .lightgray-theme paper-tabs[no-bar] paper-tab.iron-selected,
+	html#designer-frame .designer-theme paper-tabs[no-bar] paper-tab.iron-selected {
+		color: #191919;
+		background-color: #e5e5e5;  /* this controls the background color of the selected tab */
+		border-bottom: 1px solid #5d5d5d;
+	}
+	html .lightgray-theme paper-toast *,
+	html .lightgray-theme paper-tabs *,
+	html#designer-frame .designer-theme paper-toast *,
+	html#designer-frame .designer-theme paper-tabs * {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: rgba(0,0,0,0);
+		-webkit-touch-callout: none;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme paper-toast,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme paper-toast {
+		--paper-toast-background-color: #323232;
+		--paper-toast-color: #f1f1f1;
+	}
+	html .lightgray-theme paper-toast,
+	html#designer-frame .designer-theme paper-toast {
+		text-align: left;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-toast,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-toast {
+		--ti-widget-toast-background-color: #323232;
+		--ti-widget-toast-color: #f1f1f1;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme paper-dropdown-menu,
+	html .lightgray-theme ti-widget-input,
+	html .lightgray-theme paper-input,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme paper-dropdown-menu,
+	html#designer-frame .designer-theme ti-widget-input,
+	html#designer-frame .designer-theme paper-input {
+		--paper-input-container-color: #757575;
+		--paper-input-container-focus-color: #222;
+		--paper-input-container-invalid-color: #ef5350;
+		--paper-input-container-input-color: #222;
+	}
+	html .lightgray-theme .toolbar,
+	html#designer-frame .designer-theme .toolbar {
+		color: #1f1f1f;
+		background-color: #f2f2f2;
+	}
+	html .lightgray-theme .card,
+	html#designer-frame .designer-theme .card {
+		background-color: #fff;
+	}
+	html .lightgray-theme paper-item,
+	html#designer-frame .designer-theme paper-item {
+		background-color: #fff;
+		color: #1f1f1f;
+	}
+	html .lightgray-theme paper-item:hover,
+	html#designer-frame .designer-theme paper-item:hover {
+		background-color: #f2f2f2;
+	}
+	html .lightgray-theme paper-item.iron-selected,
+	html#designer-frame .designer-theme paper-item.iron-selected {
+		background-color: #fff;
+	}
+	html .lightgray-theme .small,
+	html#designer-frame .designer-theme .small {
+		font-size: 12px;
+	}
+	html .lightgray-theme .logo,
+	html#designer-frame .designer-theme .logo {
+		font-size: 21px;
+	}
+	html .lightgray-theme .logo a,
+	html#designer-frame .designer-theme .logo a {
+		font-weight: 700;
+		color: #1f1f1f;
+	}
+	html .lightgray-theme .inverse,
+	html#designer-frame .designer-theme .inverse {
+		background-color: #f2f2f2;
+		color: #1f1f1f;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme paper-progress,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme paper-progress {
+		--paper-progress-active-color: #00cc00;
+		--paper-progress-secondary-color: #1e88e5;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-radio-button,
+	html .lightgray-theme paper-radio-button,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-radio-button,
+	html#designer-frame .designer-theme paper-radio-button {
+		--paper-radio-button-unchecked-background-color: #fff;
+		--paper-radio-button-checked-color: #009688;
+		--paper-radio-button-unchecked-ink-color: #5a5a5a;
+		--paper-radio-button-checked-ink-color: #5a5a5a;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-tile-toggleswitch,
+	html .lightgray-theme ti-widget-toggle-button,
+	html .lightgray-theme paper-toggle-button,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-tile-toggleswitch,
+	html#designer-frame .designer-theme ti-widget-toggle-button,
+	html#designer-frame .designer-theme paper-toggle-button {
+		--paper-toggle-button-unchecked-bar-color: #f2f2f2;
+		--paper-toggle-button-checked-bar-color: #f2f2f2;
+		--paper-toggle-button-unchecked-button-color: #fff;
+		--paper-toggle-button-checked-button-color: #009688;
+		--paper-toggle-button-unchecked-ink-color: #a3a3a3;
+		--paper-toggle-button-checked-ink-color: #a3a3a3;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme paper-slider,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme paper-slider {
+		--paper-slider-active-color: #1f1f1f;
+		--paper-slider-secondary-color: #1e88e5;
+		--paper-slider-knob-color: #1f1f1f;
+		--paper-slider-pin-color: #1f1f1f;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-tile-slider,
+	html .lightgray-theme ti-tile-verticalslider,
+	html .lightgray-theme ti-widget-slider,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-tile-slider,
+	html#designer-frame .designer-theme ti-tile-verticalslider,
+	html#designer-frame .designer-theme ti-widget-slider {
+		--ti-widget-slider-progress-color: #1f1f1f;
+		--ti-widget-slider-tick-color: #1f1f1f;
+		--ti-widget-ruler-font-color: #222;
+	}
+	html .lightgray-theme paper-icon-button[disabled] iron-icon,
+	html#designer-frame .designer-theme paper-icon-button[disabled] iron-icon {
+		color: #afb1b9 !important;
+	}
+	html .lightgray-theme ti-widget-menubar paper-button[disabled] iron.icon,
+	html#designer-frame .designer-theme ti-widget-menubar paper-button[disabled] iron.icon {
+        color: #afb1b9 !important;
+    }
+	html .lightgray-theme design-frame,
+	html .lightgray-theme paper-spinner:not([default-spinner]),
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme paper-spinner:not([default-spinner]) {
+		--paper-spinner-layer-1-color: #f2f2f2;
+		--paper-spinner-layer-2-color: #f2f2f2;
+		--paper-spinner-layer-3-color: #f2f2f2;
+		--paper-spinner-layer-4-color: #f2f2f2;
+	}
+	html .lightgray-theme ti-widget-menuseparator #menuSeparator,
+	html#designer-frame .designer-theme ti-widget-menuseparator #menuSeparator {
+		background-color: #888;
+	}
+	html .lightgray-theme ti-widget-menubar,
+	html#designer-frame .designer-theme ti-widget-menubar {
+		background-color: #f2f2f2;
+		color: #1f1f1f;
+	}
+	html .lightgray-theme ti-widget-menubar .logoImage,
+	html#designer-frame .designer-theme ti-widget-menubar .logoImage {
+		background-color: #1f1f1f;
+		color: #f2f2f2;
+    }
+	html .lightgray-theme ti-widget-contextmenu .navIcon,
+	html .lightgray-theme ti-widget-menuitem .navIcon,
+	html#designer-frame .designer-theme ti-widget-contextmenu .navIcon,
+	html#designer-frame .designer-theme ti-widget-menuitem .navIcon {
+		color: #1f1f1f;
+	}
+	html .lightgray-theme ti-widget-contextmenu .hovering .navIcon,
+	html .lightgray-theme ti-widget-menuitem .hovering .navIcon,
+	html#designer-frame .designer-theme ti-widget-contextmenu .hovering .navIcon,
+	html#designer-frame .designer-theme ti-widget-menuitem .hovering .navIcon {
+		color: #1f1f1f;
+	}
+	html .lightgray-theme ti-widget-contextmenu .hoverMenu,
+	html .lightgray-theme ti-widget-menuitem .hoverMenu,
+	html#designer-frame .designer-theme ti-widget-contextmenu .hoverMenu,
+	html#designer-frame .designer-theme ti-widget-menuitem .hoverMenu {
+		background-color: #e5e5e5;
+		color: #1f1f1f;
+		border-color: #f2f2f2;
+	}
+	html .lightgray-theme ti-widget-contextmenu .hovering,
+	html .lightgray-theme ti-widget-menuitem .hovering,
+	html#designer-frame .designer-theme ti-widget-contextmenu .hovering,
+	html#designer-frame .designer-theme ti-widget-menuitem .hovering {
+		background-color: #ccc;
+		color: #1f1f1f;
+		border-color: #f2f2f2;
+	}
+	html .lightgray-theme ti-widget-menuaction li,
+	html#designer-frame .designer-theme ti-widget-menuaction li {
+		color: #1f1f1f;
+		background-color: #e5e5e5;
+		border-color: #f2f2f2;
+	}
+	html .lightgray-theme ti-widget-menuitem.subMenuItem .hovering,
+	html .lightgray-theme ti-widget-menuaction li:hover,
+	html#designer-frame .designer-theme ti-widget-menuitem.subMenuItem .hovering,
+	html#designer-frame .designer-theme ti-widget-menuaction li:hover {
+		background-color: #ccc;
+		color: #1f1f1f;
+	}
+	html .lightgray-theme ti-widget-menuaction .unenabled,
+	html#designer-frame .designer-theme ti-widget-menuaction .unenabled {
+		color: #888;
+		background-color: #f2f2f2;
+		border-color: #f2f2f2;
+	}
+	html .lightgray-theme ti-widget-menuaction .unenabled:hover,
+	html#designer-frame .designer-theme ti-widget-menuaction .unenabled:hover {
+		color: #888;
+		background-color: #ccc;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-statusbar,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-statusbar {
+		--paper-progress-active-color: #00cc00;
+		--paper-progress-secondary-color: #1e88e5;
+	}
+	html .lightgray-theme design-frame,
+	html .lightgray-theme ti-widget-progressbar,
+	html#designer-frame .designer-theme design-frame,
+	html#designer-frame .designer-theme ti-widget-progressbar {
+		--ti-widget-progressbar-color: #00cc00;
+	}
+	html .lightgray-theme ti-widget-statusbar ti-widget-status-container,
+	html#designer-frame .designer-theme ti-widget-statusbar ti-widget-status-container {
+		background-color: #f2f2f2;
+		color: #1f1f1f;
+	}
+    html .lightgray-theme ti-widget-statusbar .banner,
+    html#designer-frame .designer-theme ti-widget-statusbar .banner {
+        fill: #1f1f1f;
+    }
+	html .lightgray-theme ti-widget-analoggauge .needle,
+	html#designer-frame .designer-theme ti-widget-analoggauge .needle {
+		color: #c00;
+	}
+	html .lightgray-theme ti-widget-analoggauge .face,
+	html#designer-frame .designer-theme ti-widget-analoggauge .face {
+		background-color: #fff;
+		color: #000;
+	}
+	html .lightgray-theme ti-widget-analoggauge .frame,
+	html#designer-frame .designer-theme ti-widget-analoggauge .frame {
+		color: #222;
+	}
+	html .lightgray-theme ti-widget-dial .pointer,
+	html#designer-frame .designer-theme ti-widget-dial .pointer {
+		color: #c00;
+	}
+	html .lightgray-theme ti-widget-dial .knob,
+	html#designer-frame .designer-theme ti-widget-dial .knob {
+		background-color: #fff;
+	}
+	html .lightgray-theme ti-widget-dial .frame,
+	html#designer-frame .designer-theme ti-widget-dial .frame {
+		background-color: #222;
+		color: #fff;
+	}
+	html .lightgray-theme label,
+	html .lightgray-theme ti-widget-label,
+	html .lightgray-theme ti-widget-bitfield-header,
+	html .lightgray-theme ti-widget-droplist,
+	html .lightgray-theme ti-widget-numberbox,
+	html .lightgray-theme ti-widget-spinner,
+	html .lightgray-theme ti-widget-textbox,
+	html#designer-frame .designer-theme label,
+	html#designer-frame .designer-theme ti-widget-label,
+	html#designer-frame .designer-theme ti-widget-bitfield-header,
+	html#designer-frame .designer-theme ti-widget-droplist,
+	html#designer-frame .designer-theme ti-widget-numberbox,
+	html#designer-frame .designer-theme ti-widget-spinner,
+	html#designer-frame .designer-theme ti-widget-textbox {
+		font-family: 'Open Sans', sans-serif;
+		background-color: transparent;
+		color: #222;
+	}
+	html .lightgray-theme label[disabled],
+	html .lightgray-theme ti-widget-label[disabled],
+	html .lightgray-theme ti-widget-bitfield-header[disabled],
+	html .lightgray-theme ti-widget-droplist[disabled],
+	html .lightgray-theme ti-widget-numberbox[disabled],
+	html .lightgray-theme ti-widget-spinner[disabled],
+	html .lightgray-theme ti-widget-textbox[disabled],
+	html#designer-frame .designer-theme label[disabled],
+	html#designer-frame .designer-theme ti-widget-label[disabled],
+	html#designer-frame .designer-theme ti-widget-bitfield-header[disabled],
+	html#designer-frame .designer-theme ti-widget-droplist[disabled],
+	html#designer-frame .designer-theme ti-widget-numberbox[disabled],
+	html#designer-frame .designer-theme ti-widget-spinner[disabled],
+	html#designer-frame .designer-theme ti-widget-textbox[disabled] {
+		color: #aaa !important;
+	}
+	html .lightgray-theme select,
+	html#designer-frame .designer-theme select {
+		border-radius: 0px;
+		font-family: 'Open Sans', sans-serif;
+		border: 1px solid #ccc;
+		font-size: inherit;
+	}
+	html .lightgray-theme input,
+	html#designer-frame .designer-theme input {
+		font-family: 'Open Sans', sans-serif;
+		font-size: inherit;
+	}
+	
+	html .lightgray-theme ti-widget-filetree,
+	
+	html#designer-frame .designer-theme ti-widget-filetree {
+        --ti-widget-filetree-background-color: #fff;
+        --ti-widget-filetree-text-color: #222;
+        --ti-widget-filetree-font-size: small;
+        
+        --ti-widget-filetree-filesize-text-color: #888;
+        --ti-widget-filetree-header-text-color: #fff;
+        --ti-widget-filetree-header-background-color: #afb1b9;
+        --ti-widget-filetree-header-font-size: normal;
+        
+        --ti-widget-filetree-selected-background-color: #eee;
+        --ti-widget-filetree-selected-text-color: #222;
+        --ti-widget-filetree-focus-background-color: #D9EBFB;
+        --ti-widget-filetree-focus-text-color: #222;
+        
+        --ti-widget-filetree-icon-color: #ccc;
+        --ti-widget-filetree-arrow-icon-color: grey;
+        --ti-widget-filetree-directory-icon-color: #1e88e5;
+        --ti-widget-filetree-progress-color: #1e88e5;
+	}

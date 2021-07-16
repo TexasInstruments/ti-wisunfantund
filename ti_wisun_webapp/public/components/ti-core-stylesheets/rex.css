@@ -1,0 +1,951 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+          "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>public/stylesheets/rex.css - ti-rex-core in ti-rex - Gitorious@TI</title>
+<link href="/stylesheets/gts-common.css?1367001844" media="screen" rel="stylesheet" type="text/css" />
+<link href="//fonts.googleapis.com/css?family=Nobile&amp;v1" type="text/css" rel="stylesheet">
+<link rel="shortcut icon" href="http://gitorious.design.ti.com/favicon.ico" type="image/x-icon">
+<script src="/javascripts/all.js?1367003127" type="text/javascript"></script>      <link href="/stylesheets/prettify/prettify.css?1367001844" media="screen" rel="stylesheet" type="text/css" />    <script src="/javascripts/lib/prettify.js?1367001844" type="text/javascript"></script>          <script src="/javascripts/lib/prettify/lang-css.js?1367001844" type="text/javascript"></script>      <!--[if IE 8]><link rel="stylesheet" href="/stylesheets/ie8.css" type="text/css"><![endif]-->
+<!--[if IE 7]><link rel="stylesheet" href="/stylesheets/ie7.css" type="text/css"><![endif]-->
+
+</head>
+<body id="blobs">
+  <div id="wrapper">
+        <ul id="user-nav">
+      <li><a href="/">Dashboard</a></li>
+      
+    <li class="secondary"><a href="/~a0850941">~a0850941</a></li>
+  <li class="secondary messages unread">
+          <a href="/messages">14</a>      </li>
+  <li class="secondary subtle"><a href="/logout">Logout</a></li>
+    </ul>
+    <div id="header">
+      <h1 id="logo">
+        <a href="/"><img alt="Logo" src="/img/logo.png?1367001843" /></a>
+	<a href="/"><img alt="Ti_logo1" src="/img/ti_logo1.png?1367001843" /></a>      </h1>
+      <ul id="menu">
+                  <li class="activity"><a href="/activities">Activities</a></li>
+          <li class="projects"><a href="/projects">Projects</a></li>
+          <li class="teams"><a href="/teams">Teams</a></li>
+              </ul>
+    </div>
+    <div id="top-bar">
+      <ul id="breadcrumbs">
+        <li class="project"><a href="/ti">ti-rex</a></li><li class="repository"><a href="/ti/ti-rex-core">ti-rex-core</a></li><li class="branch"><a href="/ti/ti-rex-core/commits/master">master</a></li><li class="tree"><a href="/ti/ti-rex-core/trees/master">/</a></li><li class="folder"><a href="/ti/ti-rex-core/trees/master/public">public</a></li><li class="folder"><a href="/ti/ti-rex-core/trees/master/public/stylesheets">stylesheets</a></li><li class="file"><a href="/ti/ti-rex-core/blobs/master/public/stylesheets/rex.css">rex.css</a></li>      </ul>
+              <div id="searchbox">
+          
+
+
+<div class="search_bar">
+  <form action="/search" method="get">    <p>
+      <input class="text search-field round-5" id="q" name="q" type="text" />      <input type="submit" value="Search" class="search-submit round-5" />
+    </p>
+    <p class="hint search-hint" style="display: none;">
+      eg. 'wrapper', 'category:python' or '"document database"'
+          </p>
+  </form></div>
+        </div>
+          </div>
+    <div id="container" class="">
+      <div id="content" class="">
+        
+        
+
+
+
+<div class="page-meta">
+  <ul class="page-actions">
+    <li>Blob contents</li>
+    <li><a href="/ti/ti-rex-core/blobs/blame/88a1298af5473165d2b2ac2c59bccce8091c9430/public/stylesheets/rex.css" class="blame js-pjax" data-pjax="#codeblob">Blame</a></li>
+    <li><a href="/ti/ti-rex-core/blobs/history/master/public/stylesheets/rex.css" class="js-pjax" data-pjax="#codeblob">Blob history</a></li>
+    <li><a href="/ti/ti-rex-core/blobs/raw/master/public/stylesheets/rex.css">Raw blob data</a></li>
+  </ul>
+</div>
+
+
+
+<!-- mime: text/css -->
+
+       <div id="long-file" style="display:none"
+                  class="help-box center error round-5">
+               <div class="icon error"></div>        <p>
+          This file looks large and may slow your browser down if we attempt
+          to syntax highlight it, so we are showing it without any
+          pretty colors.
+          <a href="#highlight-anyway" id="highlight-anyway">Highlight
+          it anyway</a>.
+        </p>
+     </div>    <table id="codeblob" class="highlighted lang-css">
+<tr id="line1">
+<td class="line-numbers"><a href="#line1" name="line1">1</a></td>
+<td class="code"><pre class="prettyprint lang-css">/*!</pre></td>
+</tr>
+<tr id="line2">
+<td class="line-numbers"><a href="#line2" name="line2">2</a></td>
+<td class="code"><pre class="prettyprint lang-css"> * Bootstrap customization and styles for Resource Explorer tiles. </pre></td>
+</tr>
+<tr id="line3">
+<td class="line-numbers"><a href="#line3" name="line3">3</a></td>
+<td class="code"><pre class="prettyprint lang-css"> * @author pegah</pre></td>
+</tr>
+<tr id="line4">
+<td class="line-numbers"><a href="#line4" name="line4">4</a></td>
+<td class="code"><pre class="prettyprint lang-css"> */</pre></td>
+</tr>
+<tr id="line5">
+<td class="line-numbers"><a href="#line5" name="line5">5</a></td>
+<td class="code"><pre class="prettyprint lang-css">.panel-heading a:after {</pre></td>
+</tr>
+<tr id="line6">
+<td class="line-numbers"><a href="#line6" name="line6">6</a></td>
+<td class="code"><pre class="prettyprint lang-css">    font-family: 'Glyphicons Halflings';</pre></td>
+</tr>
+<tr id="line7">
+<td class="line-numbers"><a href="#line7" name="line7">7</a></td>
+<td class="code"><pre class="prettyprint lang-css">    content: &quot;\e114&quot;;    </pre></td>
+</tr>
+<tr id="line8">
+<td class="line-numbers"><a href="#line8" name="line8">8</a></td>
+<td class="code"><pre class="prettyprint lang-css">    float: right; </pre></td>
+</tr>
+<tr id="line9">
+<td class="line-numbers"><a href="#line9" name="line9">9</a></td>
+<td class="code"><pre class="prettyprint lang-css">    color: grey; </pre></td>
+</tr>
+<tr id="line10">
+<td class="line-numbers"><a href="#line10" name="line10">10</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line11">
+<td class="line-numbers"><a href="#line11" name="line11">11</a></td>
+<td class="code"><pre class="prettyprint lang-css">.panel-heading a.collapsed:after {</pre></td>
+</tr>
+<tr id="line12">
+<td class="line-numbers"><a href="#line12" name="line12">12</a></td>
+<td class="code"><pre class="prettyprint lang-css">    content: &quot;\e080&quot;;</pre></td>
+</tr>
+<tr id="line13">
+<td class="line-numbers"><a href="#line13" name="line13">13</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line14">
+<td class="line-numbers"><a href="#line14" name="line14">14</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line15">
+<td class="line-numbers"><a href="#line15" name="line15">15</a></td>
+<td class="code"><pre class="prettyprint lang-css">/*#main { height:800px; background:#e5ebeb url(//www.ti.com/assets/en/images/homepage/megatab-bg.jpg) repeat-x 0 0; position:relative; z-index:40; } */</pre></td>
+</tr>
+<tr id="line16">
+<td class="line-numbers"><a href="#line16" name="line16">16</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line17">
+<td class="line-numbers"><a href="#line17" name="line17">17</a></td>
+<td class="code"><pre class="prettyprint lang-css">.tile {</pre></td>
+</tr>
+<tr id="line18">
+<td class="line-numbers"><a href="#line18" name="line18">18</a></td>
+<td class="code"><pre class="prettyprint lang-css">height:90px;</pre></td>
+</tr>
+<tr id="line19">
+<td class="line-numbers"><a href="#line19" name="line19">19</a></td>
+<td class="code"><pre class="prettyprint lang-css">width:200px;</pre></td>
+</tr>
+<tr id="line20">
+<td class="line-numbers"><a href="#line20" name="line20">20</a></td>
+<td class="code"><pre class="prettyprint lang-css">display: block;</pre></td>
+</tr>
+<tr id="line21">
+<td class="line-numbers"><a href="#line21" name="line21">21</a></td>
+<td class="code"><pre class="prettyprint lang-css">cursor: pointer;</pre></td>
+</tr>
+<tr id="line22">
+<td class="line-numbers"><a href="#line22" name="line22">22</a></td>
+<td class="code"><pre class="prettyprint lang-css">-webkit-perspective: 0;</pre></td>
+</tr>
+<tr id="line23">
+<td class="line-numbers"><a href="#line23" name="line23">23</a></td>
+<td class="code"><pre class="prettyprint lang-css">-webkit-transform-style: preserve-3d;</pre></td>
+</tr>
+<tr id="line24">
+<td class="line-numbers"><a href="#line24" name="line24">24</a></td>
+<td class="code"><pre class="prettyprint lang-css">-webkit-transition: -webkit-transform .2s;</pre></td>
+</tr>
+<tr id="line25">
+<td class="line-numbers"><a href="#line25" name="line25">25</a></td>
+<td class="code"><pre class="prettyprint lang-css">float: left;</pre></td>
+</tr>
+<tr id="line26">
+<td class="line-numbers"><a href="#line26" name="line26">26</a></td>
+<td class="code"><pre class="prettyprint lang-css">min-width: 75px;</pre></td>
+</tr>
+<tr id="line27">
+<td class="line-numbers"><a href="#line27" name="line27">27</a></td>
+<td class="code"><pre class="prettyprint lang-css">min-height: 75px;</pre></td>
+</tr>
+<tr id="line28">
+<td class="line-numbers"><a href="#line28" name="line28">28</a></td>
+<td class="code"><pre class="prettyprint lang-css">text-align: left;</pre></td>
+</tr>
+<tr id="line29">
+<td class="line-numbers"><a href="#line29" name="line29">29</a></td>
+<td class="code"><pre class="prettyprint lang-css">opacity: .75;</pre></td>
+</tr>
+<tr id="line30">
+<td class="line-numbers"><a href="#line30" name="line30">30</a></td>
+<td class="code"><pre class="prettyprint lang-css">background-color: #fff;</pre></td>
+</tr>
+<tr id="line31">
+<td class="line-numbers"><a href="#line31" name="line31">31</a></td>
+<td class="code"><pre class="prettyprint lang-css">z-index: 1;</pre></td>
+</tr>
+<tr id="line32">
+<td class="line-numbers"><a href="#line32" name="line32">32</a></td>
+<td class="code"><pre class="prettyprint lang-css">border: 2px #eee solid;</pre></td>
+</tr>
+<tr id="line33">
+<td class="line-numbers"><a href="#line33" name="line33">33</a></td>
+<td class="code"><pre class="prettyprint lang-css">color: #fff;</pre></td>
+</tr>
+<tr id="line34">
+<td class="line-numbers"><a href="#line34" name="line34">34</a></td>
+<td class="code"><pre class="prettyprint lang-css">box-shadow: 7px 7px 5px #888888;</pre></td>
+</tr>
+<tr id="line35">
+<td class="line-numbers"><a href="#line35" name="line35">35</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line36">
+<td class="line-numbers"><a href="#line36" name="line36">36</a></td>
+<td class="code"><pre class="prettyprint lang-css">.tileSelected {</pre></td>
+</tr>
+<tr id="line37">
+<td class="line-numbers"><a href="#line37" name="line37">37</a></td>
+<td class="code"><pre class="prettyprint lang-css">  height:90px;</pre></td>
+</tr>
+<tr id="line38">
+<td class="line-numbers"><a href="#line38" name="line38">38</a></td>
+<td class="code"><pre class="prettyprint lang-css">  width:200px;</pre></td>
+</tr>
+<tr id="line39">
+<td class="line-numbers"><a href="#line39" name="line39">39</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background:#eee;</pre></td>
+</tr>
+<tr id="line40">
+<td class="line-numbers"><a href="#line40" name="line40">40</a></td>
+<td class="code"><pre class="prettyprint lang-css">  position: relative;</pre></td>
+</tr>
+<tr id="line41">
+<td class="line-numbers"><a href="#line41" name="line41">41</a></td>
+<td class="code"><pre class="prettyprint lang-css">  box-shadow: 3px 3px 3px #cc0000;  </pre></td>
+</tr>
+<tr id="line42">
+<td class="line-numbers"><a href="#line42" name="line42">42</a></td>
+<td class="code"><pre class="prettyprint lang-css">  opacity: 1;</pre></td>
+</tr>
+<tr id="line43">
+<td class="line-numbers"><a href="#line43" name="line43">43</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line44">
+<td class="line-numbers"><a href="#line44" name="line44">44</a></td>
+<td class="code"><pre class="prettyprint lang-css">.tileSelected::before {</pre></td>
+</tr>
+<tr id="line45">
+<td class="line-numbers"><a href="#line45" name="line45">45</a></td>
+<td class="code"><pre class="prettyprint lang-css">	content: &quot;&quot;;</pre></td>
+</tr>
+<tr id="line46">
+<td class="line-numbers"><a href="#line46" name="line46">46</a></td>
+<td class="code"><pre class="prettyprint lang-css">	width: 36px;</pre></td>
+</tr>
+<tr id="line47">
+<td class="line-numbers"><a href="#line47" name="line47">47</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: 36px;</pre></td>
+</tr>
+<tr id="line48">
+<td class="line-numbers"><a href="#line48" name="line48">48</a></td>
+<td class="code"><pre class="prettyprint lang-css">	top: 0;</pre></td>
+</tr>
+<tr id="line49">
+<td class="line-numbers"><a href="#line49" name="line49">49</a></td>
+<td class="code"><pre class="prettyprint lang-css">	right: 0;</pre></td>
+</tr>
+<tr id="line50">
+<td class="line-numbers"><a href="#line50" name="line50">50</a></td>
+<td class="code"><pre class="prettyprint lang-css">	position: absolute;	</pre></td>
+</tr>
+<tr id="line51">
+<td class="line-numbers"><a href="#line51" name="line51">51</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line52">
+<td class="line-numbers"><a href="#line52" name="line52">52</a></td>
+<td class="code"><pre class="prettyprint lang-css">.tile:hover {</pre></td>
+</tr>
+<tr id="line53">
+<td class="line-numbers"><a href="#line53" name="line53">53</a></td>
+<td class="code"><pre class="prettyprint lang-css">  opacity: 1;</pre></td>
+</tr>
+<tr id="line54">
+<td class="line-numbers"><a href="#line54" name="line54">54</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line55">
+<td class="line-numbers"><a href="#line55" name="line55">55</a></td>
+<td class="code"><pre class="prettyprint lang-css">.ace_editor { font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;font-size: 12px;line-height: normal; }</pre></td>
+</tr>
+<tr id="line56">
+<td class="line-numbers"><a href="#line56" name="line56">56</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line57">
+<td class="line-numbers"><a href="#line57" name="line57">57</a></td>
+<td class="code"><pre class="prettyprint lang-css">/* tab color */</pre></td>
+</tr>
+<tr id="line58">
+<td class="line-numbers"><a href="#line58" name="line58">58</a></td>
+<td class="code"><pre class="prettyprint lang-css">.nav-tabs&gt;li&gt;a {</pre></td>
+</tr>
+<tr id="line59">
+<td class="line-numbers"><a href="#line59" name="line59">59</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-color: #f0f0f0; </pre></td>
+</tr>
+<tr id="line60">
+<td class="line-numbers"><a href="#line60" name="line60">60</a></td>
+<td class="code"><pre class="prettyprint lang-css">  color:#333;</pre></td>
+</tr>
+<tr id="line61">
+<td class="line-numbers"><a href="#line61" name="line61">61</a></td>
+<td class="code"><pre class="prettyprint lang-css">  font-weight: 400;</pre></td>
+</tr>
+<tr id="line62">
+<td class="line-numbers"><a href="#line62" name="line62">62</a></td>
+<td class="code"><pre class="prettyprint lang-css">  border-radius: .2em .2em 0 0;  </pre></td>
+</tr>
+<tr id="line63">
+<td class="line-numbers"><a href="#line63" name="line63">63</a></td>
+<td class="code"><pre class="prettyprint lang-css">  margin: 0 1em 0 -.4em;</pre></td>
+</tr>
+<tr id="line64">
+<td class="line-numbers"><a href="#line64" name="line64">64</a></td>
+<td class="code"><pre class="prettyprint lang-css">  padding: .7em .7em .7em .7em;</pre></td>
+</tr>
+<tr id="line65">
+<td class="line-numbers"><a href="#line65" name="line65">65</a></td>
+<td class="code"><pre class="prettyprint lang-css">  box-shadow: 0 1px 0px #000;</pre></td>
+</tr>
+<tr id="line66">
+<td class="line-numbers"><a href="#line66" name="line66">66</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line67">
+<td class="line-numbers"><a href="#line67" name="line67">67</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line68">
+<td class="line-numbers"><a href="#line68" name="line68">68</a></td>
+<td class="code"><pre class="prettyprint lang-css">/* active tab color */</pre></td>
+</tr>
+<tr id="line69">
+<td class="line-numbers"><a href="#line69" name="line69">69</a></td>
+<td class="code"><pre class="prettyprint lang-css">.nav-tabs&gt;li.active&gt;a, .nav-tabs&gt;li.active&gt;a:hover, .nav-tabs&gt;li.active&gt;a:focus {</pre></td>
+</tr>
+<tr id="line70">
+<td class="line-numbers"><a href="#line70" name="line70">70</a></td>
+<td class="code"><pre class="prettyprint lang-css">  z-index: 10;</pre></td>
+</tr>
+<tr id="line71">
+<td class="line-numbers"><a href="#line71" name="line71">71</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-color: #555;</pre></td>
+</tr>
+<tr id="line72">
+<td class="line-numbers"><a href="#line72" name="line72">72</a></td>
+<td class="code"><pre class="prettyprint lang-css">  color: #fff;</pre></td>
+</tr>
+<tr id="line73">
+<td class="line-numbers"><a href="#line73" name="line73">73</a></td>
+<td class="code"><pre class="prettyprint lang-css">  font-weight: 600;</pre></td>
+</tr>
+<tr id="line74">
+<td class="line-numbers"><a href="#line74" name="line74">74</a></td>
+<td class="code"><pre class="prettyprint lang-css">  border-radius: .2em .2em 0 0;</pre></td>
+</tr>
+<tr id="line75">
+<td class="line-numbers"><a href="#line75" name="line75">75</a></td>
+<td class="code"><pre class="prettyprint lang-css">  margin: 0 1em 0 -.4em;</pre></td>
+</tr>
+<tr id="line76">
+<td class="line-numbers"><a href="#line76" name="line76">76</a></td>
+<td class="code"><pre class="prettyprint lang-css">  padding: .7em .7em .7em .7em;</pre></td>
+</tr>
+<tr id="line77">
+<td class="line-numbers"><a href="#line77" name="line77">77</a></td>
+<td class="code"><pre class="prettyprint lang-css">  box-shadow: 0 1px 0px #000;</pre></td>
+</tr>
+<tr id="line78">
+<td class="line-numbers"><a href="#line78" name="line78">78</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line79">
+<td class="line-numbers"><a href="#line79" name="line79">79</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line80">
+<td class="line-numbers"><a href="#line80" name="line80">80</a></td>
+<td class="code"><pre class="prettyprint lang-css">/* hover tab color */</pre></td>
+</tr>
+<tr id="line81">
+<td class="line-numbers"><a href="#line81" name="line81">81</a></td>
+<td class="code"><pre class="prettyprint lang-css">.nav-tabs&gt;li&gt;a:hover {</pre></td>
+</tr>
+<tr id="line82">
+<td class="line-numbers"><a href="#line82" name="line82">82</a></td>
+<td class="code"><pre class="prettyprint lang-css">  text-decoration:underline;</pre></td>
+</tr>
+<tr id="line83">
+<td class="line-numbers"><a href="#line83" name="line83">83</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line84">
+<td class="line-numbers"><a href="#line84" name="line84">84</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line85">
+<td class="line-numbers"><a href="#line85" name="line85">85</a></td>
+<td class="code"><pre class="prettyprint lang-css">.nav-tabs li.active&gt;a:after {</pre></td>
+</tr>
+<tr id="line86">
+<td class="line-numbers"><a href="#line86" name="line86">86</a></td>
+<td class="code"><pre class="prettyprint lang-css">border-left: 1em solid #555;</pre></td>
+</tr>
+<tr id="line87">
+<td class="line-numbers"><a href="#line87" name="line87">87</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line88">
+<td class="line-numbers"><a href="#line88" name="line88">88</a></td>
+<td class="code"><pre class="prettyprint lang-css">.nav-tabs li&gt;a:after {</pre></td>
+</tr>
+<tr id="line89">
+<td class="line-numbers"><a href="#line89" name="line89">89</a></td>
+<td class="code"><pre class="prettyprint lang-css">position: absolute;</pre></td>
+</tr>
+<tr id="line90">
+<td class="line-numbers"><a href="#line90" name="line90">90</a></td>
+<td class="code"><pre class="prettyprint lang-css">top: .1em; </pre></td>
+</tr>
+<tr id="line91">
+<td class="line-numbers"><a href="#line91" name="line91">91</a></td>
+<td class="code"><pre class="prettyprint lang-css">right: -1em;</pre></td>
+</tr>
+<tr id="line92">
+<td class="line-numbers"><a href="#line92" name="line92">92</a></td>
+<td class="code"><pre class="prettyprint lang-css">width: 0;</pre></td>
+</tr>
+<tr id="line93">
+<td class="line-numbers"><a href="#line93" name="line93">93</a></td>
+<td class="code"><pre class="prettyprint lang-css">height: 0;</pre></td>
+</tr>
+<tr id="line94">
+<td class="line-numbers"><a href="#line94" name="line94">94</a></td>
+<td class="code"><pre class="prettyprint lang-css">border-top: 2.9em solid transparent;</pre></td>
+</tr>
+<tr id="line95">
+<td class="line-numbers"><a href="#line95" name="line95">95</a></td>
+<td class="code"><pre class="prettyprint lang-css">border-bottom: 0 solid transparent;</pre></td>
+</tr>
+<tr id="line96">
+<td class="line-numbers"><a href="#line96" name="line96">96</a></td>
+<td class="code"><pre class="prettyprint lang-css">border-left: 1em solid #f0f0f0;</pre></td>
+</tr>
+<tr id="line97">
+<td class="line-numbers"><a href="#line97" name="line97">97</a></td>
+<td class="code"><pre class="prettyprint lang-css">content: '';</pre></td>
+</tr>
+<tr id="line98">
+<td class="line-numbers"><a href="#line98" name="line98">98</a></td>
+<td class="code"><pre class="prettyprint lang-css">box-shadow: 0 1px 0px #000;</pre></td>
+</tr>
+<tr id="line99">
+<td class="line-numbers"><a href="#line99" name="line99">99</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line100">
+<td class="line-numbers"><a href="#line100" name="line100">100</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line101">
+<td class="line-numbers"><a href="#line101" name="line101">101</a></td>
+<td class="code"><pre class="prettyprint lang-css">@-moz-document url-prefix() { </pre></td>
+</tr>
+<tr id="line102">
+<td class="line-numbers"><a href="#line102" name="line102">102</a></td>
+<td class="code"><pre class="prettyprint lang-css">  .nav-tabs li&gt;a:after {</pre></td>
+</tr>
+<tr id="line103">
+<td class="line-numbers"><a href="#line103" name="line103">103</a></td>
+<td class="code"><pre class="prettyprint lang-css">     top: 0em; </pre></td>
+</tr>
+<tr id="line104">
+<td class="line-numbers"><a href="#line104" name="line104">104</a></td>
+<td class="code"><pre class="prettyprint lang-css">  }</pre></td>
+</tr>
+<tr id="line105">
+<td class="line-numbers"><a href="#line105" name="line105">105</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line106">
+<td class="line-numbers"><a href="#line106" name="line106">106</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line107">
+<td class="line-numbers"><a href="#line107" name="line107">107</a></td>
+<td class="code"><pre class="prettyprint lang-css">.jstree-default .jstree-wholerow-clicked {</pre></td>
+</tr>
+<tr id="line108">
+<td class="line-numbers"><a href="#line108" name="line108">108</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background: #eee;</pre></td>
+</tr>
+<tr id="line109">
+<td class="line-numbers"><a href="#line109" name="line109">109</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background: -moz-linear-gradient(top, #eee 0%, #ccc 100%);</pre></td>
+</tr>
+<tr id="line110">
+<td class="line-numbers"><a href="#line110" name="line110">110</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eee), color-stop(100%, #ccc));</pre></td>
+</tr>
+<tr id="line111">
+<td class="line-numbers"><a href="#line111" name="line111">111</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background: -webkit-linear-gradient(top, #eee 0%, #ccc 100%);</pre></td>
+</tr>
+<tr id="line112">
+<td class="line-numbers"><a href="#line112" name="line112">112</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background: -o-linear-gradient(top, #eee 0%, #ccc 100%);</pre></td>
+</tr>
+<tr id="line113">
+<td class="line-numbers"><a href="#line113" name="line113">113</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background: -ms-linear-gradient(top, #eee 0%, #ccc 100%);</pre></td>
+</tr>
+<tr id="line114">
+<td class="line-numbers"><a href="#line114" name="line114">114</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background: linear-gradient(to bottom, #eee 0%, #ccc 100%);</pre></td>
+</tr>
+<tr id="line115">
+<td class="line-numbers"><a href="#line115" name="line115">115</a></td>
+<td class="code"><pre class="prettyprint lang-css">  /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@color1', endColorstr='@color2',GradientType=0 );*/</pre></td>
+</tr>
+<tr id="line116">
+<td class="line-numbers"><a href="#line116" name="line116">116</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line117">
+<td class="line-numbers"><a href="#line117" name="line117">117</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line118">
+<td class="line-numbers"><a href="#line118" name="line118">118</a></td>
+<td class="code"><pre class="prettyprint lang-css">#screen{</pre></td>
+</tr>
+<tr id="line119">
+<td class="line-numbers"><a href="#line119" name="line119">119</a></td>
+<td class="code"><pre class="prettyprint lang-css">  position: absolute;</pre></td>
+</tr>
+<tr id="line120">
+<td class="line-numbers"><a href="#line120" name="line120">120</a></td>
+<td class="code"><pre class="prettyprint lang-css">  top: 150px;</pre></td>
+</tr>
+<tr id="line121">
+<td class="line-numbers"><a href="#line121" name="line121">121</a></td>
+<td class="code"><pre class="prettyprint lang-css">  bottom: 0px;</pre></td>
+</tr>
+<tr id="line122">
+<td class="line-numbers"><a href="#line122" name="line122">122</a></td>
+<td class="code"><pre class="prettyprint lang-css">  left: 0px;</pre></td>
+</tr>
+<tr id="line123">
+<td class="line-numbers"><a href="#line123" name="line123">123</a></td>
+<td class="code"><pre class="prettyprint lang-css">  right: 0px;</pre></td>
+</tr>
+<tr id="line124">
+<td class="line-numbers"><a href="#line124" name="line124">124</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line125">
+<td class="line-numbers"><a href="#line125" name="line125">125</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line126">
+<td class="line-numbers"><a href="#line126" name="line126">126</a></td>
+<td class="code"><pre class="prettyprint lang-css">.breadcrumb {</pre></td>
+</tr>
+<tr id="line127">
+<td class="line-numbers"><a href="#line127" name="line127">127</a></td>
+<td class="code"><pre class="prettyprint lang-css">  padding: 7px 14px;</pre></td>
+</tr>
+<tr id="line128">
+<td class="line-numbers"><a href="#line128" name="line128">128</a></td>
+<td class="code"><pre class="prettyprint lang-css">  margin: 0 0 18px;</pre></td>
+</tr>
+<tr id="line129">
+<td class="line-numbers"><a href="#line129" name="line129">129</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-color: #fbfbfb;</pre></td>
+</tr>
+<tr id="line130">
+<td class="line-numbers"><a href="#line130" name="line130">130</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-image: -moz-linear-gradient(top, #ffffff, #f5f5f5);</pre></td>
+</tr>
+<tr id="line131">
+<td class="line-numbers"><a href="#line131" name="line131">131</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-image: -ms-linear-gradient(top, #ffffff, #f5f5f5);</pre></td>
+</tr>
+<tr id="line132">
+<td class="line-numbers"><a href="#line132" name="line132">132</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f5f5f5));</pre></td>
+</tr>
+<tr id="line133">
+<td class="line-numbers"><a href="#line133" name="line133">133</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-image: -webkit-linear-gradient(top, #ffffff, #f5f5f5);</pre></td>
+</tr>
+<tr id="line134">
+<td class="line-numbers"><a href="#line134" name="line134">134</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-image: -o-linear-gradient(top, #ffffff, #f5f5f5);</pre></td>
+</tr>
+<tr id="line135">
+<td class="line-numbers"><a href="#line135" name="line135">135</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-image: linear-gradient(to bottom, #ffffff, #f5f5f5);</pre></td>
+</tr>
+<tr id="line136">
+<td class="line-numbers"><a href="#line136" name="line136">136</a></td>
+<td class="code"><pre class="prettyprint lang-css">  background-repeat: repeat-x;</pre></td>
+</tr>
+<tr id="line137">
+<td class="line-numbers"><a href="#line137" name="line137">137</a></td>
+<td class="code"><pre class="prettyprint lang-css">  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f5f5f5', GradientType=0);</pre></td>
+</tr>
+<tr id="line138">
+<td class="line-numbers"><a href="#line138" name="line138">138</a></td>
+<td class="code"><pre class="prettyprint lang-css">  border: 1px solid #ddd;</pre></td>
+</tr>
+<tr id="line139">
+<td class="line-numbers"><a href="#line139" name="line139">139</a></td>
+<td class="code"><pre class="prettyprint lang-css">  -webkit-border-radius: 3px;</pre></td>
+</tr>
+<tr id="line140">
+<td class="line-numbers"><a href="#line140" name="line140">140</a></td>
+<td class="code"><pre class="prettyprint lang-css">  -moz-border-radius: 3px;</pre></td>
+</tr>
+<tr id="line141">
+<td class="line-numbers"><a href="#line141" name="line141">141</a></td>
+<td class="code"><pre class="prettyprint lang-css">  border-radius: 3px;</pre></td>
+</tr>
+<tr id="line142">
+<td class="line-numbers"><a href="#line142" name="line142">142</a></td>
+<td class="code"><pre class="prettyprint lang-css">  -webkit-box-shadow: inset 0 1px 0 #ffffff;</pre></td>
+</tr>
+<tr id="line143">
+<td class="line-numbers"><a href="#line143" name="line143">143</a></td>
+<td class="code"><pre class="prettyprint lang-css">  -moz-box-shadow: inset 0 1px 0 #ffffff;</pre></td>
+</tr>
+<tr id="line144">
+<td class="line-numbers"><a href="#line144" name="line144">144</a></td>
+<td class="code"><pre class="prettyprint lang-css">  box-shadow: inset 0 1px 0 #ffffff;</pre></td>
+</tr>
+<tr id="line145">
+<td class="line-numbers"><a href="#line145" name="line145">145</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line146">
+<td class="line-numbers"><a href="#line146" name="line146">146</a></td>
+<td class="code"><pre class="prettyprint lang-css">.breadcrumb li {</pre></td>
+</tr>
+<tr id="line147">
+<td class="line-numbers"><a href="#line147" name="line147">147</a></td>
+<td class="code"><pre class="prettyprint lang-css">  display: inline-block;</pre></td>
+</tr>
+<tr id="line148">
+<td class="line-numbers"><a href="#line148" name="line148">148</a></td>
+<td class="code"><pre class="prettyprint lang-css">  text-shadow: 0 1px 0 #ffffff;</pre></td>
+</tr>
+<tr id="line149">
+<td class="line-numbers"><a href="#line149" name="line149">149</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line150">
+<td class="line-numbers"><a href="#line150" name="line150">150</a></td>
+<td class="code"><pre class="prettyprint lang-css">.breadcrumb .divider {</pre></td>
+</tr>
+<tr id="line151">
+<td class="line-numbers"><a href="#line151" name="line151">151</a></td>
+<td class="code"><pre class="prettyprint lang-css">  padding: 0 5px;</pre></td>
+</tr>
+<tr id="line152">
+<td class="line-numbers"><a href="#line152" name="line152">152</a></td>
+<td class="code"><pre class="prettyprint lang-css">  color: #999999;</pre></td>
+</tr>
+<tr id="line153">
+<td class="line-numbers"><a href="#line153" name="line153">153</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line154">
+<td class="line-numbers"><a href="#line154" name="line154">154</a></td>
+<td class="code"><pre class="prettyprint lang-css">.breadcrumb .active a {</pre></td>
+</tr>
+<tr id="line155">
+<td class="line-numbers"><a href="#line155" name="line155">155</a></td>
+<td class="code"><pre class="prettyprint lang-css">  color: #333333;</pre></td>
+</tr>
+<tr id="line156">
+<td class="line-numbers"><a href="#line156" name="line156">156</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line157">
+<td class="line-numbers"><a href="#line157" name="line157">157</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line158">
+<td class="line-numbers"><a href="#line158" name="line158">158</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line159">
+<td class="line-numbers"><a href="#line159" name="line159">159</a></td>
+<td class="code"><pre class="prettyprint lang-css">html {</pre></td>
+</tr>
+<tr id="line160">
+<td class="line-numbers"><a href="#line160" name="line160">160</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: 100%;</pre></td>
+</tr>
+<tr id="line161">
+<td class="line-numbers"><a href="#line161" name="line161">161</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line162">
+<td class="line-numbers"><a href="#line162" name="line162">162</a></td>
+<td class="code"><pre class="prettyprint lang-css">body {</pre></td>
+</tr>
+<tr id="line163">
+<td class="line-numbers"><a href="#line163" name="line163">163</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: 100%;</pre></td>
+</tr>
+<tr id="line164">
+<td class="line-numbers"><a href="#line164" name="line164">164</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line165">
+<td class="line-numbers"><a href="#line165" name="line165">165</a></td>
+<td class="code"><pre class="prettyprint lang-css">div {</pre></td>
+</tr>
+<tr id="line166">
+<td class="line-numbers"><a href="#line166" name="line166">166</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: 100%;</pre></td>
+</tr>
+<tr id="line167">
+<td class="line-numbers"><a href="#line167" name="line167">167</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line168">
+<td class="line-numbers"><a href="#line168" name="line168">168</a></td>
+<td class="code"><pre class="prettyprint lang-css">div.headerp {</pre></td>
+</tr>
+<tr id="line169">
+<td class="line-numbers"><a href="#line169" name="line169">169</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: 20px;</pre></td>
+</tr>
+<tr id="line170">
+<td class="line-numbers"><a href="#line170" name="line170">170</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line171">
+<td class="line-numbers"><a href="#line171" name="line171">171</a></td>
+<td class="code"><pre class="prettyprint lang-css">div.panelp {</pre></td>
+</tr>
+<tr id="line172">
+<td class="line-numbers"><a href="#line172" name="line172">172</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: auto;</pre></td>
+</tr>
+<tr id="line173">
+<td class="line-numbers"><a href="#line173" name="line173">173</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line174">
+<td class="line-numbers"><a href="#line174" name="line174">174</a></td>
+<td class="code"><pre class="prettyprint lang-css">div.select2-search {</pre></td>
+</tr>
+<tr id="line175">
+<td class="line-numbers"><a href="#line175" name="line175">175</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: auto;</pre></td>
+</tr>
+<tr id="line176">
+<td class="line-numbers"><a href="#line176" name="line176">176</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line177">
+<td class="line-numbers"><a href="#line177" name="line177">177</a></td>
+<td class="code"><pre class="prettyprint lang-css">div.select2-drop-mask {</pre></td>
+</tr>
+<tr id="line178">
+<td class="line-numbers"><a href="#line178" name="line178">178</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: auto;</pre></td>
+</tr>
+<tr id="line179">
+<td class="line-numbers"><a href="#line179" name="line179">179</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line180">
+<td class="line-numbers"><a href="#line180" name="line180">180</a></td>
+<td class="code"><pre class="prettyprint lang-css">div.select2-results {</pre></td>
+</tr>
+<tr id="line181">
+<td class="line-numbers"><a href="#line181" name="line181">181</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: auto;</pre></td>
+</tr>
+<tr id="line182">
+<td class="line-numbers"><a href="#line182" name="line182">182</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line183">
+<td class="line-numbers"><a href="#line183" name="line183">183</a></td>
+<td class="code"><pre class="prettyprint lang-css">div.select2-drop {</pre></td>
+</tr>
+<tr id="line184">
+<td class="line-numbers"><a href="#line184" name="line184">184</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: auto;</pre></td>
+</tr>
+<tr id="line185">
+<td class="line-numbers"><a href="#line185" name="line185">185</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line186">
+<td class="line-numbers"><a href="#line186" name="line186">186</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line187">
+<td class="line-numbers"><a href="#line187" name="line187">187</a></td>
+<td class="code"><pre class="prettyprint lang-css">#fancybox-loading {</pre></td>
+</tr>
+<tr id="line188">
+<td class="line-numbers"><a href="#line188" name="line188">188</a></td>
+<td class="code"><pre class="prettyprint lang-css">	height: auto;</pre></td>
+</tr>
+<tr id="line189">
+<td class="line-numbers"><a href="#line189" name="line189">189</a></td>
+<td class="code"><pre class="prettyprint lang-css">}</pre></td>
+</tr>
+<tr id="line190">
+<td class="line-numbers"><a href="#line190" name="line190">190</a></td>
+<td class="code"><pre class="prettyprint lang-css"></pre></td>
+</tr>
+<tr id="line191">
+<td class="line-numbers"><a href="#line191" name="line191">191</a></td>
+<td class="code"><pre class="prettyprint lang-css"> #waiting-overlay {</pre></td>
+</tr>
+<tr id="line192">
+<td class="line-numbers"><a href="#line192" name="line192">192</a></td>
+<td class="code"><pre class="prettyprint lang-css">          left: 0;</pre></td>
+</tr>
+<tr id="line193">
+<td class="line-numbers"><a href="#line193" name="line193">193</a></td>
+<td class="code"><pre class="prettyprint lang-css">          position: absolute;</pre></td>
+</tr>
+<tr id="line194">
+<td class="line-numbers"><a href="#line194" name="line194">194</a></td>
+<td class="code"><pre class="prettyprint lang-css">          top: 0;</pre></td>
+</tr>
+<tr id="line195">
+<td class="line-numbers"><a href="#line195" name="line195">195</a></td>
+<td class="code"><pre class="prettyprint lang-css">          width: 100%;</pre></td>
+</tr>
+<tr id="line196">
+<td class="line-numbers"><a href="#line196" name="line196">196</a></td>
+<td class="code"><pre class="prettyprint lang-css">          height: 100%;</pre></td>
+</tr>
+<tr id="line197">
+<td class="line-numbers"><a href="#line197" name="line197">197</a></td>
+<td class="code"><pre class="prettyprint lang-css">          z-index: 900;</pre></td>
+</tr>
+<tr id="line198">
+<td class="line-numbers"><a href="#line198" name="line198">198</a></td>
+<td class="code"><pre class="prettyprint lang-css">          background-color: #000;</pre></td>
+</tr>
+<tr id="line199">
+<td class="line-numbers"><a href="#line199" name="line199">199</a></td>
+<td class="code"><pre class="prettyprint lang-css">          opacity: 0.4;</pre></td>
+</tr>
+<tr id="line200">
+<td class="line-numbers"><a href="#line200" name="line200">200</a></td>
+<td class="code"><pre class="prettyprint lang-css">          filter:alpha(opacity=40);</pre></td>
+</tr>
+<tr id="line201">
+<td class="line-numbers"><a href="#line201" name="line201">201</a></td>
+<td class="code"><pre class="prettyprint lang-css">          text-align:center;</pre></td>
+</tr>
+<tr id="line202">
+<td class="line-numbers"><a href="#line202" name="line202">202</a></td>
+<td class="code"><pre class="prettyprint lang-css">          display:'block';</pre></td>
+</tr>
+<tr id="line203">
+<td class="line-numbers"><a href="#line203" name="line203">203</a></td>
+<td class="code"><pre class="prettyprint lang-css"> }</pre></td>
+</tr>
+</table>  
+<script type="text/javascript" charset="utf-8">
+  (function () {
+      if ($("#codeblob tr td.line-numbers:last").text().length < 3500) {
+          prettyPrint();
+      } else {
+          $("#long-file").show().find("a#highlight-anyway").click(function(e){
+              prettyPrint();
+              e.preventDefault();
+          });
+      }
+  }());
+</script>
+
+      </div>
+          </div>
+    <div id="footer">
+      
+<div class="powered-by">
+	<a href="http://www.ti.com"><img alt="Ti_logo2" src="/images/../img/ti_logo2.png?1367001843" title="A product from Shortcut" /></a>  	<a href="http://gitorious.org"><img alt="Poweredby" src="/images/../img/poweredby.png?1367001843" title="Powered by Gitorious" /></a></div>
+<script src="/javascripts/onload.js?1367001844" type="text/javascript"></script>
+      
+<div id="footer-links">
+  <h3>Gitorious@TI</h3>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/about/faq">FAQ</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+  
+    <ul>
+      <li><a href="http://groups.google.com/group/gitorious">Discussion group</a></li>
+      <li><a href="http://blog.gitorious.org">Blog</a></li>
+    </ul>
+  
+  
+  
+    <ul>
+      
+        <li><a href="https://infolink.sc.ti.com/business_rooms/system_and_software_development/tools/w/gitorious-wiki/3004.aspx">TI Gitorious FAQ</a></li>
+      
+    </ul>
+  
+</div>
+      <p class="footer-blurb">
+  
+    <a href="https://infolink.sc.ti.com/business_rooms/system_and_software_development/tools/w/gitorious-wiki/default.aspx">Gitorous Help in TI</a> 
+  
+</p>
+
+      <div class="clear"></div>
+    </div>
+  </div>
+</body>
+</html>

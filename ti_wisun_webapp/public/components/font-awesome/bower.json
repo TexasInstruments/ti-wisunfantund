@@ -1,0 +1,22 @@
+{
+  "name": "font-awesome",
+  "version": "4.7.0",
+  "description": "An HTML import for Font Awesome",
+  "authors": [
+    "http://fontawesome.io/"
+  ],
+  "keywords": [
+    "font",
+    "awesome"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/FortAwesome/Font-Awesome.git"
+  },
+  "main": "font-awesome.html",
+  "license": "http://fontawesome.io/license/",
+  "homepage": "https://github.com/FortAwesome/Font-Awesome/",
+  "ignore": [
+    "/.*"
+  ]
+}

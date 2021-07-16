@@ -2,9 +2,9 @@
 #
 
 # The desired name of the network interface (not supported on all platforms)
-# Default value is `wpan0`.
+# Default value is `wfan0`.
 #
-Config:TUN:InterfaceName wpan0
+Config:TUN:InterfaceName wfan0
 
 # Path to serial port used to communicate with the NCP.
 # Has special meaning when prefixed with `system:` or `serial:`.

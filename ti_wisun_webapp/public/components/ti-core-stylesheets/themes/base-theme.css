@@ -1,0 +1,520 @@
+
+	html %%theme-id%% {
+		font-family: %%default-font%%;
+		-ms-text-size-adjust: 100%;
+		-webkit-text-size-adjust: 100%;
+		font-weight: 400;
+		font-size: 14px;
+    }
+    html %%theme-id%% .no-select {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Safari */
+         -khtml-user-select: none;   /* Konqueror HTML */
+           -moz-user-select: none;   /* Firefox */
+            -ms-user-select: none;   /* Internet Explorer/Edge */
+                user-select: none;  /* Non-prefixed version, currently
+                                       supported by Chrome and Opera */
+    }
+	html %%theme-id%% .font-special {
+		font-family: %%secondary-font%%;
+	}
+	html %%theme-id%% iron-header-panel {
+		height: 100%;
+	}
+	html %%theme-id%% iron-header-panel[mode=cover] #mainContainer {
+		left: 70px;
+	}
+	html %%theme-id%% .iron-header {
+		height: 60px;
+		font-size: 18px;
+		/* Brian: removed: padding: 0 10px; */
+		transition: height 0.2s;
+		background-color: %%toolbar-color%%;
+		color: %%toolbar-text%%;
+	}
+	html %%theme-id%% .iron-header a {
+		color: %%toolbar-text%%;
+	}
+	html %%theme-id%% .iron-header paper-item {
+		font-size: 18px;
+	}
+	html %%theme-id%% .iron-header.tall {
+		height: 180px;
+	}
+	html %%theme-id%% .iron-header.medium-tall {
+		height: 120px;
+	}
+	html %%theme-id%% .iron-header iron-menu-button a {
+		color: %%toolbar-header-text%%;
+	}
+	html %%theme-id%% .wrapper {
+		text-align: center;
+	}
+	html %%theme-id%% section {
+		text-align: left;  /* Brian: padding and alignment causes problems for many non-paper components */
+		padding: 0px 0px;
+	}
+	html %%theme-id%% .ti-banner {
+		background-color: %%ti-banner-color%%;
+	}
+	html %%theme-id%% section[hero] {
+		background-color: %%section-color%%;
+	}
+	html %%theme-id%% h1,
+	html %%theme-id%% h2,
+	html %%theme-id%% h3,
+	html %%theme-id%% h4,
+	html %%theme-id%% h5,
+	html %%theme-id%% h6 {
+		font-weight: 400;
+		margin: 0px;
+		padding: 0px;
+	}
+	html %%theme-id%% h1,
+	html %%theme-id%% h3,
+	html %%theme-id%% h5 {
+		font-family: %%primary-font%%;
+	}
+	html %%theme-id%% h1 {
+		color: %%primary-header-text%%;
+		font-size: 2em;
+		margin: 5px 0px;
+	}
+	html %%theme-id%% h2 {
+		color: %%secondary-header-text%%;
+		font-size: 1.6em;
+		margin: 3px 0px;
+	}
+	html %%theme-id%% h3 {
+		color: %%success-header-text%%;
+		font-size: 1.4em;
+		margin: 2px 0px;
+	}
+	html %%theme-id%% h4 {
+		color: %%info-header-text%%;
+		font-size: 1.2em;
+	}
+	html %%theme-id%% h5 {
+		color: %%warning-header-text%%;
+	}
+	html %%theme-id%% h6 {
+		color: %%error-header-text%%;
+	}
+	html %%theme-id%% a {
+		color: %%link-header-text%%;
+	}
+	html %%theme-id%% a:hover {
+	    color: %%link-hover-color%%;
+		text-decoration: underline;
+	}
+	html %%theme-id%% [autofocus] {
+		color: %%primary-focus-text%%;
+	}
+	html %%theme-id%% ti-tile-title #titleDiv,
+	html %%theme-id%% ti-tile-title #containerDiv {
+		background-color: %%tile-color%% !important;
+		color: %%tile-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button:not(.idunno),
+	html %%theme-id%% paper-button {
+		margin: 2px;
+		color: %%default-text%%;
+	}
+	html %%theme-id%% ti-widget-button[disabled]:not(#idunno),
+	html %%theme-id%% paper-button[disabled]:not(#idunno) {
+		color: %%default-disabled-text%% !important;
+		background-color: %%default-disabled-color%% !important;
+	}
+	html %%theme-id%% ti-widget-button[raised]:not(.idunno),
+	html %%theme-id%% paper-button[raised] {
+		background-color: %%default-raised-color%%;
+		color: %%default-raised-text%%;
+	}
+	html %%theme-id%% ti-widget-button[primary],
+	html %%theme-id%% paper-button[primary] {
+		color: %%primary-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[primary][raised],
+	html %%theme-id%% paper-button[primary][raised] {
+		background-color: %%primary-raised-color%% !important;
+		color: %%primary-raised-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[secondary],
+	html %%theme-id%% paper-button[secondary] {
+		color: %%secondary-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[secondary][raised],
+	html %%theme-id%% paper-button[secondary][raised] {
+		background-color: %%secondary-raised-color%% !important;
+		color: %%secondary-raised-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[success],
+	html %%theme-id%% paper-button[success] {
+		color: %%success-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[success][raised],
+	html %%theme-id%% paper-button[success][raised] {
+		background-color: %%success-raised-color%% !important;
+		color: %%success-raised-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[info],
+	html %%theme-id%% paper-button[info] {
+		color: %%info-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[info][raised],
+	html %%theme-id%% paper-button[info][raised] {
+		background-color: %%info-raised-color%% !important;
+		color: %%info-raised-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[warning],
+	html %%theme-id%% paper-button[warning] {
+		color: %%warning-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[warning][raised],
+	html %%theme-id%% paper-button[warning][raised] {
+		background-color: %%warning-raised-color%% !important;
+		color: %%warning-raised-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[error],
+	html %%theme-id%% paper-button[error] {
+		color: %%error-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[error][raised],
+	html %%theme-id%% paper-button[error][raised] {
+		background-color: %%error-raised-color%% !important;
+		color: %%error-raised-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[link],
+	html %%theme-id%% paper-button[link] {
+		color: %%link-text%% !important;
+	}
+	html %%theme-id%% ti-widget-button[link][raised],
+	html %%theme-id%% paper-button[link][raised] {
+		background-color: %%link-raised-color%% !important;
+		color: %%link-raised-text%% !important;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-checkbox,
+	html %%theme-id%% paper-checkbox {
+		--paper-checkbox-checked-color: %%checkbox-raised-color%%;
+		--paper-checkbox-checked-ink-color: %%checkbox-raised-color%%;
+		--paper-checkbox-unchecked-color: %%checkbox-color%%;
+		--paper-checkbox-unchecked-ink-color: %%checkbox-color%%;
+		--paper-checkbox-label-color: %%checkbox-text%%;
+	}
+	html %%theme-id%% ti-widget-textbox[disabled],
+	html %%theme-id%% ti-widget-checkbox[disabled],
+	html %%theme-id%% paper-checkbox[disabled] {
+		color: %%input-disabled-color%% !important;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% paper-menu,
+	html %%theme-id%% paper-fab {
+		--iron-icon-fill-color: currentColor;
+		--paper-fab-background: %%primary-raised-color%%;
+		--paper-fab-iron-icon: {
+			fill: %%primary-raised-text%%;
+		}
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-floating-action-button {
+		--ti-widget-floating-action-button-background: %%primary-raised-color%%;
+		--ti-widget-floating-action-button-color: %%primary-raised-text%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-icon-button {
+		--ti-widget-icon-button-color: %%primary-text%%;
+	}
+	html %%theme-id%% ti-widget-menubar ti-widget-icon-button {
+        --ti-widget-icon-button-color: %%menubar-text%%;
+    }
+	html %%theme-id%% iron-toolbar paper-tabs {
+		-webkit-box-shadow: none;
+		box-shadow: none;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-tabcontainer,
+	html %%theme-id%% paper-tabs {
+		--paper-tabs-selection-bar-color: %%tabs-bar-color%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-tabcontainer,
+	html %%theme-id%% paper-tab {
+		--paper-tab-ink: %%tabs-ripple%%;
+	}
+	html %%theme-id%% ti-widget-dialog #headerBackground {
+		color:  %%header-text%% !important;
+		background-color: %%header-color%% !important;
+	}
+	html %%theme-id%% paper-tabs,
+	html %%theme-id%% iron-toolbar {
+		background-color: %%tabs-raised-color%%; /* this controls the background color of the unselected tabs */
+		color: %%tabs-raised-text%%;
+		-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+		box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+	}
+	html %%theme-id%% paper-tabs.transparent-teal {
+		background-color: transparent;
+		color: %%tabs-text%%;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+	}
+	html %%theme-id%% paper-tabs.transparent-teal {
+		--paper-tabs-selection-bar-color: %%tabs-raised-color%%;
+	}
+	html %%theme-id%% paper-tabs[no-bar] paper-tab.iron-selected {
+		color: %%tabs-focus-text%%;
+		background-color: %%tabs-focus-color%%;  /* this controls the background color of the selected tab */
+		border-bottom: 1px solid %%tabs-border-color%%;
+	}
+	html %%theme-id%% paper-toast *,
+	html %%theme-id%% paper-tabs * {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: %%toast-focus-color%%;
+		-webkit-touch-callout: none;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% paper-toast {
+		--paper-toast-background-color: %%toast-color%%;
+		--paper-toast-color: %%toast-text%%;
+	}
+	html %%theme-id%% paper-toast {
+		text-align: left;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-toast {
+		--ti-widget-toast-background-color: %%toast-color%%;
+		--ti-widget-toast-color: %%toast-text%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% paper-dropdown-menu,
+	html %%theme-id%% ti-widget-input,
+	html %%theme-id%% paper-input {
+		--paper-input-container-color: %%paper-input-raised-text%%;
+		--paper-input-container-focus-color: %%paper-input-focus-text%%;
+		--paper-input-container-invalid-color: %%paper-input-disabled-text%%;
+		--paper-input-container-input-color: %%paper-input-text%%;
+	}
+	html %%theme-id%% .toolbar {
+		color: %%toolbar-text%%;
+		background-color: %%toolbar-color%%;
+	}
+	html %%theme-id%% .card {
+		background-color: %%input-color%%;
+	}
+	html %%theme-id%% paper-item {
+		background-color: %%paper-item-color%%;
+		color: %%paper-item-text%%;
+	}
+	html %%theme-id%% paper-item:hover {
+		background-color: %%paper-item-raised-color%%;
+	}
+	html %%theme-id%% paper-item.iron-selected {
+		background-color: %%paper-item-focus-color%%;
+	}
+	html %%theme-id%% .small {
+		font-size: 12px;
+	}
+	html %%theme-id%% .logo {
+		font-size: 21px;
+	}
+	html %%theme-id%% .logo a {
+		font-weight: 700;
+		color: %%menubar-text%%;
+	}
+	html %%theme-id%% .inverse {
+		background-color: %%menubar-color%%;
+		color: %%menubar-text%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% paper-progress {
+		--paper-progress-active-color: %%primary-progress%%;
+		--paper-progress-secondary-color: %%secondary-progress%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-radio-button,
+	html %%theme-id%% paper-radio-button {
+		--paper-radio-button-unchecked-background-color: %%radio-color%%;
+		--paper-radio-button-checked-color: %%radio-focus-color%%;
+		--paper-radio-button-unchecked-ink-color: %%radio-ripple%%;
+		--paper-radio-button-checked-ink-color: %%radio-ripple%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-tile-toggleswitch,
+	html %%theme-id%% ti-widget-toggle-button,
+	html %%theme-id%% paper-toggle-button {
+		--paper-toggle-button-unchecked-bar-color: %%toggle-bar-color%%;
+		--paper-toggle-button-checked-bar-color: %%toggle-bar-color%%;
+		--paper-toggle-button-unchecked-button-color: %%toggle-color%%;
+		--paper-toggle-button-checked-button-color: %%toggle-focus-color%%;
+		--paper-toggle-button-unchecked-ink-color: %%toggle-ripple%%;
+		--paper-toggle-button-checked-ink-color: %%toggle-ripple%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% paper-slider {
+		--paper-slider-active-color: %%slider-bar-color%%;
+		--paper-slider-secondary-color: %%slider-color%%;
+		--paper-slider-knob-color: %%slider-bar-color%%;
+		--paper-slider-pin-color: %%slider-bar-color%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-tile-slider,
+	html %%theme-id%% ti-tile-verticalslider,
+	html %%theme-id%% ti-widget-slider {
+		--ti-widget-slider-progress-color: %%slider-bar-color%%;
+		--ti-widget-slider-tick-color: %%slider-bar-color%%;
+		--ti-widget-ruler-font-color: %%slider-text%%;
+	}
+	html %%theme-id%% paper-icon-button[disabled] iron-icon {
+		color: %%default-disabled-color%% !important;
+	}
+	html %%theme-id%% ti-widget-menubar paper-button[disabled] iron.icon {
+        color: %%menubar-disabled-color%% !important;
+    }
+	html %%theme-id%% design-frame,
+	html %%theme-id%% paper-spinner:not([default-spinner]) {
+		--paper-spinner-layer-1-color: %%info-progress%%;
+		--paper-spinner-layer-2-color: %%info-progress%%;
+		--paper-spinner-layer-3-color: %%info-progress%%;
+		--paper-spinner-layer-4-color: %%info-progress%%;
+	}
+	html %%theme-id%% ti-widget-menuseparator #menuSeparator {
+		background-color: %%menu-bar-color%%;
+	}
+	html %%theme-id%% ti-widget-menubar {
+		background-color: %%menubar-color%%;
+		color: %%menubar-text%%;
+	}
+	html %%theme-id%% ti-widget-menubar .logoImage {
+		background-color: %%menubar-raised-color%%;
+		color: %%menubar-raised-text%%;
+    }
+	html %%theme-id%% ti-widget-contextmenu .navIcon,
+	html %%theme-id%% ti-widget-menuitem .navIcon {
+		color: %%menubar-text%%;
+	}
+	html %%theme-id%% ti-widget-contextmenu .hovering .navIcon,
+	html %%theme-id%% ti-widget-menuitem .hovering .navIcon {
+		color: %%menubar-focus-text%%;
+	}
+	html %%theme-id%% ti-widget-contextmenu .hoverMenu,
+	html %%theme-id%% ti-widget-menuitem .hoverMenu {
+		background-color: %%menu-color%%;
+		color: %%menu-text%%;
+		border-color: %%menu-border-color%%;
+	}
+	html %%theme-id%% ti-widget-contextmenu .hovering,
+	html %%theme-id%% ti-widget-menuitem .hovering {
+		background-color: %%menubar-focus-color%%;
+		color: %%menubar-focus-text%%;
+		border-color: %%menu-border-color%%;
+	}
+	html %%theme-id%% ti-widget-menuaction li {
+		color: %%menu-text%%;
+		background-color: %%menu-color%%;
+		border-color: %%menu-border-color%%;
+	}
+	html %%theme-id%% ti-widget-menuitem.subMenuItem .hovering,
+	html %%theme-id%% ti-widget-menuaction li:hover {
+		background-color: %%menu-focus-color%%;
+		color: %%menu-focus-text%%;
+	}
+	html %%theme-id%% ti-widget-menuaction .unenabled {
+		color: %%menu-disabled-text%%;
+		background-color: %%menu-disabled-color%%;
+		border-color: %%menu-border-color%%;
+	}
+	html %%theme-id%% ti-widget-menuaction .unenabled:hover {
+		color: %%menu-raised-text%%;
+		background-color: %%menu-raised-color%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-statusbar {
+		--paper-progress-active-color: %%primary-progress%%;
+		--paper-progress-secondary-color: %%secondary-progress%%;
+	}
+	html %%theme-id%% design-frame,
+	html %%theme-id%% ti-widget-progressbar {
+		--ti-widget-progressbar-color: %%primary-progress%%;
+	}
+	html %%theme-id%% ti-widget-statusbar ti-widget-status-container {
+		background-color: %%statusbar-color%%;
+		color: %%statusbar-text%%;
+	}
+    html %%theme-id%% ti-widget-statusbar .banner {
+        fill: %%statusbar-text%%;
+    }
+	html %%theme-id%% ti-widget-analoggauge .needle {
+		color: %%gauge-bar-color%%;
+	}
+	html %%theme-id%% ti-widget-analoggauge .face {
+		background-color: %%gauge-color%%;
+		color: %%gauge-text%%;
+	}
+	html %%theme-id%% ti-widget-analoggauge .frame {
+		color: %%gauge-border-color%%;
+	}
+	html %%theme-id%% ti-widget-dial .pointer {
+		color: %%gauge-bar-color%%;
+	}
+	html %%theme-id%% ti-widget-dial .knob {
+		background-color: %%gauge-color%%;
+	}
+	html %%theme-id%% ti-widget-dial .frame {
+		background-color: %%gauge-border-color%%;
+		color: %%gauge-color%%;
+	}
+	html %%theme-id%% label,
+	html %%theme-id%% ti-widget-label,
+	html %%theme-id%% ti-widget-bitfield-header,
+	html %%theme-id%% ti-widget-droplist,
+	html %%theme-id%% ti-widget-numberbox,
+	html %%theme-id%% ti-widget-spinner,
+	html %%theme-id%% ti-widget-textbox {
+		font-family: %%input-font%%;
+		background-color: transparent;
+		color: %%input-text%%;
+	}
+	html %%theme-id%% label[disabled],
+	html %%theme-id%% ti-widget-label[disabled],
+	html %%theme-id%% ti-widget-bitfield-header[disabled],
+	html %%theme-id%% ti-widget-droplist[disabled],
+	html %%theme-id%% ti-widget-numberbox[disabled],
+	html %%theme-id%% ti-widget-spinner[disabled],
+	html %%theme-id%% ti-widget-textbox[disabled] {
+		color: %%input-disabled-color%% !important;
+	}
+	html %%theme-id%% select {
+		border-radius: 0px;
+		font-family: %%input-font%%;
+		border: 1px solid %%input-border-color%%;
+		font-size: inherit;
+	}
+	html %%theme-id%% input {
+		font-family: %%input-font%%;
+		font-size: inherit;
+	}
+	
+	html %%theme-id%% ti-widget-filetree {
+        --ti-widget-filetree-background-color: %%filetree-color%%;
+        --ti-widget-filetree-text-color: %%filetree-text%%;
+        --ti-widget-filetree-font-size: small;
+        
+        --ti-widget-filetree-filesize-text-color: %%filetree-disabled-text%%;
+        --ti-widget-filetree-header-text-color: %%filetree-header-text%%;
+        --ti-widget-filetree-header-background-color: %%filetree-bar-color%%;
+        --ti-widget-filetree-header-font-size: normal;
+        
+        --ti-widget-filetree-selected-background-color: %%filetree-raised-color%%;
+        --ti-widget-filetree-selected-text-color: %%filetree-raised-text%%;
+        --ti-widget-filetree-focus-background-color: %%filetree-focus-color%%;
+        --ti-widget-filetree-focus-text-color: %%filetree-focus-text%%;
+        
+        --ti-widget-filetree-icon-color: %%filetree-disabled-color%%;
+        --ti-widget-filetree-arrow-icon-color: grey;
+        --ti-widget-filetree-directory-icon-color: %%filetree-progress%%;
+        --ti-widget-filetree-progress-color: %%filetree-progress%%;
+	}

@@ -1,0 +1,255 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="../ti-widget-dial/ti-widget-dial.html">
+<link rel="import" href="ti-tile-base.html">
+<link rel="import" href="ti-tile-styles.html">
+<!--
+`ti-tile-dial` is a tile containing an analog dial widget, which can be
+  used to control the value of another widget or a target variable
+
+Example:
+
+    <ti-tile-dial></ti-tile-dial>
+
+
+@group Instrument Tiles
+@element ti-tile-dial
+@demo demo.html
+@extends ti-tile-base
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-tile-dial'  >
+
+    <template>
+        <style include="ti-tile-styles">
+            :host {
+                width: 230px;
+            }
+        </style>
+        <div id="containerDiv" layout vertical style$="background-color:{{backgroundColor}};">
+            <div id="shadow-bottom" fit class$="paper-material-bottom-z-[[elevation]]"></div>
+            <div id="shadow-top" fit class$="paper-material-top-z-[[elevation]]"></div>
+            <div id="tileTitle" style$="[[_getTileTitleStyle(titleStyle,titleBackgroundColor,_defaultTitleBackgroundColor)]];">
+                <span>{{titleText}}</span>
+            </div>
+            <div id="instrument_div" flex style$="[[tileBodyStyle]]">
+                <ti-widget-dial id="instrument" value="{{value}}" size="{{dialSize}}" override-css-colors flat-frame-color="{{dialBackgroundColor}}" flat-knob-color="{{knobColor}}" flat-font-color="{{dialFontColor}}" pointer-color="{{dialPointerColor}}"></ti-widget-dial>
+            </div>
+            <template is="dom-if" restamp="true" if="{{_isInDesigner}}">
+                <paper-icon-button id="editIcon"  class="pointer" icon="create" on-tap="editProperties" title="edit tile properties" style$="[[_getIconStyle(_iconColor)]]" ></paper-icon-button>
+                <paper-icon-button id="moveLeftIcon" class="pointer" icon="arrow-back" on-tap="moveLeft" title="move tile left" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="moveRightIcon" class="pointer" icon="arrow-forward" on-tap="moveRight" title="move tile right" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="resizeIcon" class="resize" icon="device:signal-cellular-0-bar"  title="resize tile"  style$="[[_getIconStyle(_resizeCornerColor)]]"></paper-icon-button>
+                <paper-icon-button id="pinIcon" class="pointer" icon="{{_pinIcon}}" on-tap="togglePin" style$="[[_getIconStyle(_iconColor)]]"></paper-icon-button>
+            </template>
+
+        </div>
+        <content></content>
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-tile-dial',
+
+            hostAttributes: {
+            },
+            behaviors: [TiTileBase],
+            properties: {
+                /**
+                 * The title to display at the top of the tile
+                 *
+                 * @attribute titleText
+                 * @type string
+                 * @default ''
+                 */
+                titleText: {
+                    notify: true,
+                    type: String,
+                    value: "Dial"
+                },
+                /**
+                 * The value to display in the dial
+                 *
+                 * @attribute value
+                 * @type number
+                 * @default 0
+                 */
+                value: {
+                    notify: true,
+                    type: Number,
+                    value: 0
+                },
+				/**
+                 * The minimum value to display in the dial
+                 *
+                 * @attribute minValue
+                 * @type number
+                 * @default 0
+                 */
+                minValue: {
+                    notify: true,
+                    type: Number,
+                    value: 0,
+                    observer: "minValueChanged"
+                },
+				/**
+                 * The maximum value to display in the dial
+                 *
+                 * @attribute value
+                 * @type number
+                 * @default 100
+                 */
+                maxValue: {
+                    notify: true,
+                    type: Number,
+                    value: 100,
+                    observer: "maxValueChanged"
+                },
+				/**
+                 * The color of the dial face
+                 *
+                 * @attribute dialBackgroundColor
+                 * @type string
+                 * @default "#666666"
+                 */
+                dialBackgroundColor: {
+                    notify: true,
+                    type: String,
+                    value: "#666666"
+                },
+				/**
+                 * The color of the dial pointer
+                 *
+                 * @attribute dialPointerColor
+                 * @type string
+                 * @default "#ff0000"
+                 */
+                dialPointerColor: {
+                    notify: true,
+                    type: String,
+                    value: "#ff0000"
+                },
+				/**
+                 * The color of the dial font
+                 *
+                 * @attribute dialBackgroundColor
+                 * @type string
+                 * @default "#ffffff"
+                 */
+                dialFontColor: {
+                    notify: true,
+                    type: String,
+                    value: "#ffffff"
+                },
+				/**
+                 * The color of the dials center knob
+                 *
+                 * @attribute knobColor
+                 * @type string
+                 * @default "white"
+                 */
+                knobColor: {
+                    notify: true,
+                    type: String,
+                    value: 'white'
+                },
+				/**
+                 * The size of the dial in pixels (do not include px in the value)
+                 *
+                 * @attribute dialSize
+                 * @type string
+                 * @default "130"
+                 */
+                dialSize: {
+                    notify: true,
+                    type: String,
+                    value: "130",
+                    observer: "dialSizeChanged"
+                },
+                /**
+                 * The number of decimal places to display on the dial face
+                 *
+                 * @attribute decimalPlaces
+                 * @type Number
+                 * #default 0
+                 */
+                decimalPlaces: {
+                    notify: true,
+                    type: Number,
+                    value: 0,
+                    observer: "decimalPlacesChanged"
+                }
+
+            },
+
+            getCategory: function() {
+                return 'Control Panel';
+            },
+            getComponentName: function() {
+                return 'Dial';
+            },
+            dialSizeChanged: function(){
+                this.$.instrument.domReady();
+            },
+            minValueChanged: function(newValue,oldValue) {
+                if ((!this.$) || (newValue === undefined))
+                    return;
+                this.$.instrument.minValue = newValue;
+            },
+            maxValueChanged: function(newValue,oldValue) {
+                if ((!this.$) || (newValue === undefined))
+                    return;
+                this.$.instrument.maxValue = newValue;
+            },
+            decimalPlacesChanged: function(newValue, oldValue){
+               if (newValue <= 0){
+                   this.$.instrument.numberFormat = "standard";
+                   this.$.instrument.fractionalDecimalPlaces = newValue;
+
+               } else {
+                   this.$.instrument.numberFormat = "fractional";
+                   this.$.instrument.fractionalDecimalPlaces = newValue;
+               }
+            },
+            ready: function() {
+                this.async(function() {
+                    this.onResizedByDesigner();
+                }.bind(this),0);
+            },
+            onResizedByDesigner: function() {
+                if (this.$ && this.$.instrument && this.$.instrument.checkDivSize) {
+                    this.$.instrument.checkDivSize();
+                }
+            }
+
+        });
+    </script>
+</dom-module>

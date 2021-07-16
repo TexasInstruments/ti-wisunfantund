@@ -1,0 +1,209 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<!--
+`ti-widget-textbox` is an editable text field with a border around it.
+
+Example:
+
+    <ti-widget-textbox></ti-widget-textbox>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-textbox
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-textbox'>
+<template>
+	<style>
+		:host {
+			padding: 0px;
+			text-decoration: inherit;
+			height: 24px;
+		}
+		#textbox {
+			width: 100%;
+			height: 100%;
+			vertical-align:middle;
+			text-decoration: inherit;
+			font-weight: inherit;
+			font-style: inherit;
+			font-size: inherit;
+			padding: 0px 3px;
+			
+			@apply(--ti-widget-textbox-styles);
+		}
+		#textbox.disabled {
+			opacity: 0.8;
+			@apply(--ti-widget-disabled-styles);
+		}
+		
+        #textbox.uppercase {
+        	text-transform: uppercase;
+        }
+        #textbox.lowercase {
+        	text-transform: lowercase;
+        }
+	</style>
+
+	<input type="[[type]]" id="textbox" on-change="onChangeHandler" on-input="onIntermediateChangeHandler" on-focus="focusHandler" on-blur="blurHandler" placeholder="{{placeholder}}" ></input>
+</template>
+    
+<script>
+	Polymer ({
+		is: 'ti-widget-textbox',
+		behaviors: [TiWidgetBase, TiWidgetBaseText, TiWidgetBaseInput, TiWidgetBaseTextbox],
+        
+		properties: {
+            /**
+ 			 * Controls the text value input by the user.
+ 			 *
+ 			 * @attribute value
+ 			 * @type string
+ 			 */
+            
+            /**
+ 			 * Controls whether or not spaces are automatically removed from the begining and ending of the text. 
+ 			 *
+ 			 * @attribute trim
+ 			 * @type boolean
+ 			 * @default false
+ 			 */
+
+            /**
+ 			 * Controls whether or not the text is automatically converted to uppercase text. 
+ 			 *
+ 			 * @attribute uppercase
+ 			 * @type boolean
+ 			 * @default false
+ 			 */
+
+            /**
+ 			 * Controls whether or not the text is automatically converted to lowercase text. 
+ 			 *
+ 			 * @attribute lowercase
+ 			 * @type boolean
+ 			 * @default false
+ 			 */
+
+			/**
+			* Controls whether or not intermediate changes due to the user's active typing are committed to the value attribute. 
+			* If intermediate changes are not allowed, then the value attribute will only update when the user
+			* has finished typing in a new value as indicated by the enter key, or loss of focus from this widget.
+			*
+			* @attribute intermediateChanges
+			* @type boolean
+			* @default false
+			*/
+			
+			/**
+			* Controls whether or not the input text within this widget is automatically highlighted when this widget gains focus
+			* as a result of the user clicking in the text.  Once the widget has focus, the user is free to change the highlighted
+			* selection with the mouse or key board commands.
+			*
+			* @attribute selectOnClick
+			* @type boolean
+			* @default false
+			*/
+			
+			/**
+			 * Fired each time the input value is changed.
+			 * Add the attribute on-changed="myHandler" to receive the callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("changed",function(event){...});
+			 *
+			 * @event changed
+			 */
+
+			/**
+			 * The placeholder text to display when there is nothing entered into the input box
+			 *
+			 * @attribute placeHolder
+			 * @type String
+			 * @default ""
+			 */
+			placeholder:
+			{
+				notify: true,
+				type: String,
+				value: ""
+			},
+			/**
+			 * The input type to use
+			 *
+			 * @attribute type
+			 * @type String
+			 * @default "text"
+			 */
+			type:
+			{
+				notify: true,
+				type: String,
+				value: "text"
+			}
+		},
+		
+		getElement : function() 
+		{
+			return this.$ && this.$.textbox;
+		},
+		
+		setText : function(newValue) 
+		{
+			var element = this.getElement();
+			
+			if (element)
+			{
+				
+				// attempt to preserve cursor position
+				var start = element.selectionStart;
+				var end = element.selectionEnd;
+				element.value = this.formatValue(newValue);
+				if (end > newValue.length) 
+				{
+					end = newValue.length;
+				}
+				
+				if (start <= end && this.hasFocus()) 
+				{
+					element.setSelectionRange(start, end);
+				}
+			}
+		},
+		
+		getText : function() 
+		{
+			return this.$ && this.$.textbox && this.$.textbox.value;
+		}
+	});
+	
+</script>
+</dom-module>

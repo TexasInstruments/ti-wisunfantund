@@ -18,6 +18,8 @@
  *    Description:
  *		Abstract base class for NCP implementations.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -137,6 +139,7 @@ struct SetPropertyHelper {
 	}
 };
 
+#define kWPANTUNDPropertyNCPRegion	               "NCPRegion"
 #define kWPANTUNDPropertyNCPSocketName             "NCPSocketName"
 #define kWPANTUNDPropertyNCPSocketBaud             "NCPSocketBaud"
 #define kWPANTUNDPropertyNCPDriverName             "NCPDriverName"

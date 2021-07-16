@@ -31,7 +31,7 @@
 const char status_cmd_syntax[] = "[args]";
 
 static const arg_list_item_t status_option_list[] = {
-	{'h', "help", NULL, "Print Help"},
+	{'h', "help", NULL, "Print Help.  For the list of TI Wi-SUN Supported Properties, please see ti_wisun_commands.MD."},
 	{'t', "timeout", "ms", "Set timeout period"},
 	{0}
 };

@@ -1,0 +1,31 @@
+{
+  "name": "fa-icons",
+  "version": "1.0.0",
+  "description": "The font-awesome v4.7.0 set of icons for use with applications built with GUI Composer v2",
+  "authors": [
+    "Texas Instruments"
+  ],
+  "keywords": [
+    "web-components",
+    "polymer",
+    "icon"
+  ],
+  "main": "fa-icons.html",
+  "private": true,
+  "homepage": "/elements/ti-guicomposer-helpindex/demo.html",
+  "dependencies": {
+    "iron-icon": "polymerelements/iron-icon#^1.0.0",
+    "iron-iconset-svg": "polymerelements/iron-iconset-svg#^1.0.0",
+    "polymer": "Polymer/polymer#~1.7.0"
+  },
+
+  "_release": "1.0.0",
+  "_resolution": {
+    "type": "branch",
+    "branch": "dev",
+    "commit": "99b7ffe8f289ec0ac6b29220f520aeac45a31a87"
+  },
+  "_source": "git@bitbucket.itg.ti.com/gc/ti-guicomposer-components.git",
+  "_target": "*",
+  "_originalSource": "git@bitbucket.itg.ti.com/gc/ti-guicomposer-components.git"
+}

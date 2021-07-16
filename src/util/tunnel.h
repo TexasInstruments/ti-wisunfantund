@@ -18,6 +18,8 @@
  *    Description:
  *		This file implements the code which managed the TUN interface.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 
@@ -30,7 +32,7 @@
 #ifdef __APPLE__
 #define TUNNEL_DEFAULT_INTERFACE_NAME   "utun2"
 #else
-#define TUNNEL_DEFAULT_INTERFACE_NAME   "wpan0"
+#define TUNNEL_DEFAULT_INTERFACE_NAME   "wfan0"
 #endif
 
 #define TUNNEL_MAX_INTERFACE_NAME_LEN	60

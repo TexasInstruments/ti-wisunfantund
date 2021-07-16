@@ -1,0 +1,1020 @@
+
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="ti-widget-filterbox.html">
+<link rel="import" href="ti-widget-droplist.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../ti-core-icons/ti-core-icons.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+
+<!--
+`ti-widget-filtered-droplist` is a drop down selection widget.
+
+Example:
+
+    <ti-widget-filtered-droplist></ti-widget-filtered-droplist>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-filtered-droplist
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-filtered-droplist'  >
+
+    <template>
+        <style>
+            :host {
+                text-decoration: inherit;
+                min-width:145px;
+                min-height:24px;
+                font-size:inherit;
+                border: none;
+                vertical-align: middle;
+            }
+            #selectorList {
+                width: inherit;
+                font-size: inherit;
+                text-decoration: inherit;
+                font-weight: inherit;
+                font-style: inherit;
+                color: inherit;
+                height: inherit;
+                padding: 0;
+                margin: 0;
+                overflow-y: visible;
+                overflow-x: visible;
+            }
+            #selectorList #selectorWidget /deep/ select {
+                height: auto;
+                width:inherit;
+                /* Hide the dropdown arrow in the embedded select box: */
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                text-indent: 1px;
+                text-overflow: '';
+            }
+            #selectorList #selectorWidget /deep/ select::-ms-expand {
+                /* Hide the dropdown arrow in the embedded select box on IE10+: */
+                display: none;
+            }
+            #combobox {
+                background-color: transparent;
+                border: solid 1px lightgrey;
+                height:24px;
+                width:100%;
+                min-width: 145px;
+                position: relative;
+                font-size: inherit;
+                text-decoration: inherit;
+                font-weight: inherit;
+                font-style: inherit;
+            }
+            #combobox.osx.safari {
+                border-radius:5px;
+            }
+            #combobox.osx.chrome {
+                border-radius:5px;
+            }
+            #combobox iron-icon {
+                margin-right: 0;
+            }
+            #combobox[show] {
+                background-color: #fff;
+            }
+
+            #combobox[show] input {
+                display: block;
+            }
+            #filterBox {
+                position:absolute;  /* MUST be absolute to correctly position list */
+                top:0;
+                left:0;
+                width: 100%;
+                height: 22px;  /* have to specify this or else you end up with a height of 0 */
+                border: none;
+                font-size: inherit;
+                text-decoration: inherit;
+                font-weight: inherit;
+                font-style: inherit;
+                z-index:1;
+            }
+            #filterBox.disabled {
+                opacity:0.5;
+            }
+            #filterBox.firefox {
+                width: calc(100% - 17px);
+            }
+            :host iron-icon {
+                margin-right: 10px;
+                padding-left:0;
+                cursor: pointer;
+                height: 20px;
+                width:20px;
+            }
+            #dropdownIcon {
+                color: black;
+                right:0;
+                float:right;
+                width:25px;
+                margin-right: 1px;
+                padding-left:5px;
+                z-index:1999;  /* keep less than TI Cloud Agent install dialog z-index, which is 2000 */
+                margin-top:2px;
+                margin-bottom:2px;
+                display:inline-block;
+            }
+            #dropdownIcon.disabled {
+                opacity:0.5
+            }
+            #iconDiv.disabled {
+                opacity:0.5
+            }
+            #selectorWidget {
+                position:absolute;  /* MUST be absolute for list to float over other widgets */
+                left:0;
+                z-index:10000;
+                width: 100%;
+                height: auto;
+                min-height: 24px;
+                display:block;
+                margin-top:22px;
+            }
+            #iconDiv.firefox.win {
+                border: 2px solid #bbb;
+                height:24px;
+                width: 17px;
+                background-color: #ddd;
+                float:right;
+                top:0;
+                right:0;
+                z-index:99999;
+            }
+            #iconDiv.firefox.osx {
+                border-top: 2px solid #fff;
+                border-left: 2px solid #fff;
+                border-right: 2px solid #888;
+                border-bottom: 2px solid #888;
+                height:22px;
+                width: 16px;
+                background-color: #eee;
+                float:right;
+                top:0;
+                right:0;
+                z-index:99999;
+            }
+            #dropdownIcon.firefox.win {
+                transform: translate(4px,-1px);
+                -webkit-transform: translate(4px,-1px);
+            }
+            #dropdownIcon.firefox.osx {
+                transform: translate(2px,-2px);
+                -webkit-transform: translate(2px,-2px);
+                width:21px;
+            }
+            #dropdownIcon.chrome.osx {
+                transform: translateX(3px);
+                -webkit-transform: translateX(3px);
+            }
+            #dropdownIcon.safari.osx {
+                transform: translateX(3px);
+                -webkit-transform: translateX(3px);
+            }
+        </style>
+        <div id="selectorList" on-blur="_onBlurHdlr"  title$="[[_getTitleText(selectedText,_filteredLabels)]]">
+            <div id="combobox"  class$="{{_browser}} {{_os}}"  show>
+                <ti-widget-filterbox id="filterBox" class$="filter {{_browser}} {{_os}}" query="{{filterQuery}}" border="none" placeholder-text="[[placeHolderText]]" hide-search-icon hide-clear-icon="[[_isQueryInDropList(filterQuery,_filteredLabels)]]"
+                                     disabled="{{disabled}}"  ></ti-widget-filterbox>
+                <div id="iconDiv"  on-click="_onIconDivClickHdlr" class$="{{_browser}} {{_os}} {{disabled}}"><iron-icon id="dropdownIcon"  icon="{{_getIcon(_os,_browser)}}" class$="{{_browser}} {{_os}}"  on-click="_onIconClickHdlr" style$="[[_getIconStyle(filterQuery,_filteredLabels)]]"></iron-icon><div>
+                </div>
+                    <ti-widget-droplist id="selectorWidget" hidden$="[[_hideDropList]]" tabindex="-1"
+                                        text-align="[[textAlign]]"
+                                        labels="{{_filteredLabels}}{{_getInvalidEntryText(_filteredLabels)}}"
+                                        values="{{_filteredValues}}" sorted="[[sorted]]"
+                                        on-selected="_onDropListSelectedHdlr"
+                                        on-click="_onDropListClickHdlr"
+                                        on-mousedown="_onDropListMouseDownHdlr"
+                                        style$="{{_getSelectWidth(_resizeCtr,_hideDropList)}}"
+                    ></ti-widget-droplist>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-widget-filtered-droplist',
+            behaviors: [TiWidgetBase,Polymer.IronResizableBehavior],
+            listeners: {
+                keydown: '_onKeyDownHdlr',
+                'iron-resize': 'onResize'
+            },
+            /**
+             * Fired when the user selects a value from the droplist.
+             * Add the attribute on-selected="myHandler" to receive the callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("selected",function(event){...});
+             *
+             * @event selected
+             */
+            properties: {
+                /**
+                 * Text displayed in light grey in place of value when nothing has been selected
+                 *
+                 * @attribute placeHolderText
+                 * @type string
+                 * @default ""
+                 */
+                placeHolderText: {
+                    notify:true,
+                    type: String,
+                    value:"type in text to filter..."
+                },
+                /**
+                 * Text displayed when the user-entered text is not in the list of labels
+                 *
+                 * @attribute invalidEntryText
+                 * @type string
+                 * @default "invalid entry (not in list)"
+                 */
+                invalidEntryText: {
+                    notify:true,
+                    type: String,
+                    value: "invalid entry (not in list)"
+                },
+                /**
+                 * Controls the horizontal alignment of the text that is displayed.
+                 *
+                 * @attribute textAlign
+                 * @type left|right|center
+                 * @default left
+                 */
+                textAlign: {
+                    notify: true,
+                    type: String,
+                    value: "left"
+                },
+                /**
+                 * Provides a list of textual labels to be displayed for the options in the selection.
+                 * Items are specified in a string with each item separated by ',', ';', or '|'.
+                 * If your labels contain separators, append an extra desired separator to the list and
+                 * it will be the separator that is used.  For example, 1,0|1,25|1,5|1,75|
+                 *
+                 * @attribute labels
+                 * @type string
+                 */
+                labels: {
+                    notify: true,
+                    type: String,
+                    value: "",
+                    observer: "_labelsChanged"
+                },
+                /**
+                 * the labels after they have been filtered.  Readonly
+                 *
+                 * @attribute filteredLabels
+                 * @type string
+                 */
+                _filteredLabels: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * Provides a list of values for the list of options.  This list should be the
+                 * same length as the list of labels provided for the options; otherwise the
+                 * extra options will have undefined values.  The values need not be numeric.  String
+                 * values are also allowed.
+                 * If your values contain separators, append an extra desired separator to the list and
+                 * it will be the separator that is used.  For example, 1,0|1,25|1,5|1,75|
+                 *
+                 * @attribute values
+                 * @type list of strings|numbers separated by ',', ';', or '|'
+                 * @default ""
+                 */
+                values: {
+                    notify: true,
+                    type: String,
+                    value: "",
+                    observer: "_valuesChanged"
+                },
+                /**
+                 * values after filtering by the filterQuery (readonly)
+                 *
+                 * @attribute _filteredValues
+                 * @type string
+                 */
+                _filteredValues: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * Provides the initial selection for the list of options.  This is usually not necessary.
+                 * Usually the widget will respond to data bindings to get the initial selection.
+                 * Use this only when you want to force the initial value of the selection and drive other
+                 * bindings with it.
+                 *
+                 * @attribute initialIndex
+                 * @type zero based index into the list of options
+                 * @default undefined
+                 */
+                initialIndex: {
+                    notify: true,
+                    type: Number,
+                    value: 0
+                },
+                /**
+                 * Controls the currently selected item by its zero based index in the list of options.
+                 *
+                 * @attribute selectedIndex
+                 * @type number
+                 * @default 0
+                 */
+                selectedIndex: {
+                    notify: true,
+                    type: Number,
+                    value: -1
+                },
+                /**
+                 * Controls the currently selected item by its value.  Values are provided by the values
+                 * attribute.  For convenience, if no values attribute is specified, the option values
+                 * are automatically defined as their one based index.  If you need a zero based index,
+                 * use the selectedIndex attribute instead.
+                 *
+                 * @attribute selectedValue
+                 * @type number
+                 * @default 1
+                 */
+                selectedValue: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * Controls the currently selected item by its textual label value.
+                 *
+                 * @attribute selectedText
+                 * @type string
+                 */
+                selectedText: {
+                    notify: true,
+                    type: String,
+                    value: "",
+                    observer: "_selectedTextChanged"
+                },
+                /**
+                 * Controls whether the list of options are sorted or not.  Sorting is for display purposes
+                 * only.  It will not effect the selectedIndex or selectedValue in anyway.  Sorting is
+                 * alphabetical based on the lowercase version of each options label text.
+                 *
+                 * @attribute sorted
+                 * @type boolean
+                 * @default false
+                 */
+                sorted: {
+                    notify: true,
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * the value in the filterbox used to filter the droplist items with
+                 *
+                 * @attribute filterQuery
+                 * @type string
+                 * @default ""
+                 */
+                filterQuery: {
+                    notify:true,
+                    type: String,
+                    value:"",
+                    observer: "_filterQueryChanged"
+                },
+                // used internally
+                _hideDropList: {
+                    notify: true,
+                    type: Boolean,
+                    value: true
+                },
+                /**
+                 * offset (in pixels) that the drop list is to have relative to the top of the component.
+                 * Provides flexibility for cases such as when the droplist is in a table with static layout
+                 *
+                 * @attribute dropListOffset
+                 * @type: number
+                 * @default: undefined
+                 */
+                dropListOffset: {
+                    notify: true,
+                    type: Number,
+                    value: undefined
+                },
+                /**
+                 * The maximum number of items to display in the droplist before adding scroll bars
+                 *
+                 * @attribute maxDropSize
+                 * @type number
+                 * @default 8
+                 */
+                maxDropSize: {
+                    notify: true,
+                    type: Number,
+                    value: 8
+                },
+                // internal use
+                _resizeCtr: {
+                    notify: true,
+                    type: Number,
+                    value: 0
+                },
+                _os: {
+                    notify: true,
+                    type: String,
+                    value: undefined
+                },
+                _browser: {
+                    notify: true,
+                    type: String,
+                    value: undefined
+                }
+
+            },
+            _keyDownHdlrActive: false,
+            _dropListBeingHiddenByBlur: false,
+            _getInvalidEntryText: function(_filteredLabels){
+                var result = "";
+                if (this.$) {
+                    var useInvalidEntryText = ((!_filteredLabels) || (_filteredLabels.length === 0));
+                    if (useInvalidEntryText) {
+                        result = this.invalidEntryText;
+                        this.async(function () {
+                            this.$.selectorWidget.selectedText = result;
+                            this._resizeCtr++;
+                        }.bind(this), 1)
+                    }
+                    var selectWidget = this.$.selectorWidget.getSelectWidget();
+                    if (useInvalidEntryText) {
+                        selectWidget.value = this.invalidEntryText;
+                        selectWidget.style.fontStyle = "italic";
+                        selectWidget.style.color = "red";
+                    } else {
+                        selectWidget.style.fontStyle = "normal";
+                        selectWidget.style.color = "black";
+                    }
+                }
+                return result;
+            },
+            _getTitleText: function(selectedText,_filteredLabels){
+                var result = this.placeHolderText;
+                if ((selectedText)&&(selectedText.length > 0)) {
+                    result = "Selected device: "+selectedText;
+                }
+                return result;
+            },
+            _isQueryInDropList: function(filterQuery,_filteredLabels){
+                var result = (_filteredLabels.length > 0);
+                return result;
+            },
+            _isElementInThis: function(element){
+                var el = element;
+                var result = false;
+                var depth = 0;
+
+                while ((el) && (!result) && (depth < 200)){
+                    result = (el === this);
+                    el = el.parentElement;
+                    depth++;
+                }
+                return result;
+            },
+            _getIconStyle: function(filterQuery,_filteredLabels) {
+                var result = "";
+                if (_filteredLabels.length === 0) {
+                    if (this._browser === "firefox") {
+                        result = "opacity:0.5;"
+                    } else {
+                        if (!this.disabled) {
+                            result = "visibility:hidden;"; // don't change the height or set display:none
+                        }
+                    }
+                }
+                return result;
+            },
+            _getIcon: function(os,browser){
+                var result = "ti-core-icons:drop-down-arrow-chrome";
+                switch(os){
+                    case 'win':
+                        switch(browser.toLowerCase()){
+                            case "chrome": result = "ti-core-icons:drop-down-arrow-chrome";break;
+                            case "firefox": result = "ti-core-icons:drop-down-arrow-firefox"; break;
+                            case "safari": result ="ti-core-icons:drop-down-arrow-safari";break;
+                        }
+                        break;
+                    case 'osx':
+                        switch(browser.toLowerCase()) {
+                            case "safari":  result = "ti-core-icons:drop-down-arrow-safari";break;
+                            case "chrome":  result = "ti-core-icons:drop-down-arrow-safari";break;
+                            case "firefox": result = "icons:arrow-drop-down";break;
+                        }
+                        break;
+                    case 'linux':
+                        // TODO: get icons for drop-down arrow for linux
+                        break;
+                }
+                return result;
+            },
+            _onResize: function() {
+                if (!this.$) return;
+                this._hideDropList = true;
+                this._resizeCtr++;
+                this.notifyPath('_resizeCtr',this._resizeCtr);
+                this.async(function(){
+                    this.updateStyles(); // ensure css style is updated
+                    Polymer.dom.flush();
+                }.bind(this),null,5);
+                // console.log('ti-widget-attitudedisplay: _resizeCtr = '+this._resizeCtr);
+            },
+            onResize: undefined,
+            _getSelectWidth: function(_resizeCtr,_hideDropList){
+                // this is not a true 'get' function - it is
+                // bound in to the widget so that it will automatically
+                // be called whenever the droplist is displayed
+                // so that the width will be adjusted to the correct value
+                try {
+                    var rect = this.getBoundingClientRect();
+                    var selectRect = this.$.selectorWidget.getBoundingClientRect();
+                    if ((selectRect) && (selectRect.width > 0) && (rect) && (selectRect.width !== rect.width)){
+                        var width = ""+rect.width + "px";
+                        var selectWidget = this.$.selectorWidget.getSelectWidget();
+                        selectWidget.style.width = width;
+                    }
+                }
+                catch(ex){
+                }
+                return "";
+            },
+            _onIconDivClickHdlr : function(event){
+            },
+            _lastClickEventTimeStamp: 0,
+            _onIconClickHdlr: function(event){
+                event.stopPropagation();
+                event.bubbles = false;
+                if ((this._browser === 'firefox') && (event.timeStamp)){
+                    // debouncing (not required for Chrome)
+                    var tStampDelta = event.timeStamp - this._lastClickEventTimeStamp;
+                    this._lastClickEventTimestamp = event.timeStamp;
+                    if (tStampDelta < 1000) return;
+                }
+                if ((this.disabled) || (!this.$)) return;
+                if (this._dropListBeingHiddenByBlur){
+                    this._dropListBeingHiddenByBlur = false;
+                    return;
+                }
+                // let clicks on the icon propagate up to the _onIconClickHdlr
+                this._resizeCtr++;
+                this._getFilteredValues(this.filterQuery,this.values); // this will also update the labels and the droplist
+                if (this._hideDropList) {
+                    this._hideDropList = false;
+//                this._hideDropList = !this._hideDropList;
+                    if (this.$.selectorWidget){
+                        var selectWidget = this.$.selectorWidget.getSelectWidget();
+                        if (selectWidget){
+                            selectWidget.focus();
+                        }
+                    }
+                }  else {
+                    // let the blur handler take care of hiding the menu when the user clicks the dropdown arrow with the list visible
+                    // except for firefox on osx:
+                    if ((this._os === "osx") && (this._browser === "firefox")) {
+                        this._hideDropList = true;
+                        this.$.filterBox.focus();
+                    }
+                }
+            },
+            _onDropListClickHdlr: function(event){
+                event.stopPropagation();
+                if (this.disabled) return;
+                if (this._filteredLabels.length === 0) {
+                    this._hideDropList = true;
+                    this.filterQuery = "";
+                    return;
+                }
+                //if (this.selectedText === this.$.selectorWidget.selectedText) {
+                this._onDropListSelectedHdlr(event);
+                //}
+            },
+            _onDropListMouseDownHdlr: function(event){
+                this.$.selectorWidget.getSelectWidget().focus();
+                this._keepListOpen = true;
+                this._keyDownHdlrFocusOnList = true;
+            },
+            _disableFocusOnListFromKeyboard: true,
+            _keyDownHdlrFocusOnList: false,
+            _keyDownHdlrFocusOnFilterBox: false,
+            _keepListOpen: false,
+            _onKeyDownHdlr: function(event){
+                if (this.disabled) return;
+                event.stopPropagation();
+                var keyCode = event.keyCode;
+                this._keepListOpen = true;
+                var invalidEntry = ((!this._filteredLabels) || (this._filteredLabels.length === 0));
+                this._keyDownHdlrFocusOnList = false;
+                this._keyDownHdlrFocusOnFilterBox = false;
+                this._keyDownHdlrActive = true;
+
+                switch (keyCode) {
+                    case 8:   // backspace key (editing device name in filterbox)
+                        this._keepListOpen = true;
+                        this._keyDownHdlrFocusOnFilterBox = true;
+                        break;
+                    case 9:  // tab key
+                        if (invalidEntry)  return;
+                        this._keepListOpen = true;
+                        this._keyDownHdlrFocusOnList = true;
+                        break;
+                    case 13:  // Enter - open the drop list to facilitate keyboard navigation
+                        if (invalidEntry) return;
+                        if ((!this.$.selectorWidget.hidden) && (event.currentTarget !== this.$.filterBox)) {
+                            this._keepListOpen = false;
+                            this._keyDownHdlrFocusOnFilterBox = true;
+                        } else {
+                            this._keepListOpen = true;
+                            this._keyDownHdlrFocusOnList = true;
+                        }
+                        break;
+                    case 27:   // ESC - close the drop list
+                        if (invalidEntry) return;
+                        this._hideDropList = true;
+                        this._keyDownHdlrFocusOnFilterBox = true;
+                        this._keepListOpen = false;
+                        break;
+                    case 38:  // up arrow - handled by the droplist itselft
+                        if (invalidEntry) return;
+                        this._keyDownHdlrFocusOnList = true;
+                        break;
+                    case 40:  // down arrow - handled by the droplist itself
+                        if (invalidEntry)  return;
+                        this._keyDownHdlrFocusOnList = true;
+                        break;
+                    default: // other key, e.g. to enter text into the filterbox directly
+                        this._keepListOpen = true;
+                        this._keyDownHdlrFocusOnFilterBox = true;
+                        break;
+                }
+                this.async(function(){
+                    try {
+                        if (this._keyDownHdlrFocusOnList) {
+                            this._hideDropList = false;
+                        } else {
+                            this._hideDropList = ! this._keepListOpen;
+                        }
+                        this._keyDownHdlrActive = false;
+                        if ( this._keyDownHdlrFocusOnFilterBox) {
+                            this.$.filterBox.focus();
+                            if (keyCode === 13){
+                                this._onDropListSelectedHdlr();
+                            }
+                            //this._keyDownHdlrFocusOnFilterBox = false;  // clear in the onBlurHdlr
+                        }
+                        this._keepListOpen = false;
+                    }
+                    catch(ex){
+                        console.log("ti-widget-filtered-droplist._onKeyDownHdlr exception: ex="+ex);
+                    }
+
+                }.bind(this),1);
+
+                this.async(function(){
+                    if ((this._keyDownHdlrFocusOnList) && (!this._disableFocusOnListFromKeyboard))  {
+                        this.$.selectorWidget.getSelectWidget().focus();
+                    }
+                    this._keyDownHdlrFocusOnList = false;
+                }.bind(this),2);
+            },
+            _onBlurHdlr: function(event){
+                var doBlur = true;
+                if (event.srcElement) {
+                    switch (event.srcElement.id){
+                        case "query":
+                            if ((this._keyDownHdlrFocusOnList) || (event.currentTarget === this)){
+                                doBlur = false;
+                            }
+                            break;
+                        case "selectorList":
+                            // filter out the iconClickHdlr events, etc by setting a flag, and clearing the flag
+                            // after all of the events have been handled
+                            this._dropListBeingHiddenByBlur = true;
+                            this._keepListOpen = false;
+                            this.async(function(){
+                                this._dropListBeingHiddenByBlur = false;
+                            }.bind(this),500);
+                            break;
+                    }
+                } else {
+                    if (this._browser === "firefox") {
+                        // Keep the list open if the user has clicked on the list scroll bar
+                            if ((this._keyDownHdlrFocusOnList) || (this._isElementInThis(event.relatedTarget))) {
+                                doBlur = false;
+                            }
+                    }
+                }
+
+                if (doBlur){
+                    if ( (!((this._browser === 'firefox') && (this._os === "osx"))) || (!this._keyDownHdlrFocusOnList)){
+                        this._hideDropList = true;
+                    }
+                }
+            },
+            _getSelectionFromDropList: function(){
+                var selection = "";
+                var selectWidget = this.$.selectorWidget.getSelectWidget();
+                try {
+                    if ((selectWidget.selectedOptions) && (selectWidget.selectedOptions.length === 1)){
+                        selection = selectWidget.selectedOptions[0].label;
+                    } else {
+                        var index = selectWidget.selectedIndex;
+                        selection = selectWidget.options[index].label;
+                    }
+                }
+                catch(ex){
+                }
+                return selection;
+            },
+            _onDropListSelectedHdlr: function(event){
+                if (this.disabled) return;
+                try {
+
+                    var selection = this._getSelectionFromDropList();
+                    if (!this._keyDownHdlrActive){
+                        this._hideDropList = true;
+                        this.filterQuery = selection;
+                        this.$.filterBox.setQueryText(selection);  // make sure it sticks
+                        if (selection !== this.selectedText) {
+                            this.selectedText = selection;
+                        } else {
+                            this._selectedTextChanged(selection,selection);
+                        }
+                        this._updateSelectedIndexAndValue();
+
+                    }
+                }
+                catch(ex){
+                    console.log("ti-widget-filtered-droplist exception: ex="+ex);
+                }
+
+            },
+            _updateSelectedIndexAndValue: function(){
+                for (var i = 0; i < this._labelsArray.length; i++) {
+                    if (this.selectedText === this._labelsArray[i]) {
+                        this.selectedIndex = i;
+                        this.selectedValue = this._valuesArray[i];
+                        break;
+                    }
+                }
+            },
+            _getSelectorTop: function(_resizeCtr){
+
+                var rect = this.$.filterBox.getBoundingClientRect();
+                var result = Number(rect.height).toString()+"px";
+                if ((this.dropListOffset) && (this.dropListOffset !== 0)){
+                    result = Number(this.dropListOffset + rect.height).toString() + "px";
+                }
+                return result;
+            },
+            _getSelectorWidth: function(_resizeCtr){
+                var rect = this.getBoundingClientRect();
+                var result = Number(rect.width).toString() + "px";
+                return result;
+            },
+            _selectedTextChanged: function(newValue, oldValue){
+                if (this.disabled) return;
+                // display the selectedText value as the text in the filter box to
+                // indicate what the current selection is
+                var okToFireEvent = ((this.filterQuery !== undefined) && (this._isReady));
+                if (this.filterQuery !== this.selectedText){
+                    this.filterQuery = this.selectedText;
+                    this.$.selectorWidget.selectedText = this.selectedText;
+                }
+                this.$.selectorList.title = this.selectedText + " selected.";
+                // notify listeners that the selectedText has changed
+                if ((okToFireEvent) && (this.selectedText) && (this.selectedText.trim().length > 0)) {
+                    this._updateSelectedIndexAndValue();
+                    this.fire('selected');
+                }
+            },
+            updateDropList: function(filteredLabels,forceHideDropList){
+                var numLabels = this._labelsArray.length;
+                var numFilteredLabels = this.parseArray(filteredLabels).length;
+                var size = 0;
+                switch(numFilteredLabels) {
+                    case 0:
+                        size = 1; // show the invalid entry text
+                        break;
+                    case 1:
+
+                        // Set the selectorWidget's selectedText to the assigned value
+                        // if the value is being assigned to the widget from an attribute,
+                        // then the selectorWidget will not have anything selected.
+                        // If an old value is still in the selectorWidget's selectedText, update it.
+                        this.$.selectorWidget.selectedText = filteredLabels;
+
+                        this.selectedText = this.$.selectorWidget.selectedText;
+                        if (this.filterQuery !== this.selectedText) {
+                            size = 1;
+                        } else {
+                            size = 0;
+                        }
+                        break;
+                    default:
+                        if (numFilteredLabels > this.maxDropSize) {
+                            size = this.maxDropSize;
+                        } else {
+                            size = numFilteredLabels;
+                        }
+                        break;
+                }
+                this.$.selectorWidget.size = size;
+                // this._resizeCtr++;  this causes slowdown when initially populating list
+                if (!forceHideDropList) {
+                    if (size === 0) {
+                        this._hideDropList = true;
+                        this._keyDownHdlrFocusOnList = false;
+                        this._keyDownHdlrFocusOnFilterBox = false;
+                        this._keepListOpen = false;
+                    }
+                } else {
+                    this._hideDropList = true;
+                }
+            },
+            _isReady: false,
+            _labelsChanged: function(newValue, oldValue){
+                this._labelsArray = this.parseArray(this.labels);
+                this._filteredLabels = this._getFilteredLabels(this.filterQuery, this.labels,true);
+            },
+            _labelsArray: undefined,
+            _valuesChanged: function(newValue, oldValue){
+                var delimiter = "|";
+                // For convenience, if no values attribute is specified, the option values are automatically defined as their one based index.
+                if ((!this.values) || (this.values.length === 0)) {
+                    for (var i=0; i < this._labelsArray.length; i++){
+                        if (this.values.length > 0) {
+                            this.values += delimiter;
+                        }
+                        this.values += Number(i+1).toString();
+                    }
+                }
+
+                this._valuesArray = this.parseArray(this.values);
+                this._filteredValues = this._getFilteredValues(this.filterQuery, this.values,true);
+            },
+            _valuesArray: undefined,
+            _getFilteredValues: function(_filterQuery,values,forceHideDropList){
+                if (!this._isReady) return;
+                var delimiter = "|";
+                var cleanQuery = "";
+                if (_filterQuery){
+                    cleanQuery = _filterQuery
+                }
+                lcQuery = cleanQuery.toLowerCase();
+                this._filteredLabels = this._getFilteredLabels(cleanQuery,this.labels,forceHideDropList);
+                var result = "";
+                for (var i=0; i < this._valuesArray.length; i++){
+                    if (this._labelsArray[i].toLowerCase().indexOf(lcQuery) >= 0){
+                        if (result.length > 0){
+                            result += delimiter;
+                        }
+                        result += this._valuesArray[i];
+                    }
+                }
+                return result;
+            },
+            _getFilteredLabels: function(_filterQuery,labels,forceHideDropList){
+                if (!this._isReady) return;
+                var delimiter = "|";
+                var cleanQuery = "";
+                if (_filterQuery){
+                    cleanQuery = _filterQuery;
+                }
+                var lcQuery = cleanQuery.toLowerCase();
+                // if the
+                if ((cleanQuery === this.selectedText) && (!this._keyDownHdlrFocusOnFilterBox)) {
+                    lcQuery = ""; // show the full list
+                }
+                var result = "";
+                for (var i=0; i < this._labelsArray.length; i++){
+                    if (this._labelsArray[i].toLowerCase().indexOf(lcQuery) >= 0){
+                        if (result.length > 0){
+                            result += delimiter;
+                        }
+                        result += this._labelsArray[i];
+                    }
+                }
+                this.updateDropList(result,forceHideDropList);
+                return result;
+            },
+            _filterQueryChanged: function(newValue, oldValue){
+                if (this.disabled){
+                    return;
+                }
+                var cleanQuery = "";
+                if (this.filterQuery){
+                    cleanQuery = this.filterQuery;
+                }
+                this._getFilteredValues(cleanQuery,this.values);
+            },
+            getElement : function()
+            {
+                return this.$ && this.$.filterBox;
+            },
+            // utility function to figure out the browser
+            _getBrowser: function() {
+                var browser = "chrome";
+                // chrome claims to be safari and chrome.. so special care is needed
+                if (navigator.userAgent.indexOf("Safari") !== -1 && navigator.userAgent.indexOf("Chrome") === -1) {
+                    browser = "safari";
+                } else if (navigator.userAgent.indexOf("Firefox") !== -1) {
+                    browser = "firefox";
+                } else if (!!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+                    browser = "ie";
+                }
+                return browser;
+            },
+            // utility function to figure out OS
+            _getOS: function() {
+                // default to linux because it is not always possible to tell it from
+                // the
+                // appVersion
+                var os = "linux";
+                if (navigator.appVersion.indexOf("Mac") !== -1)
+                    os = "osx";
+                if (navigator.appVersion.indexOf("Win") !== -1)
+                    os = "win";
+                return os;
+            },
+            ready: function(){
+                this._labelsArray = [];
+                this._valuesArray = [];
+                this.onResize = this._onResize.bind(this);
+            },
+            attached: function(){
+                this.async(function(){
+                    this._isReady = true;
+                    this._browser = this._getBrowser();
+                    this._os = this._getOS();
+                    this._labelsChanged();
+                    this._valuesChanged();
+                    this._hideDropList = true;
+                    this._resizeCtr++;
+                    if ((this.selectedText) && (this.selectedText.trim().length > 0)){
+                        this._updateSelectedIndexAndValue();
+                        this.fire('selected');
+                    }
+                    var parent = this.parentElement;
+                    if (parent){
+                        parent.addEventListener('keydown',function(event){
+                            event.stopPropagation();
+                            switch(event.keyCode){
+                                case 27: this._hideDropList = true; break;
+                            }
+
+                        }.bind(this));
+                    }
+                    this.$.selectorWidget.addEventListener('keydown',this._onKeyDownHdlr.bind(this),true);
+                    this.addEventListener('blur',this._onBlurHdlr.bind(this),true);
+                    window.addEventListener('resize',function(event){
+                        this.onResize();
+                    }.bind(this));
+                }.bind(this),1)
+            }
+
+        });
+    </script>
+</dom-module>

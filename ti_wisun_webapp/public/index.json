@@ -1,0 +1,24 @@
+{
+    "widgetBindings": [
+        {
+            "widgetId": "led_state_green",
+            "serverBindName": "widget.http_model.gled.state",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "led_state_red",
+            "serverBindName": "widget.http_model.rled.state",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "toggle_led_green",
+            "serverBindName": "widget.http_model.gled.state",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "toggle_led_red",
+            "serverBindName": "widget.http_model.rled.state",
+            "propertyName": "value"
+        }
+    ]
+}

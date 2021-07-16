@@ -1,0 +1,269 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<!--
+`ti-widget-progressbar` is an implementation of the paper-progress widget that provides
+ properties to make it easier to configure the color of the progress bar
+
+Example:
+
+    <ti-widget-progressbar></ti-widget-progressbar>
+
+See demo for examples of the panels that are in the palette.
+
+@group Ti Elements
+@element ti-widget-progressbar
+@demo demo.html
+@homepage https://gitorious.design.ti.com/guicomposer-nw/ti-widget-common
+-->
+<dom-module id="ti-widget-progressbar">
+
+    <template>
+        <style>
+			:host {
+			    height: 6px;
+			}
+			:host.disabled {
+			 	filter: grayscale(1); /* Firefox 3.5+ */
+				filter: gray; /* IE5+ */
+				-webkit-filter: grayscale(1); /* Webkit Nightlies & Chrome Canary */
+			}
+            #progressbar {
+				background-color: var(--ti-widget-progressbar-color, #c00);
+				
+            	position: absolute;
+            	height: 100%;
+
+                padding:0px;
+                margin:0px;
+            }
+            #background {
+				background-color: inherit;
+				
+            	position: relative;
+            	display: block;
+            	width: 100%;
+                height: inherit;
+
+                padding:0px;
+                margin:0px;
+            }
+
+        </style>
+        <div id="background">
+        <div id="progressbar"></div>
+        </div>
+    </template>
+    <script>
+
+        Polymer (
+        {
+            is: 'ti-widget-progressbar',
+          
+            behaviors: [TiWidgetBase],
+            
+            properties: 
+            {
+
+                /**
+                 * sets the progress position based on minValue and maxValue.
+                 *
+                 * @attribute value
+                 * @type number
+                 * @default 0
+                 */
+                value: 
+                {
+                    type: Number,
+                    value: 100,
+                    notify: true,
+                    observer: '_valueChanged'
+                },
+                
+                /**
+                 * Controls the maximum value that represents 100% progress.
+                 *
+                 * @attribute maxValue
+                 * @type number
+                 * @default 100
+                 */
+                maxValue: 
+                {
+                    type: Number,
+                    value: 100,
+                    notify: false,
+                    observer: '_updateValue'
+                },
+
+                /**
+                 * Controls the minimum value that represents 0% progress.
+                 *
+                 * @attribute minValue
+                 * @type number
+                 * @default 0
+                 */
+                minValue: 
+                {
+                    type: Number,
+                    value: 0,
+                    notify: false,
+                    observer: '_updateValue'
+                },
+                
+                /**
+                 * The amount of progress between 0 and 100 that is currently displayed.  You can use this binding
+                 * to get the percentage progress based on the set value between minValue and maxValue.
+                 *
+                 * @attribute progressPercent
+                 * @type number
+                 * @default 0
+                 */
+                progressPercent: 
+                {
+                    notify: true,
+                    type: Number,
+                    value: 0,
+                    observer: "_progressPercentChanged"
+                },
+                
+                /**
+                 * color of the line used to indicate progress
+                 *
+                 * @attribute color
+                 * @type string
+                 * @default "#cc0000"
+                 */
+                color: 
+                {
+                    notify: false,
+                    type: String,
+                    value: undefined,
+                    observer: "_colorChanged"
+                }
+            },
+            _lastProgressPercent: 0,
+            _progressPercentChanged: function(updateOnly)
+            {
+                var percent = +(this.progressPercent || 0);
+                if (percent < 0)
+                {
+                    percent = 0;
+                }
+                if (percent > 100)
+                {
+                    percent = 100;
+                }
+                
+                if (this._lastProgressPercent != percent && !this.disabled)
+                {
+                    this._lastProgressPercent = percent;
+                    
+                    var min = +(this.minValue || 0);
+                    var max = +(this.maxValue || 100);
+                    
+                    this._lastValue = ((max - min) * percent)/100 + min; 
+                    this.value = this._lastValue;
+                    
+                    if (this.$ && this.$.progressbar)
+                    {
+                        this.$.progressbar.style.width = percent.toString()+"%";
+                    }
+                }
+            },
+            _updateValue: function()
+            {
+                var percent = +(this.value || 0); 
+                
+                var minValue = +(this.minValue || 0);
+                var maxValue = +(this.maxValue || 100);
+                
+                if (percent < minValue)
+                {
+                    percent = 0;
+                }
+                else if (percent > maxValue)
+                {
+                    percent = 100;
+                }
+                else
+                {
+                    percent = (percent - minValue)/(maxValue - minValue) * 100;
+                }
+                
+                if (this._lastProgressPercent != percent || this.disabled)
+                {
+                    // don't modify progressPercent unless there is a real change in the value, not just string to number conversion.
+                    // to avoid bouncing the value back and forth between a couple of bi-directional bindings.
+                    this.progressPercent = percent;
+                }
+            },
+            _lastValue: 0,
+            _valueChanged: function()
+            {
+                if (this._lastValue != this.value)
+                {
+                    this._lastValue = this.value;
+
+                    this._updateValue();
+                }
+            },
+            _colorChanged: function()
+            {
+                this.customStyle['--ti-widget-progressbar-color'] = this.color ? this.color : undefined;
+                Polymer.dom.flush();
+                this.updateStyles();
+            },
+            _statusIndicatorLocationHint : "top-center",
+            disabledChanged: function()
+            {
+                TiWidgetBase.disabledChanged.call(this);
+                
+                if (!this.disabled)
+                {
+                    this._progressPercentChanged();  // update the display to match the value.
+                }
+            },
+            domReady: function()
+            {
+                this.reportDeprecatedProperties(["position", "leftPx", "rightPx", "bottomPx"]);
+            },
+            attached: function()
+            {
+              	this.async(this.domReady.bind(this));
+            },
+            ready: function()
+            {
+                this._valueChanged();
+                this._progressPercentChanged();
+
+            }
+        });
+    </script>
+</dom-module>

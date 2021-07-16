@@ -1,0 +1,769 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--
+    Copyright (c) 2014, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../ti-widget-common-behaviors/metadata.html">
+
+<!-------------------------------------------------------------------------------------------------------------------------------- 
+	Component meta data definitions 
+---------------------------------------------------------------------------------------------------------------------------------->
+<x-meta id="ti-widget-ruler" is-hidden label="Ruler" group="Common Widgets">
+	<template>
+		<ti-widget-ruler style="width: 3in; height: 1em;"></ti-widget-ruler>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="labels" kind="string" order="20" />
+	<property name="minorTicks" kind="number" order="21" />
+	<property name="align" kind="select" options="start,center,end" order="22" />
+	<property name="orientation" kind="select" options="horizontal,vertical" order="23" />
+	<property name="hideTicks" kind="boolean" order="24" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-ruler.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-aboutbox" label="About Box" is-container group="Common Widgets" is-hidden>
+	<template>
+		<ti-widget-aboutbox></ti-widget-aboutbox>
+	</template>
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-aboutbox.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-label" label="Label" group="Common Widgets">
+	<template>
+		<ti-widget-label></ti-widget-label>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseLabel" />
+	<inherit id="TiWidgetBaseText" />
+
+	<!-- Local -->
+	<property name="label" kind="string" order="20" />
+	<property name="mouseOverFontColor" kind="color" order="21"/>
+	<property name="mouseOverUnderlineColor" kind="color" order="22"/>
+	<property name="customCss" kind="string" order="23"/>
+	<property name="disabled" hidden/>
+	<!-- Override TiWidgetBase -->
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-label.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-table" label="Table" group="Common Widgets">
+	<template>
+		<ti-widget-table headings="heading1,heading2" rows="row1 col1,row1 col2;row2 col1,row2 col2"
+						 heading-styles="font-weight:bold;text-align:center;width:50%;"
+						 col-styles="text-align:left;text-align:center;"
+						 style="position:absolute;border:1px solid black;width:500px;height:200px;"></ti-widget-table>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+
+	<!-- Local -->
+	<property name="headings" kind="string" order="20" important/>
+	<property name="rows" kind="string" order="21" important/>
+	<property name="headingStyles" kind="string" order="22" important/>
+	<property name="colStyles" kind="string" order="23" important/>
+	<!-- Override TiWidgetBase -->
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-table.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-filtered-droplist" label="Filtered Drop Down Select" group="Common Widgets">
+	<template>
+		<ti-widget-filtered-droplist style="width:200px;height:24px;" labels="item1|item2" values="1|2"></ti-widget-filtered-droplist>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseSelector" />
+	<inherit id="TiWidgetBaseText" />
+
+	<!-- Local -->
+	<property name="textAlign" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="placeHolderText" type="string" order="20"></property>
+	<property name="maxDropSize" type="number" order = "21"></property>
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-filtered-droplist.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-droplist" label="Drop Down Select" group="Common Widgets">
+	<template>
+		<ti-widget-droplist style="width:100px;height:auto;"></ti-widget-droplist>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseSelector" />
+	<inherit id="TiWidgetBaseText" />
+
+	<!-- Local -->
+	<property name="textAlign" hidden/>
+	<property name="droplistStyle" type="string" order="20"/>
+	<!-- Override TiWidgetBaseText -->
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-droplist.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-listbox" label="ListBox" group="Common Widgets">
+	<template>
+		<ti-widget-listbox style="width:120px;height:90px;" tooltips="first|second|third" labels="item1|item2|item3"></ti-widget-listbox>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseSelector" />
+	<inherit id="TiWidgetBaseText" />
+
+	<!-- Local -->
+	<property name="textAlign" hidden/>
+	<property name="tooltip" hidden/>
+	<property name="tooltips" type="string" order="20"/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="enableItemDeleteBtn" kind="boolean" order="1"></property>
+	<template id="imports">
+		<link rel="import" href="ti-widget-listbox.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-textbox" label="Text Box" group="Common Widgets">
+	<template>
+		<ti-widget-textbox></ti-widget-textbox>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+	<inherit id="TiWidgetBaseTextbox" />
+	<inherit id="TiWidgetBaseInput" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-textbox.html">
+	</template>
+</x-meta>
+<x-meta id="ti-widget-filterbox" label="Search Filter Box" group="Common Widgets">
+	<template>
+		<ti-widget-filterbox style="height:33px;width:240px;"></ti-widget-filterbox>
+	</template>
+
+	<!-- Local -->
+	<property name="placeholderText" kind="string" order="20" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-filterbox.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-numberbox" label="Number Box" group="Common Widgets">
+	<template>
+		<ti-widget-numberbox></ti-widget-numberbox>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+	<inherit id="TiWidgetBaseInput" />
+	<inherit id="TiWidgetBaseNumberbox" />
+
+	<!-- Local -->
+	<property name="value" kind="string" />
+	<property name="decimalPlaces" kind="number" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-numberbox.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-spinner" label="Number Spinner" group="Common Widgets">
+	<template>
+		<ti-widget-spinner></ti-widget-spinner>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+	<inherit id="TiWidgetBaseInput" />
+	<inherit id="TiWidgetBaseNumberbox" />
+
+	<!-- Local -->
+	<property name="value" kind="string" />
+	<property name="increment" kind="number" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-spinner.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-checkbox" label="Checkbox" group="Common Widgets">
+	<template>
+		<ti-widget-checkbox label="click me"></ti-widget-checkbox>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+	<inherit id="TiWidgetBaseLabel" />
+
+	<!-- Local -->
+	<property name="checked" kind="boolean" order="21" />
+	<property name="label" kind="string" order="20" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-checkbox.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-toggle-button" label="Toggle Button" group="Buttons">
+	<template>
+		<ti-widget-toggle-button></ti-widget-toggle-button>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+	<inherit id="TiWidgetBaseLabel" />
+
+	<!-- Local -->
+	<property name="checked" order="8" kind="boolean" />
+	<property name="label" order="7" kind="string" />
+	<property name="toggleColor" order="9" kind="color" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-toggle-button.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-slider" label="Horizontal Slider" group="Common Widgets">
+	<template>
+		<ti-widget-slider style="width:255px;" labels="0,25,50,75,100"></ti-widget-slider>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="rangeSlider" kind="boolean" order="14"/>
+	<property name="value" kind="number" order="15" />
+	<property name="valueLow" kind="number" order="16" />
+	<property name="minValue" kind="number" order="17" />
+	<property name="maxValue" kind="number" order="18" />
+	<property name="increment" kind="number" order="20" />
+	<property name="labels" kind="string" order="21" />
+	<property name="intermediateChanges" kind="boolean" />
+	<property name="hideTicks" kind="boolean" />
+	<property name="hidePinValue" kind="boolean" />
+	<property name="fontSize" kind="select" options="xx-small,x-small,small,medium,large,x-large,xx-large,smaller,larger,inherit"/>
+
+	<property name="sliderColor" kind="color" />
+	<property name="tickColor" kind="color" />
+	<property name="fontColor" kind="color" />
+	<property name="fontStyle" kind="select" options="normal,italic,inherit" />
+	<property name="fontWeight" kind="select" options="normal,bold,lighter,bolder,100,200,300,400,500,600,700,800,900,inherit"
+	/>
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-slider.html">
+	</template>
+</x-meta>
+
+
+<x-meta id="ti-widget-image" label="Image" group="Common Widgets">
+	<template>
+		<ti-widget-image lock-aspect-ratio></ti-widget-image>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="imagePath" kind="string" order="15" />
+	<property name="lockAspectRatio" kind="boolean" order="16" />
+	<property name="hoverEffect" kind="select" options="none,enlarge,button,color" order="17" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-image.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-multiimage" label="Multi-Image" group="Common Widgets">
+	<template>
+		<ti-widget-multiimage lock-aspect-ratio></ti-widget-multiimage>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="imagePaths" kind="string" order="10" />
+	<property name="imageFolder" kind="string" order="11" />
+	<property name="selectedIndex" kind="number" order="12" />
+	<property name="selectedValue" kind="string" order="13" />
+	<property name="initialIndex" kind="number" order="14" />
+	<property name="values" kind="string" order="15" />
+	<property name="lockAspectRatio" kind="boolean" order="16" />
+	<property name="hoverEffect" kind="select" options="none,enlarge,button,color" order="17" />
+
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-multiimage.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-multiimage-radio-group" label="Multi-Image Radio Group" group="Common Widgets">
+	<template>
+		<ti-widget-multiimage-radio-group orientation="horizontal" image-folder="app/images" images_off="img1_off.svg,img2_off.svg"
+										  images_on="img1.svg,img2_on.svg" image-width="auto" image-height="60px" values="one,two"></ti-widget-multiimage-radio-group>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="images_off" kind="string" order="10" />
+	<property name="images_on" kind="string" order="11" />
+	<property name="imageFolder" kind="string" order="12" />
+	<property name="selectedIndex" kind="number" order="13" />
+	<property name="selectedValue" kind="string" order="14" />
+	<property name="values" kind="string" order="15" />
+	<property name="lockAspectRatio" kind="boolean" order="16" />
+	<property name="imageWidth" kind="string" order="17" />
+	<property name="imageHeight" kind="string" order="18" />
+	<property name="orientation" kind="select" options="horizontal, vertical" order="19" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-multiimage-radio-group.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-progressbar" label="Progress Bar" group="Status Indicators">
+	<template>
+		<ti-widget-progressbar style="position: absolute; width: 400px; height: 5px; background-color: #AAAAAA;"></ti-widget-progressbar>
+	</template>
+
+
+	<!-- Inherted -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="value" kind="number" order="1" />
+	<property name="minValue" kind="number" order="2" />
+	<property name="maxValue" kind="number" order="3" />
+	<property name="progressPercent" kind="range" min="0" max="100" step="0.1" order="4" />
+	<property name="color" kind="color" order="5" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-progressbar.html">
+	</template>
+</x-meta>
+
+
+<x-meta id="ti-widget-button" label="Button" group="Buttons">
+	<template>
+		<ti-widget-button raised></ti-widget-button>
+	</template>
+
+	<!-- Inherted -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="label" kind="string" />
+	<property name="buttonType" kind="select" options="default,primary,secondary,success,info,warning,error,link" order="8" />
+	<property name="fontColor" kind="color" order="20" />
+	<property name="raised" kind="boolean" order="21" />
+	<property name="bindableTrigger" kind="number" order="120" />
+	
+	<!--  this property doesn't do anything - is there a reason to expose this? -->
+	<!-- property name="btnClickHdlr" kind="string" order="15"/-->
+	
+	<template id="imports">
+		<link rel="import" href="ti-widget-button.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-connect-button"  label="Connect/Disconnect" group="Buttons">
+	<template>
+		<ti-widget-connect-button raised style="height:37px;width:80px;border-radius:3px;"></ti-widget-connect-button>
+	</template>
+
+	<!-- Inherted -->
+	<inherit id="TiWidgetBase" />
+
+	<!-- Local -->
+	<property name="buttonType" kind="select" options="default,primary,secondary,success,info,warning,error,link" order="8"	/>
+	<property name="fontColor" kind="color" order="20" />
+	<property name="raised" kind="boolean" order="21" />
+	<property name="disabled" kind="boolean" />
+	<property name="bindableTrigger" kind="number" order="120" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-connect-button.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-led" label="LED" group="Status Indicators">
+	<template>
+		<ti-widget-led on glow style="width:34px;height:34px"></ti-widget-led>
+	</template>
+
+	<!-- Local -->
+	<property name="ledType" kind="select" options="default,custom" order="20" />
+	<property name="on" kind="boolean" order="21" />
+	<property name="glow" kind="boolean" order="22" />
+	<property name="color" kind="color" order="23" />
+	<property name="offColor" kind="color" order="24" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-led.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-bitfield-header" label="Bitfield header">
+	<template>
+		<ti-widget-bitfield-header></ti-widget-bitfield-header>
+	</template>
+
+	<!-- Local -->
+	<property name="bitValues" kind="string" order="20" />
+	<property name="backgroundColor" kind="color" order="21" />
+	<property name="borderColor" kind="color" order="22" />
+
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-bitfield-header.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-container" label="Container" is-container group="Containers">
+	<template>
+		<ti-widget-container auto-scroll style="height: 10em; width:10em; border: 1px solid black;"></ti-widget-container>
+	</template>
+
+	<!-- Inherted -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+	<inherit id="TiBehaviorContainer" />
+
+	<!-- Local -->
+	<property name="disabled" hidden/>
+	<!-- Override TiWidgetBase -->
+	<property name="textAlign" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="fontStyle" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="fontWeight" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="textDecoration" hidden/>
+	<!-- Override TiWidgetBaseText -->
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-container.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-tilecontainer" label="Tile Container" is-container group="Containers">
+	<template>
+		<ti-widget-tilecontainer auto-scroll wrap vertical layout style="height:10em;width:10em;border:1px solid black;overflow:auto;"></ti-widget-tilecontainer>
+	</template>
+
+	<property name="tileStyle" kind="string" important order="1"></property>
+	<property name="tileTitleStyle" kind="string" important order="4"></property>
+	<property name="tileBodyStyle" kind="string" important order="6"></property>
+	<property name="tileTitleBackgroundColor" kind="color" important order="8"></property>
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-tilecontainer.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-tabcontainer" label="Tab Container" is-container group="Containers">
+	<template>
+		<ti-widget-tabcontainer style="width:4in; height:3in;" layout selected-index="0">
+			<ti-widget-tab name="tab one"></ti-widget-tab>
+			<ti-widget-tab name="tab two"></ti-widget-tab>
+		</ti-widget-tabcontainer>
+	</template>
+
+	<!-- Local -->
+	<property name="selectedIndex" kind="number" order="20" />
+	<property name="selectedLabel" kind="string" order="21" />
+	<property name="hideTabLabels" kind="boolean" order="22"/>
+	<property name="showTabLabelsInDesignerOnly" kind="boolean" order="23"/>
+	<property name="showTabCloseIcon" kind="boolean" order="24"/>
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-tabcontainer.html">
+		<link rel="import" href="ti-widget-tab.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-tab" label="Tab" is-container group="Containers">
+	<template>
+		<ti-widget-tab name="new tab" autoscroll></ti-widget-tab>
+	</template>
+
+	<!-- Inherted -->
+	<inherit id="TiWidgetTabBehavior" />
+	<!-- Local -->
+	<property name="name" kind="string" order="20" />
+	<property name="icon" kind="string" order="21"/>
+	<property name="iconStyle" kind="string" order="22"/>
+	<property name="tooltip" kind="string" order="23"/>
+	<property name="disabled" kind="boolean" order="24"/>
+	<property name="visible" kind="boolean" order="25"/>
+	<property name="nonvisible" kind="boolean" order="26"/>
+
+	<!-- Override TiWidgetBase -->
+	<property name="textAlign" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="fontStyle" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="fontWeight" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="textDecoration" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="guiFilePath" kind="string" order="30" />
+	<property name="idPrefix" kind="string" order="32" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-tab.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-vtabcontainer" label="Vertical Tab Container" is-container group="Containers" >
+	<template>
+		<ti-widget-vtabcontainer style="width:4in; height:3in;border:1px solid lightgrey;" background-color-selected="#e0f8f8" color-selected="#000" layout selected-index="0" >
+			<ti-widget-vtab name="one" icon="settings" style="background-color:white;"></ti-widget-vtab>
+			<ti-widget-vtab name="two" icon="build" style="background-color:white;"></ti-widget-vtab>
+		</ti-widget-vtabcontainer>
+	</template>
+
+	<!-- Local -->
+	<property name="vtabHeightInPx" kind="number" order="19" />
+	<property name="selectedIndex" kind="number" order="20" />
+	<property name="selectedLabel" kind="string" order="21" />
+	<property name="hideVtabLabels" kind="boolean" order="24"/>
+	<property name="noInk" kind="boolean" order="25"/>
+	<property name="inkColor" kind="color" order="26"/>
+	<property name="colorSelected" kind="color" order="27"/>
+	<property name="colorUnselected" kind="color" order="28"/>
+	<property name="colorDisabled" kind="color" order="29"/>
+	<property name="colorSelectionBar" kind="color" order="30"/>
+	<property name="backgroundColorSelected" kind="color" order="31"/>
+	<property name="backgroundColorHover" kind="color" order="32"/>
+	<property name="isExpanded" kind="boolean" order="33"/>
+	<property name="autoExpand" kind="boolean" order="34" />
+	<property name="autoZeroHtabIndex" kind="boolean" order="35" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-vtabcontainer.html">
+		<link rel="import" href="ti-widget-vtab.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-vtab" label="Vertical Tab" is-container group="Containers">
+	<template>
+		<ti-widget-vtab name="new tab" icon-name="build" style="background-color:white;margin:2px;" autoscroll>
+			<ti-widget-banner  text-align="left" text-decoration="none" visible horizontal layout center start-justified ></ti-widget-banner>
+		</ti-widget-vtab>
+	</template>
+
+	<!-- Inherted -->
+	<inherit id="TiWidgetBase" />
+	<inherit id="TiWidgetBaseText" />
+	<inherit id="TiBehaviorContainer" />
+	<inherit id="TiWidgetTabBehavior"/>
+
+	<!-- Local -->
+	<property name="name" kind="string" order="19" />
+	<property name="caption" kind="string" order="20" />
+	<property name="icon" kind="string" order="21"/>
+	<property name="iconStyle" kind="string" order="22"/>
+	<property name="tooltip" kind="string" order="23"/>
+
+	<property name="disabled" kind="boolean" order="24"/>
+	<property name="visible" kind="boolean" order="25"/>
+	<property name="nonvisible" kind="boolean" order="26"/>
+	<!-- Override TiWidgetBase -->
+	<property name="textAlign" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="fontStyle" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="fontWeight" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="textDecoration" hidden/>
+	<!-- Override TiWidgetBaseText -->
+	<property name="guiFilePath" kind="string" order="30" />
+	<property name="idPrefix" kind="string" order="32" />
+	<property name="noChildTabsInMenu" kind="boolean" order="34" />
+	<property name="resetAppWhenSelected" kind="boolean" order="35" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-banner.html">
+		<link rel="import" href="ti-widget-vtab.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-banner" label="Banner" is-container group="Containers">
+	<template>
+		<ti-widget-banner  text-align="left" text-decoration="none" visible horizontal layout center start-justified></ti-widget-banner>
+	</template>
+
+	<!-- Local -->
+	<property name="titleLabel" kind="string" order="1" />
+	<property name="icon" kind="string" order="4" />
+	<property name="iconColor" kind="color" order="8" />
+	<property name="iconStyle" kind="string" order="9" />
+	<property name="customFontSize" kind="string" order="42"/>
+	<property name="fontColor" kind="color" order="43"/>
+	<property name="fontStyle" kind="select" options="normal,italic,inherit" order="44"/>
+	<property name="fontWeight" kind="select" options="normal,bold,lighter,bolder,100,200,300,400,500,600,700,800,900,inherit" order="45"/>
+
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-banner.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-input" label="Input" group="Common Widgets" isEditor>
+	<template>
+		<ti-widget-input label="Type something..."></ti-widget-input>
+	</template>
+
+	<!-- Inherited -->
+	<inherit id="TiBehaviorImmediateChanges" />
+
+	<!-- Local -->
+	<property name="label" kind="string" order="20" />
+	<property name="value" kind="string" order="21" />
+	<property name="floatingLabel" kind="boolean" />
+	<property name="disabled" kind="boolean" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-input.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-radio-button" label="Radio Button" group="Buttons">
+	<template>
+		<ti-widget-radio-button label="Radio Button"></ti-widget-radio-button>
+	</template>
+
+	<!-- Local -->
+	<property name="checked" kind="boolean" order="21" />
+	<property name="label" kind="string" order="20" />
+	<property name="disabled" kind="boolean" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-radio-button.html">
+	</template>
+</x-meta>
+
+<x-meta id="ti-widget-dialog" label="Dialog" is-container group="Containers">
+	<template>
+		<ti-widget-dialog heading="Entitled" desc="Toggle the visible-in-designer property to show the dialog in the Designer" with-backdrop>
+			<ti-widget-container layout horizontal center>
+				<ti-widget-label label="Value:" style="margin: 5px;"></ti-widget-label>
+                <ti-widget-textbox flex one style="margin: 5px;"></ti-widget-textbox>
+            </ti-widget-container>
+
+			<ti-widget-container class="actionBar" layout horizontal>
+                <ti-widget-button label="Cancel" dialog-dismiss></ti-widget-button>
+				<ti-widget-button label="OK" dialog-confirm></ti-widget-button>
+            </ti-widget-container>
+		</ti-widget-dialog>
+	</template>
+
+	<!-- Local -->
+    <property name="heading" kind="string" order="11" />
+    <property name="desc" kind="string" order="12" />
+    <property name="dialogImage" king="string" order="13" />
+	<property name="isModal" kind="boolean" order="14" />
+	<property name="withBackdrop" kind="boolean" order="15" />
+    <property name="noCloseOnSubmit" kind="boolean" order="16" />
+    <property name="noEnterKeyHandling" kind="boolean" order="17" />
+    <property name="noEscKeyHandling" kind="boolean" order="18" />
+    <property name="zIndex" kind="number" order="19" />
+    <property name="width" kind="string" order="20" />
+    <property name="visibleInDesigner" kind="boolean" order="21" nosave />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-dialog.html">
+		<link rel="import" href="ti-widget-container.html">
+        <link rel="import" href="ti-widget-button.html">
+        <link rel="import" href="ti-widget-textbox.html">
+	</template>
+</x-meta>
+
+
+
+<x-meta id="ti-widget-radio-group" label="Radio Group" is-container group="Buttons">
+	<template>
+		<ti-widget-radio-group selected-text="Small">
+			<ti-widget-radio-button label="Small"></ti-widget-radio-button>
+			<ti-widget-radio-button label="Medium"></ti-widget-radio-button>
+			<ti-widget-radio-button label="Large"></ti-widget-radio-button>
+		</ti-widget-radio-group>
+	</template>
+
+	<!-- Local -->
+	<property name="selectedText" kind="string" order="25" />
+	<property name="allowEmptySelection" kind="boolean" />
+
+	<template id="imports">
+		<link rel="import" href="ti-widget-radio-group.html">
+		<link rel="import" href="ti-widget-radio-button.html">
+	</template>
+</x-meta>

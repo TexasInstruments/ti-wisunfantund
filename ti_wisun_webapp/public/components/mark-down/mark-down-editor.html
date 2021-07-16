@@ -1,0 +1,40 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="marked-import.html">
+
+<!--
+A tiny markdown editor which extends the mark-down element
+
+##### Example
+
+    <mark-down-editor>
+      Hello, **world!**
+    </mark-down-editor>
+
+or alternatively:
+
+    <mark-down-editor text="Hello, **world!**"></mark-down-editor>
+
+@element mark-down-editor
+@blurb A tiny markdown editor which extends the mark-down element
+@status alpha
+@homepage http://robdodson.github.io/mark-down
+-->
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+<dom-module id="mark-down-editor">
+  <link rel="import" type="css" href="mark-down-editor.css">
+  <template>
+    <div id="markup" part="markup">
+      <textarea id="editor" part="editor" value="{{text::input}}"></textarea>
+    </div>
+    <div id="markdown" part="markdown"></div>
+  </template>
+  <script>
+    Polymer({
+      is: 'mark-down-editor',
+      extends: 'mark-down'
+    });
+  </script>
+</dom-module>

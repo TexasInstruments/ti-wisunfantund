@@ -1,60 +1,41 @@
-wpantund, Userspace WPAN Network Daemon
-=======================================
+wfantund, Userspace Wireless Field Area Network (WFAN) Network Daemon
+======================================================================
 
-`wpantund` is a user-space network interface driver/daemon that
-provides a native IPv6 network interface to a low-power wireless
-**Network Co-Processor** (or *NCP*). It was written and developed by
+`wfantund` is derived from `wpantund` which was written and developed by
 Nest Labs to make supporting [Thread](http://threadgroup.org)
 connectivity on Unix-like operating systems more straightforward.
 
-`wpantund` is designed to marshall all access to the NCP, ensuring
+`wfantund` is a user-space network interface driver/daemon that
+provides a native IPv6 network interface to TI Wi-SUN FAN Border Router
+operating in Network Processor (NWP) mode. 
+
+TI Wi-SUN FAN Solution are supported over TI CC13xx platforms.
+Refer to https://www.ti.com/wireless-connectivity/wi-sun/overview.html for more details.
+
+
+TI Wi-SUN FAN embedded software running on TI CC13xx platform can be downloaded
+from TI CC13xx_26xx SDK (https://www.ti.com/tool/download/SIMPLELINK-CC13X2-26X2-SDK)
+
+Software provided in this repository provides Linux Application Examples that can run over
+TI Wi-SUN FAN Border Router NWP software (to be obtained from TI CC13xx_26xx SDK) connected
+via UART to a Linux Platform.
+
+These examples are meant to be serve as sample application examples to aid in development
+of a Linux OS based Wi-SUN Border Router custom applications and provide back-end connectivity.
+
+Software can be ported to other embedded Linux platforms to develop WI-SUN FAN based Border router
+solution. Reference cross compilation support has been provided for TI AM64x SK Platform 
+(https://www.ti.com/tool/SK-AM64).
+
+
+`wfantund` is designed to marshall all access to the NCP, ensuring
 that it always remains in a consistent and well-defined state.
-
-This is not an official Google product.
-
-## Feature and Architecture Summary ##
-
-`wpantund` provides:
-
- *  ... a native IPv6 interface to an NCP.
- *  ... a command line interface (`wpanctl`) for managing and
-    configuring the NCP.
- *  ... a DBus API for managing and configuring the NCP.
- *  ... a way to reliably manage the power state of the NCP.
- *  ... a uniform mechanism for handling NCP firmware updates.
-
-The architecture and design of `wpantund` has been motivated by the
-following design goals (in no specific order):
-
- *  Portability across Unix-like operating systems (currently supports
-    Linux. BSD support should be fairly trivial to add)
- *  Require few runtime dependencies (DBus, with boost needed when
-    building)
- *  Single-threaded architecture, with heavy use of asynchronous I/O
- *  Power efficiency (0% CPU usage when idle)
- *  Allow management interface to be used by multiple independent
-    applications simultaneously
- *  Allow multiple instances of `wpantund` to gracefully co-exist on a
-    single machine
- *  Modular, plugin-based architecture (all details for communicating
-    with a specific NCP stack are implemented as plugins)
-
-Note that Windows is not currently supported, but patches are welcome.
-
-The following NCP plugins are provided:
-
-*   `src/ncp-spinel`: Supports NCPs that communicate using the [Spinel NCP
-    Protocol][1], used by NCPs running [OpenThread][2]
-*   `src/ncp-dummy`: A dummy NCP plug-in implementation meant to be the
-    starting point for implementing new NCP plug-ins
-
-[1]: https://github.com/openthread/openthread/tree/master/doc
-[2]: https://github.com/openthread/openthread/
 
 ## License ##
 
-`wpantund` is open-source software released under the [Apache License,
-Version 2.0][3]. See the file [`LICENSE`][4] for more information.
+`wfantund` is based on `wpantund`.
+`wfantund` is open-source software released under the [Apache License,
+Version 2.0][1]. See the file [`LICENSE`][2] for more information.
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,48 +43,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the [License][4] for the specific language governing permissions and
 limitations under the License.
 
-[3]: http://www.apache.org/licenses/LICENSE-2.0
-[4]: ./LICENSE
+[1]: http://www.apache.org/licenses/LICENSE-2.0
+[2]: ./LICENSE
 
-## Conceptual Overview ##
 
-`wpantund` is conceptually similar in purpose to the point-to-point
-daemon (`pppd`, commonly used on Unix platforms to provide network
-connectivity via a dial-up modems) except that instead of communicating
-with a dial-up modem, `wpantund` is communicating with an NCP.
+## Compilation and Installation ##
 
-`wpantund` communicates with the NCP via an abstraction of a
-asynchronous stream socket, which could be any of the following:
+### Linux OS (Ubuntu) Support ###
+Refer to Install.md for compiling and installing `wfantund` and `wfanctl` 
+in Ubuntu Linux OS.
 
- *  A real serial port (UART) connected to the NCP (preferably with
-    hardware flow control)
- *  The stdin and stdout from a subprocess (for supporting SPI
-    interfaces using a translator program or debugging virtual
-    stacks)
- *  A TCP socket (for debugging, not recommended for production)
-
-Unlike a dial-up modem, NCPs often have a rich management interface
-for performing operations, such as forming a network, joining a
-network, scanning for nearby networks, etc. To perform these operations,
-`wpantund` includes a command line utility called `wpanctl`.
-Applications that need to directly configure the network interface can
-also communicate directly with `wpantund` using its DBus API.
-
-To expose a native IPv6 network interface to the host operating
-system, `wpantund` uses the `tun` driver on Linux. On Linux, the
-default name for the interface is `wpan0`.
+### Embedded Linux OS Support ###
+Refer to Install_AM64x_sk.md for cross-compiling and installing `wfantund` and `wfanctl` 
+for TI AM64x SK (https://www.ti.com/tool/SK-AM64).
 
 ## Usage Overview ##
 
-The behavior of `wpantund` is determined by its configuration
+The behavior of `wfantund` is determined by its configuration
 parameters, which may be specified in a configuration file (typically
 `/etc/wpantund.conf`) or at the command line. A typical configuration
 file might look like that shown below. For a more thorough explanation
-of available configuration parameters, see the [included example][5].
+of available configuration parameters, see the [included example][3].
 
     # Try to name the network interface `wpan0`.
     # If not possible, a different name will be used.
-    Config:TUN:InterfaceName      "wpan0"
+    Config:TUN:InterfaceName      "wfan0"
 
     # The pathname of the socket used to communicate
     # with the NCP.
@@ -116,89 +80,227 @@ of available configuration parameters, see the [included example][5].
     # Drop root privileges after opening all sockets
     Config:Daemon:PrivDropToUser  "nobody"
 
-    # Use a CCA Threshold of -70db
-    NCP:CCAThreshold              "-70"
 
-When up and running, you can use `wpanctl` to check the status of the
-interface and perform various management operations. For example, to
-check the general status of an interface:
+### Starting wfantund ###
+    sudo /usr/local/sbin/wfantund -o Config:NCP:SocketPath `<Serial Port>`
+    example: sudo /usr/local/sbin/wfantund -o Config:NCP:SocketPath /dev/ttyACM0
 
-    $ sudo wpanctl status
-    wpan0 => [
-        "NCP:State" => "offline"
-        "Daemon:Enabled" => true
-        "NCP:Version" => "OPENTHREAD/g1651a47; May 23 2016 17:23:24"
-        "Daemon:Version" => "0.07.00 (May 23 2016 12:58:54)"
-        "Config:NCP:DriverName" => "spinel"
-        "NCP:HardwareAddress" => [F1D92A82C8D8FE43]
-    ]
+### Configuring wfantund using wfanctl ###
+When up and running, you can use `wfanctl` to get or set TI Wi-SUN FAN Parameters
 
-Here we see that the NCP is in the `offline` state along with a few
-additional bits of information such as the version of the NCP and its
-hardware address. From here we can easily form a new network:
+To start wfanctl use
+```
+   $ sudo /usr/local/bin/wfanctl 
+```
+To get/set properties use the get/set command.
 
-    $ sudo wpanctl form "wpantund-testnet"
-    Forming WPAN "wpantund-testnet" as node type router
-    Successfully formed!
-    $
+example:
+```
+   wfanctl:wfan0> get panid
+   0xABCD
+```
 
-Now if we check the status, we will see more information:
+The status of TI Wi-SUN Border Router along with some other related information can be obtained using the `status` command
 
-    $ sudo wpanctl status
-    wpan0 => [
-        "NCP:State" => "associated"
-        "Daemon:Enabled" => true
-        "NCP:Version" => "OPENTHREAD/g1651a47; May 23 2016 17:23:24"
-        "Daemon:Version" => "0.07.00 (May 23 2016 12:58:54)"
-        "Config:NCP:DriverName" => "spinel"
-        "NCP:HardwareAddress" => [F1D92A82C8D8FE43]
-        "NCP:Channel" => 23
-        "Network:NodeType" => "leader"
-        "Network:Name" => "wpantund-testnet"
-        "Network:XPANID" => 0x09717AEF221F66FB
-        "Network:PANID" => 0xBFCD
-        "IPv6:LinkLocalAddress" => "fe80::f3d9:2a82:c8d8:fe43"
-        "IPv6:MeshLocalAddress" => "fd09:717a:ef22::9a5d:5d1e:5527:5fc8"
-        "IPv6:MeshLocalPrefix" => "fd09:717a:ef22::/64"
-    ]
-    $ ifconfig wpan0
-    wpan0: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1280
-        inet6 fe80::f3d9:2a82:c8d8:fe43%wpan0 prefixlen 10 scopeid 0x15
-        inet6 fd09:717a:ef22::9a5d:5d1e:5527:5fc8 prefixlen 64
+```
+wfanctl:wfan0> status
+wfan0 => [
+	"NCP:State" => "offline"
+	"Daemon:Enabled" => true
+	"NCP:Version" => "TIWISUNFAN/1.0.1; RELEASE; Oct 28 2021 14:02:58"
+	"Daemon:Version" => "0.08.00d (0.07.01-380-ge8fc63f-dirty; Nov  2 2021 20:16:55)"
+	"Config:NCP:DriverName" => "spinel"
+	"NCP:HardwareAddress" => [00124B0014F7D160]
+	"Network:NodeType" => "0 : Border Router"
+	"Network:PANID" => 0xABCD
+]
+```
+_For detailed list of all supported TI Wi-SUN FAN Command, please refer to `ti_wisun_commands.md`_
 
-If compiled with `libreadline` or `libedit`, `wpanctl` supports an
+The interface and stack can be started using the following commands
+```
+   $ sudo wfanctl set interface:up true
+   $ sudo wfanctl set stack:up true
+```
+
+Status of Interface can be checked by using the status command.
+```
+wfanctl:wfan0> status
+wfan0 => [
+	"NCP:State" => "associated"
+	"Daemon:Enabled" => true
+	"NCP:Version" => "TIWISUNFAN/1.0.1; RELEASE; Oct 28 2021 14:02:58"
+	"Daemon:Version" => "0.08.00d (0.07.01-380-ge8fc63f-dirty; Nov  2 2021 20:16:55)"
+	"Config:NCP:DriverName" => "spinel"
+	"NCP:HardwareAddress" => [00124B0014F7D160]
+	"Network:NodeType" => "0 : Border Router"
+	"Network:PANID" => 0xABCD
+]
+```
+Note: `associated` in TI WI-SUN FAN Contest implies that the TI Wi-SUN FAN Border Router has started.
+
+### Checking if tun Interface is up. ###
+When the stack is up, the TUN interface will be enabled. It can be verified by checking
+
+    $ ifconfig wfan0
+    wfan0: flags=4305<UP,POINTOPOINT,RUNNING,NOARP,MULTICAST>  mtu 1280  metric 1
+        inet6 fe80::212:4b00:14f7:d160  prefixlen 64  scopeid 0x20<link>
+        inet6 2020:abcd::212:4b00:14f7:d160  prefixlen 64  scopeid 0x0<global>
+        inet6 fe80::31b1:1233:76ab:d3e5  prefixlen 64  scopeid 0x20<link>
+
+### Checking for connected devices ###
+User can check for connected devices using the connecteddevices property
+```
+   wfanctl:wfan0> get connecteddevices
+   connecteddevices = "
+   List of connected devices currently in routing table:
+   2020:abcd:0000:0000:0212:4b00:14f7:d102
+   2020:abcd:0000:0000:0212:4b00:14f7:d2e8`
+```
+### Interacting with connected devices ###
+Using the TUN interface, users can directly communicate to devices over IPv6.
+
+#### Ping specific devices ####
+Users can ping devices using linux ping6 application and wfan0 interface
+
+ping6 -I wfan0 `<ip address>`
+
+#### CoAP Application ####
+If TI Wi-SUN FAN CoAP examples are used on router devices using TI CC13x2X7 LPs, then router devices will expose
+their LEDs as CoAP Services.
+The LED lights on LPs can be controlled using any Linux COAP Client.
+
+example:
+Install libcoap-1-0-bin package to get coap-client
+
+Then coap-client can be used to interact with TI CoAP based embedded routers.
+Sample shell scripts are provided under shell_scripts folder to showcase this.
+Refer to README.md under shell_scripts to use `run_coap_get.sh` and `run_coap_put.sh`.
+
+## Webserver Demo ##
+
+A reference webserver application has been provided under *ti_wisun_webapp* folder.
+Recommended to use node.js of version v14.17.6 or higher.
+
+Install all dependent npm packages using:
+npm install package.json 
+
+## Preparation of TI CC13xx Images: ##
+* Download TI CC13xx_26Xx SDK from https://www.ti.com/tool/download/SIMPLELINK-CC13XX-CC26XX-SDK
+* Compile default project Binaries for 
+	* BR NWP Image on CC13x2R7 (ns_br)
+	* Node CoAP image on CC13x2R7 (ns_node_coap)
+Refer to _*http://dev.ti.com/wisunsla*_ for information on compiling out of box images and flashing to TI Launch Pads
+
+### Steps to run demo ###
+
+* Connect one TI CC13x2R7 with TI Wi-SUN BR Image to Linux PC
+* Start `wfantund` in webserver mode
+sudo /usr/local/sbin/wfantund -o Config:NCP:SocketPath /dev/ttyACM0 --webserver
+* Start `wfanctl` in webserver mode
+sudo /usr/local/bin/wfanctl --webserver
+* Start webserver
+node ti_wisunfan_webserver.js
+* Power on one (or few) Wi-SUN FAN Router devices 
+* Wi-SUN FAN Router devices will start blinking their Green LED to show that they are trying to join network
+* Rate at which they blink will go down as they connect to network
+* Wi-SUN Router devices will stop blinking after they join the network *(Note: It may take around 3-5 min for a node to join)*
+* The webserver can be connected to using any standard webbrowser to display the Wi-SUN FAN network as a graph
+* The webserver is designed to interface with TI Wi-SUN FAN CoAP example (ns_node_coap) based router nodes and toggle their LEDs.
+
+_*User can observer the Topology and Interact with the devices (toggle LEDs)*_
+
+## Feature and Architecture Summary ##
+
+`wfantund` based on `wpantund` provides:
+
+ *  ... a native IPv6 interface to an NCP.
+ *  ... a command line interface (`wfanctl`) for managing and
+    configuring the NCP.
+ *  ... a DBus API for managing and configuring the NCP.
+ *  ... a way to reliably manage the power state of the NCP.
+ *  ... a uniform mechanism for handling NCP firmware updates.
+
+The architecture and design of `wfantund` is based on `wpantund` which
+has been motivated by the following design goals (in no specific order):
+
+ *  Portability across Unix-like operating systems (currently supports
+    Linux. BSD support should be fairly trivial to add)
+ *  Require few runtime dependencies (DBus, with boost needed when
+    building)
+ *  Single-threaded architecture, with heavy use of asynchronous I/O
+ *  Power efficiency (0% CPU usage when idle)
+ *  Allow management interface to be used by multiple independent
+    applications simultaneously
+ *  Allow multiple instances of `wfantund` to gracefully co-exist on a
+    single machine
+ *  Modular, plugin-based architecture (all details for communicating
+    with a specific NCP stack are implemented as plugins)
+
+Note that Windows is not currently supported, but patches are welcome.
+
+The following NCP plugins are provided:
+
+*   `src/ncp-spinel`: Modified from those provided by `wpantund` to support
+     TI Wi-SUN FAN Border Router. 
+*   `src/ncp-dummy`: A dummy NCP plug-in implementation meant to be the
+    starting point for implementing new NCP plug-ins
+
+
+
+## Conceptual Overview ##
+
+`wfantund` is based on `wpantund` and is conceptually similar in purpose to the point-to-point
+daemon (`pppd`, commonly used on Unix platforms to provide network
+connectivity via a dial-up modems) except that instead of communicating
+with a dial-up modem, `wfantund` is communicating with an NCP.
+
+`wfantund` communicates with the NCP via an abstraction of a
+asynchronous stream socket, which could be any of the following:
+
+ *  A real serial port (UART) connected to the NCP (preferably with
+    hardware flow control)
+ *  The stdin and stdout from a subprocess (for supporting SPI
+    interfaces using a translator program or debugging virtual
+    stacks)
+ *  A TCP socket (for debugging, not recommended for production)
+
+Unlike a dial-up modem, NCPs often have a rich management interface
+for performing operations, such as forming a network, joining a
+network, scanning for nearby networks, etc. To perform these operations,
+`wfantund` includes a command line utility called `wfanctl`.
+Applications that need to directly configure the network interface can
+also communicate directly with `wfantund` using its DBus API.
+
+To expose a native IPv6 network interface to the host operating
+system, `wfantund` uses the `tun` driver on Linux. On Linux, the
+default name for the interface is `wfan0`.
+
+
+
+
+If compiled with `libreadline` or `libedit`, `wfanctl` supports an
 convenient interactive console. All commands support online help: type
 `help` to get a list of supported commands, or add `-h` to a command to get
 help with that specific command.
 
-For simulation example Codelab please see: <https://openthread.io/guides#try_openthread>
-
-[5]: ./src/wpantund/wpantund.conf
+[3]: ./src/wpantund/wpantund.conf
 
 ## Support ##
 
-Submit bugs and feature requests to [issue tracker][6]. We use the
-following mailing lists for discussion and announcements:
-
- *  [wpantund-announce](https://groups.google.com/forum/#!forum/wpantund-announce)
-    \- Official Anouncements About `wpantund`
- *  [wpantund-users](https://groups.google.com/forum/#!forum/wpantund-users)
-    \- `wpantund` User Discussion Group
- *  [wpantund-devel](https://groups.google.com/forum/#!forum/wpantund-devel)
-    \- `wpantund` Developer Discussion Group
-
-[6]: https://github.com/openthread/wpantund/issues
+Submit bugs and feature requests to https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum
 
 ## Authors and Contributors ##
 
 The following people have significantly contributed to the design
-and development of `wpantund`:
+and development of `wfantund`:
+Texas Instruments Inc
 
+`wpantund` Authors
  *  Robert Quattlebaum
  *  Marcin Szczodrak
  *  Vaas Krishnamurthy
  *  Arjuna Siva
  *  Abtin Keshavarzian
 
-If you would like to contribute to this project, please read
-[CONTRIBUTING.md](CONTRIBUTING.md) first.
+

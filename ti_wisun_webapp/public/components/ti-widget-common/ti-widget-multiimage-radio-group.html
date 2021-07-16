@@ -1,0 +1,360 @@
+
+<!--
+Copyright 2015. Texas Instruments Incorporated. All rights reserved.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+*   Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+*   Neither the name of Texas Instruments Incorporated nor the names of
+its contributors may be used to endorse or promote products derived
+from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../ti-widget-common/ti-widget-image.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-testable-behavior.html">
+<link rel="import" href="../iron-flex-layout/classes/iron-flex-layout.html">
+
+<!--
+`ti-widget-multiimage-radio-group`  Allows a set of images to be used as radio buttons
+
+Example:
+
+    <ti-widget-multiimage-radio-group images_on="image1_on.svg,image2_on.svg" images_off="image1_off.svg,image2_off.svg" imageFolder="images" values="item1,item2"></ti-widget-multiimage-radio-group>
+
+See demo.html for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-multiimage-radio-group
+@demo demo.html
+@homepage ../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-multiimage-radio-group'  >
+
+    <template>
+        <style>
+            :host {
+                display : inline-block;
+                padding: 0px;
+
+            }
+
+            .nopadding {
+                /* http://stackoverflow.com/questions/7641678/use-css-to-remove-the-space-between-images */
+                font-size:0;
+                padding:0;
+                margin:0;
+                overflow-x: hidden;
+                overflow-y: hidden;
+            }
+            .image_widget_horiz {
+                position:relative;
+                font-size:0;
+            }
+            .image_widget_vert {
+                position:relative;
+                font-size:0;
+            }
+        </style>
+
+        <template is="dom-if" restamp="true" if="{{_isVerticalOrientation(orientation)}}">
+
+            <div id="containerDiv" class="nopadding layout vertical" >
+                <template is="dom-repeat" items="{{_images}}" as="image" index-as="imageIndex" >
+                    <ti-widget-image class="image_widget_vert nopadding" _image-group-item style$="[[_computeBinding1(imageHeight,imageWidth,imageIndex)]]" id$="{{_getId('vertical',imageIndex)}}" image-path$="{{_getImagePath(image,imageIndex,selectedIndex)}}" hover-effect="no" on-click="_clickHandler" ></ti-widget-image>
+                </template>
+            </div>
+        </template>
+
+        <template is="dom-if" restamp="true" if="[[_isHorizontalOrientation(orientation)]]">
+
+            <div id="containerDiv2" class="nopadding layout horizontal" >
+                <template is="dom-repeat" items="{{_images}}" as="image" index-as="imageIndex" >
+                    <ti-widget-image class="image_widget_horiz nopadding" _image-group-item style$="[[_computeBinding4(imageHeight,imageWidth,imageIndex)]]" id$="{{_getId('horizontal',imageIndex)}}" image-path$="{{_getImagePath(image,imageIndex,selectedIndex)}}" hover-effect="no" on-click="_clickHandler"></ti-widget-image>
+                </template>
+            </div>
+        </template>
+
+    </template>
+
+    <script>
+
+        Polymer ({
+          is: 'ti-widget-multiimage-radio-group',  
+            _images: undefined,
+            _imageHeightsInPx: undefined,
+            _imageWidthsInPx: undefined,
+            hostAttributes: {
+            },
+            _isVerticalOrientation: function(orientation) {
+                return(orientation ===  'vertical');
+            },
+            _computeBinding1: function(imageHeight,imageWidth, imageIndex) {
+                return("padding:0;width:"+imageWidth+";");
+            },
+            _computeBinding2: function(imageWidth) {
+                return(";width:"+imageWidth+";");
+            },
+            _isHorizontalOrientation: function(orientation) {
+                return(orientation ===  'horizontal');
+            },
+            _computeBinding4: function(imageHeight, imageWidth, imageIndex) {
+                return("height:"+imageHeight+";width:"+imageWidth+";");
+            },
+            _computeBinding5: function(imageWidth, imageIndex) {
+                return(";width:"+imageWidth+";");
+            },
+            behaviors: [TiWidgetBase, TiWidgetTestableBehavior],
+            properties: {
+                /**
+                 * Fired when the selectedIndex changes.
+                 * Add the attribute on-changed="myHandler" to receive callback,
+                 * or in javascript, use templateObj.$.<componentId>.addEventListener("changed",function(event){...});
+                 *
+                 * @event changed
+                 */
+                /**
+                 * relative path to the folder containing the images
+                 *
+                 * @attribute imageFolder
+                 * @type string
+                 * @default 'images'
+                 */
+                imageFolder: {
+                  notify: true,
+                  type: String,
+                  value: "images"
+                },
+				/**
+				 * Controls the currently selected image by its zero based index in the list of image options.
+				 *
+				 * @attribute selectedIndex
+				 * @type number
+				 * @default 0
+				 */                
+                selectedIndex: {
+                  notify: true,
+                  type: String,
+                  value: -1,
+                  observer: "selectedIndexChanged"
+                },
+                /**
+                 * Controls the currently selected image by its corresponding value.  Values are provided by the values
+                 * attribute.
+                 *
+                 * @attribute selectedValue
+                 * @type number
+                 * @default undefined
+                 */
+                selectedValue: {
+                  notify: true,
+                  type: Number,
+                  value: undefined,
+                  observer: "selectedValueChanged"
+                },
+
+                /**
+                 * Provides a list of values for the list of image options.  This list should be the
+                 * same length as the list of images provided for the image options; otherwise the
+                 * extra image options will have undefined values.  The values need not be numeric.  String
+                 * values are also allowed.
+                 *
+                 * @attribute values
+                 * @type list of strings|numbers separated by ',', ';', or '|'
+                 * @default undefined
+                 */
+                values: {
+                  notify: true,
+                  type: String,
+                  value: undefined,
+                  observer: "valuesChanged"
+                },
+                /**
+                 * Provides a list of image names to use for the 'off' states.  This list should be the
+                 * same length as the images_on list of images.
+                 *
+                 * @attribute images_off
+                 * @type list of strings|numbers separated by ',', ';', or '|'
+                 * @default undefined
+                 */
+                images_off: {
+                  notify: true,
+                  type: String,
+                  value: undefined,
+                  observer: "images_offChanged"
+                },
+                /**
+                 * Provides a list of image names to use for the 'on' states.  This list should be the
+                 * same length as the images_off list of images.
+                 *
+                 * @attribute images_on
+                 * @type list of strings|numbers separated by ',', ';', or '|'
+                 * @default undefined
+                 */
+                images_on: {
+                  notify: true,
+                  type: String,
+                  value: undefined,
+                  observer: "images_onChanged"
+                },
+                /**
+                 * Set to 'horizontal' to display images horizontally,
+                 * Set to 'vertical' to display images vertically
+                 *
+                 * @attribute orientation
+                 * @type string
+                 * @default 'vertical'
+                 */
+                orientation: {
+                  notify: true,
+                  type: String,
+                  value: "vertical"
+                },
+                /**
+                 * the style field used to determine the height of each image.
+                 * Set to e.g. '20px' to force each image to be 20px high.
+                 *
+                 * @attribute imageHeight
+                 * @type string
+                 * @default 'auto'
+                 */
+                imageHeight: {
+                  notify: true,
+                  type: String,
+                  value: "auto",
+                },
+                /**
+                 * the style field used to determine the width of each image
+                 * Set to e.g. '20px' to force each image to be 20px wide.
+                 *
+                 * @attribute imageWidth
+                 * @type string
+                 * @default 'auto'
+                 */
+                imageWidth: {
+                  notify: true,
+                  type: String,
+                  value: "auto"
+                }
+            },
+            _imageValues : undefined,  // cannot assign array here or it will be a global
+            _lastIndex : 0,
+            _getId: function(orientation,index){
+                return("image_"+index);
+            },
+            stringEndsWith: function(str, suffix) {
+                return str.indexOf(suffix, str.length - suffix.length) !== -1;
+            },
+            stringStartsWith: function(str, prefix){
+                return str.indexOf(prefix) === 0;
+            },
+            _getImagePath: function(imageName,index,selectedIndex){
+                var result = "";
+                if ((this._images !== undefined) && (this._images.length > index)) {
+                    result = this._images[index].offImage;
+                    if (index === selectedIndex) {
+                        result = this._images[index].onImage;
+                    }
+                    if ((!this.stringEndsWith(this.imageFolder,'/')) && (!this.imageFolder.endsWith('\\'))){
+                        result = '/'+result;
+                    }
+                    result = this.imageFolder +  result;
+                }
+                return result;
+
+            },
+
+            _clickHandler: function(e){
+                var id = e.currentTarget.id;
+                var index = id.substring(id.indexOf('_')+1);
+                this.selectedIndex = +index;
+
+            },
+            images_offChanged: function() {
+                this._imagePathsChanged();
+            },
+            images_onChanged: function() {
+                this._imagePathsChanged();
+            },
+            _imagePathsChanged: function(){
+                if ((this._images !== undefined) && (this.images_off !== undefined) && (this.images_on !== undefined)){
+                    var offImages = this.parseArray(this.images_off);
+                    var onImages = this.parseArray(this.images_on);
+                    if (offImages.length === onImages.length){
+                        this._images = [];
+                        for (var i=0; i < offImages.length; i++){
+                            var imageObj = {
+                                offImage: offImages[i],
+                                onImage: onImages[i]
+                            }
+                            this._images.push(imageObj);
+                        }
+                    }
+                }
+            },
+            selectedIndexChanged : function(){
+                if ((!this.$ )||(!this._imageValues)) return;
+                if (this._imageValues.length >= (this.selectedIndex + 1)){
+                    this.selectedValue = this._imageValues[this.selectedIndex];
+                }
+                this.updateStyles();
+                this.fire('changed');
+            },
+            selectedValueChanged : function()
+            {
+                if ((!this.$ )||(!this._imageValues)) return;
+                if (this._imageValues.length > 0){
+                    var index = this._imageValues.indexOf(this.selectedValue);
+                    if (index > -1) {
+                        this.selectedIndex = index;
+                    }
+                }
+            },
+            valuesChanged : function()
+            {
+                if (!this.$ ) return;
+                if (this.values !== undefined) {
+                    this._imageValues = this.parseArray(this.values);
+                }
+            },
+            // the ready callback is called once the template has been stamped.
+            created: function(){
+
+            },
+            ready: function(){
+                this._images = [];
+                this._imageValues = [];
+                this._imagePathsChanged();
+                this.valuesChanged();
+                this.selectedIndexChanged();
+            },
+            
+            _tGetChildren: function(xpath) {
+				var container = this.querySelector("#containerDiv") || this.querySelector("#containerDiv2");
+				if (container) {
+					return container.querySelectorAll("ti-widget-image");
+				}
+				
+				return [];
+            },
+        });
+
+    </script>
+
+</dom-module>

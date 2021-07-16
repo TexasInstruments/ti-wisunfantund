@@ -1,0 +1,1837 @@
+{
+	"power":
+	{
+		"V3.3": true,
+		"V5.0": false,
+		"Vadj": false
+	},
+
+	"i2c":
+	{
+	    "unit" : 2,
+	    "slave_addr" : "0x18",
+	    "mdr" : "0x8",
+	    "mimr" : "0x10",
+	    "bitrate_enum" : 0,
+		"addrsBits" : 7,
+		"speed" : 400,
+		"pullup" : true
+	},
+	"gpio":
+	{
+	    "unit" : 2,
+	    "config" : [
+	        {
+	            "pin": 7,
+	            "name": "PK7",
+	            "enable" : true
+	        },
+	        {
+	            "pin": 7,
+	            "name": "PK7",
+	            "mode" : 1
+	        },
+	        {
+	            "pin": 14,
+	            "name": "PP3",
+	            "enable" : true
+	        },
+	        {
+	            "pin": 14,
+	            "name": "PP3",
+	            "mode" : 1
+	        }
+	    ]
+	},
+
+	"devices":
+	[
+	    {
+	        "name": "ADS7142",
+	        "interface": "gpio"
+	    },
+		{
+			"name": "ADS7142",
+			"interface": "i2c",
+			"rawi2c": true,
+			"address": "0x48",
+			"registerFieldsFilename": "ADS7142Registerfield.json",
+			"data": {
+                "info": {
+                    "name": "DRV3205",
+                    "desc": "The bridge driver is dedicated to automotive 3-phase brushless DC motor control applications including safety motor control applications. The device provides 6 dedicated drivers for standard-level N-channel MOSFET transistors. The strong driver strength is suitable for high current applications and programmable to limit peak output current. The device incorporates sophisticated diagnosis, protection, and monitoring features through an SPI. A boost converter with an integrated FET provides the overdrive voltage, allowing full control on the power stages even for low battery voltage down to 4.75 V",
+                    "regsize": 8,
+                    "urls": "http://www.ti.com/product/DRV3205-Q1",
+                    "tags": "BLDC"
+                },
+                "regblocks": [
+                    {
+                        "id": "functional_mode_select_registers",
+                        "name": "FUNCTIONAL MODE SELECT REGISTERS",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "opmode_i2cmode_status",
+                                "name": "OPMODE_I2CMODE_STATUS",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x00",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "functional_mode_select_registers.opmode_i2cmode_status.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "3",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "hs_mode",
+                                        "helpTag": "functional_mode_select_registers.opmode_i2cmode_status.hs_mode",
+                                        "name": "HS_MODE",
+                                        "desc": "Indicates when device in High speed mode for I2C Interface.\r\n0b = Device is not in High speed mode for I2C Interface. \r\n1b = Device is in High speed mode for I2C Interface.",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "2",
+                                        "stop": "2",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "dev_opmode",
+                                        "helpTag": "functional_mode_select_registers.opmode_i2cmode_status.dev_opmode",
+                                        "name": "DEV_OPMODE",
+                                        "desc": "Indicates the functional mode of the device.\r\n00b = Device is operating in I2C Command Mode \r\n01b = Not Used 10b = Device is operating in Autonomous Monitoring Mode \r\n11b = Device is operating in High Precision Mode",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "1",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "offset_cal",
+                                "name": "OFFSET_CAL",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x15",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "functional_mode_select_registers.offset_cal.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "1",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "trig_offcal",
+                                        "helpTag": "functional_mode_select_registers.offset_cal.trig_offcal",
+                                        "name": "TRIG_OFFCAL",
+                                        "desc": "Writing 1 into this bit triggers internal offset calibration",
+                                        "anchor": "",
+                                        "mode": "W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "opmode_sel",
+                                "name": "OPMODE_SEL",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x1C",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "functional_mode_select_registers.opmode_sel.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "3",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "sel_opmode",
+                                        "helpTag": "functional_mode_select_registers.opmode_sel.sel_opmode",
+                                        "name": "SEL_OPMODE",
+                                        "desc": "These bits set the functional mode for the device \r\n000b = I2C Command Mode with Channel 0 (Default Sequence). \r\n001b = I2C Command Mode with Channel 0 (Default Sequence). \r\n010b = Reserved, Do not use. \r\n011b = Reserved, Do not use. \r\n100b = I2C Command Mode with Auto Sequencing enabled. \r\n101b = I2C Command Mode with Auto Sequencing enabled. \r\n110b = Autonomous Monitoring Mode with Auto Sequencing enabled. \r\n111b = High Precision Mode with Auto Sequencing enabled.",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "2",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        },
+                                        "options": [
+                                            {
+                                                "display": "I2C Command Mode with Channel 0(Default Sequence) ",
+                                                "value": 0
+                                            },
+                                            {
+                                                "display": "\r\nI2C Command Mode with Auto Sequencing enabled",
+                                                "value": 4
+                                            },
+                                            {
+                                                "display": "\r\nAutonomous Monitoring Mode with Auto Sequencing enabled",
+                                                "value": 6
+                                            },
+                                            {
+                                                "display": "\r\nHigh Precision Mode with Auto Sequencing enabled",
+                                                "value": 7
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "data_buffer_control_register",
+                        "name": "DATA BUFFER CONTROL REGISTER",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "data_buffer_status",
+                                "name": "DATA_BUFFER_STATUS",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x01",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "data_buffer_control_register.data_buffer_status.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "5",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "data_wordcount",
+                                        "helpTag": "data_buffer_control_register.data_buffer_status.data_wordcount",
+                                        "name": "DATA_WORDCOUNT",
+                                        "desc": "DATA_WORDCOUNT [00000] to [10000] = Number of entries filled in data buffer (0 to 16)",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "4",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dout_format_cfg",
+                                "name": "DOUT_FORMAT_CFG",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x28",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "data_buffer_control_register.dout_format_cfg.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "2",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "dout_format",
+                                        "helpTag": "data_buffer_control_register.dout_format_cfg.dout_format",
+                                        "name": "DOUT_FORMAT",
+                                        "desc": "00b = 12-bit conversion result followed by 0000b \r\n01b = 12-bit conversion result followed by 3-bit Channel ID (000b for CH0, 001b for CH1) \r\n10b = 12-bit conversion result followed by 3-bit Channel ID (000b for CH0, 001b for CH1) followed by DATA_VALID bit \r\n11b = 12-bit conversion result followed by 0000b",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "1",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        },
+                                        "options": [
+                                            {
+                                                "display": "ADC Conversion Result",
+                                                "value": 0
+                                            },
+                                            {
+                                                "display": "\r\nADC Conversion Result + Channel ID",
+                                                "value": 1
+                                            },
+                                            {
+                                                "display": "\r\nADC Conversion Result + Channel ID + DATA_VALID",
+                                                "value": 2
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "data_buffer_opmode",
+                                "name": "DATA_BUFFER_OPMODE",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x2C",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "data_buffer_control_register.data_buffer_opmode.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "3",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "startstop_cntrl",
+                                        "helpTag": "data_buffer_control_register.data_buffer_opmode.startstop_cntrl",
+                                        "name": "STARTSTOP_CNTRL",
+                                        "desc": "000b = Stop Burst Mode \r\n001b = Start Burst Mode, default \r\n010b = Reserved, do not use \r\n011b = Reserved, do not use \r\n100b = Pre Alert Data Mode \r\n101b = Reserved, do not use \r\n110b = Post Alert Data Mode \r\n111b = Reserved, do not use",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "2",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        },
+                                        "options": [
+                                            {
+                                                "display": "Stop Burst Mode",
+                                                "value": 0
+                                            },
+                                            {
+                                                "display": "\r\nStart Burst Mode",
+                                                "value": 1
+                                            },
+                                            {
+                                                "display": "\r\nPre Alert Mode",
+                                                "value": 4
+                                            },
+                                            {
+                                                "display": "\r\nPost Alert Mode",
+                                                "value": 6
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "accumulator_control_registers",
+                        "name": "ACCUMULATOR CONTROL REGISTERS",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "accumulator_status",
+                                "name": "ACCUMULATOR_STATUS",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x02",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "accumulator_control_registers.accumulator_status.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "acc_count",
+                                        "helpTag": "accumulator_control_registers.accumulator_status.acc_count",
+                                        "name": "ACC_COUNT",
+                                        "desc": "ACC_COUNT = Number of accumulation completed till last finished conversion.",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "acc_ch0_lsb",
+                                "name": "ACC_CH0_LSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x08",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "acc_ch0_lsb",
+                                        "helpTag": "accumulator_control_registers.acc_ch0_lsb.acc_ch0_lsb",
+                                        "name": "ACC_CH0_LSB",
+                                        "desc": "Provides the LSB of accumulated data for CH0",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "acc_ch0_msb",
+                                "name": "ACC_CH0_MSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x09",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "acc_ch0_msb",
+                                        "helpTag": "accumulator_control_registers.acc_ch0_msb.acc_ch0_msb",
+                                        "name": "ACC_CH0_MSB",
+                                        "desc": "Provides the MSB of accumulated data for CH0",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "acc_ch1_lsb",
+                                "name": "ACC_CH1_LSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x0A",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "acc_ch1_lsb",
+                                        "helpTag": "accumulator_control_registers.acc_ch1_lsb.acc_ch1_lsb",
+                                        "name": "ACC_CH1_LSB",
+                                        "desc": "Provides the LSB of accumulated data for CH1",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "acc_ch1_msb",
+                                "name": "ACC_CH1_MSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x0B",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "acc_ch1_msb",
+                                        "helpTag": "accumulator_control_registers.acc_ch1_msb.acc_ch1_msb",
+                                        "name": "ACC_CH1_MSB",
+                                        "desc": "Provides the MSB of accumulated data for CH1",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "acc_en",
+                                "name": "ACC_EN",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x30",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "accumulator_control_registers.acc_en.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "1",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "en_acc",
+                                        "helpTag": "accumulator_control_registers.acc_en.en_acc",
+                                        "name": "EN_ACC",
+                                        "desc": "0000b = Accumulator is disabled \r\n0001b to 1110b = Reserved, do not use \r\n1111b = Accumulator is enabled",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        },
+                                        "options": [
+                                            {
+                                                "display": "Enable",
+                                                "value": 15
+                                            },
+                                            {
+                                                "display": "\r\nDisable",
+                                                "value": 0
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "digital_window_comparator_registers",
+                        "name": "DIGITAL WINDOW COMPARATOR REGISTERS",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "alert_trig_chid",
+                                "name": "ALERT_TRIG_CHID",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x03",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "alert_trig_chid",
+                                        "helpTag": "digital_window_comparator_registers.alert_trig_chid.alert_trig_chid",
+                                        "name": "ALERT_TRIG_CHID",
+                                        "desc": "Provides the channel ID of channel which was first to set the alert output.\r\n0000b = Channel \r\n0 0001b = Channel 1\r\n0010b to 1111b = Not used",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.alert_trig_chid.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "alert_low_flags",
+                                "name": "ALERT_LOW_FLAGS",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x0C",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.alert_low_flags.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "2",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "alert_low_ch1",
+                                        "helpTag": "digital_window_comparator_registers.alert_low_flags.alert_low_ch1",
+                                        "name": "ALERT_LOW_CH1",
+                                        "desc": "Indicates alert on low side comparator for CH1 \r\n0b = Alert is not set for low side comparator for CH1 \r\n1b = Alert is set for low side comparator for CH1.",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "1",
+                                        "stop": "1",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "alert_low_ch0",
+                                        "helpTag": "digital_window_comparator_registers.alert_low_flags.alert_low_ch0",
+                                        "name": "ALERT_LOW_CH0",
+                                        "desc": "Indicates alert on low side comparator for CH0 \r\n0b = Alert is not set for low side comparator for CH0 \r\n1b = Alert is set for low side comparator for CH0.",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "alert_high_flags",
+                                "name": "ALERT_HIGH_FLAGS",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x0E",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.alert_high_flags.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "2",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "alert_high_ch1",
+                                        "helpTag": "digital_window_comparator_registers.alert_high_flags.alert_high_ch1",
+                                        "name": "ALERT_HIGH_CH1",
+                                        "desc": "Indicates alert on high side comparator for CH1 \r\n0b = Alert is not set for high side comparator for CH1 \r\n1b = Alert is set for high side comparator for CH1.",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "1",
+                                        "stop": "1",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "alert_high_ch0",
+                                        "helpTag": "digital_window_comparator_registers.alert_high_flags.alert_high_ch0",
+                                        "name": "ALERT_HIGH_CH0",
+                                        "desc": "Indicates alert on high side comparator for CH0 \r\n0b = Alert is not set for high side comparator for CH0 \r\n1b = Alert is set for high side comparator for CH0.",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "alert_chen",
+                                "name": "ALERT_CHEN",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x34",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.alert_chen.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "2",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "alert_en_ch1",
+                                        "helpTag": "digital_window_comparator_registers.alert_chen.alert_en_ch1",
+                                        "name": "ALERT_EN_CH1",
+                                        "desc": "Enables alert for Channel 1\r\n0b = Alert is disabled for CH1 \r\n1b = Alert is enabled for CH1, default",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "1",
+                                        "stop": "1",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "alert_en_ch0",
+                                        "helpTag": "digital_window_comparator_registers.alert_chen.alert_en_ch0",
+                                        "name": "ALERT_EN_CH0",
+                                        "desc": "Enables alert for Channel 0\r\n0b = Alert is disabled for CH0 \r\n1b = Alert is enabled for CH0, default",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "pre_alert_event_count",
+                                "name": "PRE_ALERT_EVENT_COUNT",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x36",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "prealert_count",
+                                        "helpTag": "digital_window_comparator_registers.pre_alert_event_count.prealert_count",
+                                        "name": "PREALERT_COUNT",
+                                        "desc": "Sets the Pre-Alert Event Count = PREALERT_COUNT[3:0] + 1",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.pre_alert_event_count.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "1",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "alert_dwc_en",
+                                "name": "ALERT_DWC_EN",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x37",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.alert_dwc_en.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "1",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "dwc_block_en",
+                                        "helpTag": "digital_window_comparator_registers.alert_dwc_en.dwc_block_en",
+                                        "name": "DWC_BLOCK_EN",
+                                        "desc": "Enables the alert and digital comparator block\r\n 0 = Disables Digital Window Comparator \r\n1 = Enables Digital Window Comparator",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_hth_ch0_lsb",
+                                "name": "DWC_HTH_CH0_LSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x38",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "hth_ch0_lsb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hth_ch0_lsb.hth_ch0_lsb",
+                                        "name": "HTH_CH0_LSB",
+                                        "desc": "8 least significant bits of high threshold for CH0",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_hth_ch0_msb",
+                                "name": "DWC_HTH_CH0_MSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x39",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hth_ch0_msb.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "hth_ch0_msb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hth_ch0_msb.hth_ch0_msb",
+                                        "name": "HTH_CH0_MSB",
+                                        "desc": "4 most significant bits of high threshold for CH0",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_lth_ch0_lsb",
+                                "name": "DWC_LTH_CH0_LSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x3A",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "lth_ch0_lsb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_lth_ch0_lsb.lth_ch0_lsb",
+                                        "name": "LTH_CH0_LSB",
+                                        "desc": "8 least significant bits of low threshold for CH0",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_lth_ch0_msb",
+                                "name": "DWC_LTH_CH0_MSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x3B",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.dwc_lth_ch0_msb.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "lth_ch0_msb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_lth_ch0_msb.lth_ch0_msb",
+                                        "name": "LTH_CH0_MSB",
+                                        "desc": "4 most significant bits of low threshold for CH0",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_hth_ch1_lsb",
+                                "name": "DWC_HTH_CH1_LSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x3C",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "hth_ch1_lsb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hth_ch1_lsb.hth_ch1_lsb",
+                                        "name": "HTH_CH1_LSB",
+                                        "desc": "8 least significant bits of high threshold for CH1",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_hth_ch1_msb",
+                                "name": "DWC_HTH_CH1_MSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x3D",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hth_ch1_msb.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "hth_ch1_msb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hth_ch1_msb.hth_ch1_msb",
+                                        "name": "HTH_CH1_MSB",
+                                        "desc": "4 most significant bits of high threshold for CH1",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_lth_ch1_lsb",
+                                "name": "DWC_LTH_CH1_LSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x3E",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "lth_ch1_lsb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_lth_ch1_lsb.lth_ch1_lsb",
+                                        "name": "LTH_CH1_LSB",
+                                        "desc": "8 least significant bits of low threshold for CH1",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_lth_ch1_msb",
+                                "name": "DWC_LTH_CH1_MSB",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x3F",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.dwc_lth_ch1_msb.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "lth_ch1_msb",
+                                        "helpTag": "digital_window_comparator_registers.dwc_lth_ch1_msb.lth_ch1_msb",
+                                        "name": "LTH_CH1_MSB",
+                                        "desc": "4 most significant bits of low threshold for CH1",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_hys_ch0",
+                                "name": "DWC_HYS_CH0",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x40",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hys_ch0.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "6",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "hys_ch0",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hys_ch0.hys_ch0",
+                                        "name": "HYS_CH0",
+                                        "desc": "Hysteresis for both comparators for CH0",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "5",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "dwc_hys_ch1",
+                                "name": "DWC_HYS_CH1",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x41",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hys_ch1.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "6",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "hys_ch1",
+                                        "helpTag": "digital_window_comparator_registers.dwc_hys_ch1.hys_ch1",
+                                        "name": "HYS_CH1",
+                                        "desc": "Hysteresis for both comparators for CH1",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "5",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "analog_mux_and_sequencer_registers",
+                        "name": "ANALOG MUX and SEQUENCER REGISTERS",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "sequence_status",
+                                "name": "SEQUENCE_STATUS",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x04",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "analog_mux_and_sequencer_registers.sequence_status.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "3",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "seq_err_st",
+                                        "helpTag": "analog_mux_and_sequencer_registers.sequence_status.seq_err_st",
+                                        "name": "SEQ_ERR_ST",
+                                        "desc": "Status of device sequence \r\n00b = Auto Sequencing disabled, no error.\r\n01b = Auto Sequencing enabled, no error. \r\n10b = Not used \r\n11b = Auto Sequencing enabled, device in error.",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "1",
+                                        "stop": "2",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "analog_mux_and_sequencer_registers.sequence_status.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "start_sequence",
+                                "name": "START_SEQUENCE",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x1E",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "analog_mux_and_sequencer_registers.start_sequence.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "1",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "seq_start",
+                                        "helpTag": "analog_mux_and_sequencer_registers.start_sequence.seq_start",
+                                        "name": "SEQ_START",
+                                        "desc": "Setting this bit = 1 brings the BUSY/RDY pin high and starts the first conversion in the sequence",
+                                        "anchor": "",
+                                        "mode": "W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "abort_sequence",
+                                "name": "ABORT_SEQUENCE",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x1F",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "analog_mux_and_sequencer_registers.abort_sequence.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "1",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "seq_abort",
+                                        "helpTag": "analog_mux_and_sequencer_registers.abort_sequence.seq_abort",
+                                        "name": "SEQ_ABORT",
+                                        "desc": "Setting this bit = 1 aborts the ongoing conversion and brings the BUSY/RDY pin low",
+                                        "anchor": "",
+                                        "mode": "W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "auto_seq_chen",
+                                "name": "AUTO_SEQ_CHEN",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x20",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "analog_mux_and_sequencer_registers.auto_seq_chen.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "2",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "autoseq_en_ch1",
+                                        "helpTag": "analog_mux_and_sequencer_registers.auto_seq_chen.autoseq_en_ch1",
+                                        "name": "AUTOSEQ_EN_CH1",
+                                        "desc": "0 = Channel 1 is not selected for auto sequencing \r\n1= Channel 1 is selected for auto sequencing",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "1",
+                                        "stop": "1",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "autoseq_en_ch0",
+                                        "helpTag": "analog_mux_and_sequencer_registers.auto_seq_chen.autoseq_en_ch0",
+                                        "name": "AUTOSEQ_EN_CH0",
+                                        "desc": "0 = Channel 0 is not selected for auto sequencing\r\n 1= Channel 0 is selected for auto sequencing",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "reset_registers",
+                        "name": "RESET REGISTERS",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "device_reset",
+                                "name": "DEVICE_RESET",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x14",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "reset_registers.device_reset.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "1",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "dev_rst",
+                                        "helpTag": "reset_registers.device_reset.dev_rst",
+                                        "name": "DEV_RST",
+                                        "desc": "Writing 1 into this bit resets the device",
+                                        "anchor": "",
+                                        "mode": "W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "wkey",
+                                "name": "WKEY",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x17",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "reset_registers.wkey.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "4",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "keyword",
+                                        "helpTag": "reset_registers.wkey.keyword",
+                                        "name": "KEYWORD",
+                                        "desc": "Write 1010b into these bits to get write access for the DEVICE_RESET register",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "3",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "oscillator_and_timing_control_registers",
+                        "name": "OSCILLATOR and TIMING CONTROL REGISTERS",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "osc_sel",
+                                "name": "OSC_SEL",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x18",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "oscillator_and_timing_control_registers.osc_sel.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "1",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "hsz_lp",
+                                        "helpTag": "oscillator_and_timing_control_registers.osc_sel.hsz_lp",
+                                        "name": "HSZ_LP",
+                                        "desc": "selects the oscillator used for the conversion process.\r\n0b = Device uses High Speed Oscillator \r\n1b = Device uses Low Power Oscillator",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "0",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        },
+                                        "options": [
+                                            {
+                                                "display": "High Frequency Oscillator - Autonomous mode",
+                                                "value": 0
+                                            },
+                                            {
+                                                "display": "\r\nLow Power Oscillator - Autonomous mode",
+                                                "value": 1
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "nclk_sel",
+                                "name": "nCLK_SEL",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x19",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "nclk",
+                                        "helpTag": "oscillator_and_timing_control_registers.nclk_sel.nclk",
+                                        "name": "nCLK",
+                                        "desc": "Sets number of clocks of the oscillator that the device uses for one conversion cycle\r\nWhen using the High Speed Oscillator:\r\n• 00000000b to 00010101b = nCLK is set to 21 \r\n• 00010110b = nCLK is set to 22 \r\n• 00010111b = nCLK is set to 23 and so on till \r\n• 11111111b = nCLK is set to 255 \r\nWhen using the Low Power Oscillator: \r\n• 00000000b to 00010010b = nCLK is set to 18 \r\n• 00010011b = nCLK is set to 19 \r\n• 00010100b = nCLK is set to 20 and so on till \r\n• 11111111b = nCLK is set to 255",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "input_config_register",
+                        "name": "INPUT CONFIG REGISTER",
+                        "desc": "",
+                        "anchor": "",
+                        "registers": [
+                            {
+                                "id": "channel_input_cfg",
+                                "name": "CHANNEL_INPUT_CFG",
+                                "desc": "",
+                                "anchor": "",
+                                "addr": "0x24",
+                                "mode": "",
+                                "size": "8",
+                                "default": "0x00",
+                                "value": "0x0",
+                                "fields": [
+                                    {
+                                        "id": "reserved",
+                                        "helpTag": "input_config_register.channel_input_cfg.reserved",
+                                        "name": "Reserved",
+                                        "desc": "Reserved Bits. Read returns 0000b",
+                                        "anchor": "",
+                                        "mode": "R",
+                                        "start": "2",
+                                        "stop": "7",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "1",
+                                            "isLocked": "0"
+                                        }
+                                    },
+                                    {
+                                        "id": "ch0_ch1_ip_cfg",
+                                        "helpTag": "input_config_register.channel_input_cfg.ch0_ch1_ip_cfg",
+                                        "name": "CH0_CH1_IP_CFG",
+                                        "desc": "Selects configuration for the input pins \r\n00b = Two-Channel, Single-Ended configuration \r\n01b = Single-Channel, Single-Ended configuration with Remote Ground Sensing \r\n10b = Single-Channel, Pseudo-Differential configuration \r\n11b = Two-Channel, Single-Ended configuration",
+                                        "anchor": "",
+                                        "mode": "R/W",
+                                        "start": "0",
+                                        "stop": "1",
+                                        "value": "0x00",
+                                        "attrs": {
+                                            "isHidden": "0",
+                                            "isReserved": "0",
+                                            "isLocked": "0"
+                                        },
+                                        "options": [
+                                            {
+                                                "display": "Two-Channel-Single-Ended configuration",
+                                                "value": 0
+                                            },
+                                            {
+                                                "display": "\r\nSingle-Channel-Single-Ended configuration with Remote Ground Sensing",
+                                                "value": 1
+                                            },
+                                            {
+                                                "display": "\r\nSingle-Channel-Pseudo-Differential configuration",
+                                                "value": 2
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+		}
+	]
+}

@@ -1,0 +1,102 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-menubar/ti-widget-abstractmenu.html">
+<link rel="import" href="../ti-widget-menubar/ti-widget-menuitem.html">
+<link rel="import" href="../ti-widget-menubar/ti-widget-menuaction.html">
+<link rel="import" href="../ti-widget-menubar/ti-widget-options-serialport-action.html">
+
+<link rel="import" href="../iron-icons/iron-icons.html">
+<!--
+`ti-widget-optionsmenu` a sub menu for options.  This menu comes with a
+default serial port settings menu action.  If your device is connected
+by USB, then this menu will allow the end user to change serial port settings.
+    -
+Example:
+
+    <ti-widget-menubar>
+        <ti-widget-optionsmenu></ti-widget-optionsmenu>
+    </ti-widget-menubar>
+
+See ../demo.html for a full working example of how to use this component.
+
+@group TI Widget
+@element ti-widget-optionsmenu
+@homepage https://gitorious.design.ti.com/guicomposer-nw/ti-widget-optionsmenu
+-->
+<dom-module id="ti-widget-optionsmenu">
+    <template>
+        <style>
+            :host {
+                display: inline-block;
+                block-size: inherit;
+                vertical-align: top;
+            }
+            :host(.subMenuItem), :host(.moreMenuItem) {
+	            display: block;
+	        }
+        </style>
+        <ti-widget-menuitem id="optionsmenu" name="{{name}}">
+	        <ti-widget-options-serialport-action id="optionsSerialPort" icon-name="icons:swap-vert" name="Serial Port ..." description="Configure Port and Baud Rate"></ti-widget-options-serialport-action>
+            <content></content>
+
+        </ti-widget-menuitem>
+    </template>
+    <script>
+
+        Polymer ({
+            is: 'ti-widget-optionsmenu',
+
+            behaviors: [TiWidgetAbstractmenu],
+            properties:
+            {
+                /**
+                 * Provides the textual label for the options menu item.
+                 *
+                 * @attribute name
+                 * @type string
+                 * @default Options
+                 */
+                name:
+                {
+                  notify: true,
+                  type: String,
+                  value: "Options"
+                }
+            },
+            getMenuItem : function()
+            {
+                return this.$ && this.$.optionsmenu;
+            }
+        });
+
+    </script>
+
+</dom-module>

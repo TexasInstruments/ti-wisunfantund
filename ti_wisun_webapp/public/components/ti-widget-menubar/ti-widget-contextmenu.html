@@ -1,0 +1,217 @@
+<!--
+    Copyright (c) 2019, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-menubar/ti-widget-base-menuaction.html">
+<!--
+`ti-widget-contextmenu`
+
+ti-widget-contextmenu displays a context menu 
+
+Example:
+
+    <ti-widget-contextmenu>
+        <ti-widget-menuaction id="EditUndo"></ti-widget-menuaction>
+        <ti-widget-menuaction id="EditRedo"></ti-widget-menuaction>
+    </ti-widget-contextmenu>
+
+@group TI Instrument Widgets
+@element ti-widget-contextmenu
+@homepage ../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-contextmenu'>
+
+	<template>
+	    <style is="custom-style">
+            :host {
+                position: relative;
+                padding: 0px important!;
+                margin: 0px !important;
+            }
+	        #contextMenu { 
+		        padding: 0;
+		        list-style-type: none;
+                position: fixed;
+		    }
+		    .hoverMenu {
+                z-index: 1200;
+                border-color: #118899;
+                border-style: solid;
+                padding: 1em;
+                margin:0px;
+                border-radius: 0 0 .1em .1em;
+                border-width: 0 1px 1px 1px;
+
+                -webkit-box-shadow: 3px 3px 3px #98999B;
+                box-shadow: 3px 3px 3px #98999B;
+	        }
+	    </style>
+	    <ul id="contextMenu" class="hoverMenu" tabIndex="1" on-contextmenu="_preventEventHandling">
+	        <content></content>
+	    </ul>
+    </template>
+    <script>
+    Polymer({
+        is: 'ti-widget-contextmenu',
+
+        properties: {
+            /**
+             * The screen x coordinate of the last context menu press.  This can be used to
+             * determine which widget the context menu was pressed on.
+             *
+             * @attribute x
+             * @type number
+             * @default 0
+             */
+            x: {
+                notify: true,
+                type: Number,
+                value: 0,
+                readOnly: true
+            }, 
+            
+            /**
+             * The screen y coordinate of the last context menu press.  This can be used to
+             * determine which widget the context menu was pressed on.
+             *
+             * @attribute y
+             * @type number
+             * @default 0
+             */
+            y: {
+                notify: true,
+                type: Number,
+                value: 0,
+                readOnly: true
+            } 
+        },
+        
+        behaviors: [TiWidgetAbstractmenu],
+        
+        _preventEventHandling: function(event) {
+            event.preventDefault && event.preventDefault();
+            event.stopPropagation && event.stopPropagation();
+        },
+        
+        showMenu: function(event) {
+            this._preventEventHandling(event);
+            
+            // make visible in absolute position to calculate the actual width of context menu.
+            this.style.display = "";
+            this.$.contextMenu.style.width = "inherit";
+            this.$.contextMenu.style.position = "absolute";  
+
+            var x = event ? event.x : 0;
+            var y = event ? event.y : 0;
+            this._setX(x);
+            this._setY(y);
+            
+            // test if menu item is out of bounds
+            var rect = this.$.contextMenu.getBoundingClientRect();
+            var width = rect.right - rect.left;
+            var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            if (x + width > screenWidth) {
+                x = x - width;
+                x = Math.max(x, 0);
+            }
+            var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            var height = rect.bottom - rect.top;
+            if (y + height > screenHeight) {
+                y = y - height;
+                y = Math.max(y, 0);
+            }
+
+            this.$.contextMenu.style.top = y + 'px';
+            this.$.contextMenu.style.left = x + 'px';
+            // in fixed position I need to set the width or else it extends to end of screen. 
+            this.$.contextMenu.style.width = width + "px";
+            this.$.contextMenu.style.position = "fixed";
+            this.$.contextMenu.focus();
+            
+            var children = Polymer.dom(this).children;
+            for(var i = children.length; i-- > 0; )
+            {
+                var child = children[i];
+                if (child.onShowParentMenu)
+                {
+                    child.onShowParentMenu();
+                }
+            }
+        },
+        hideMenu: function() {
+            this.style.display = "none";
+            this.setActiveMenuItem(null);
+        },
+        blur: function() {
+            this.hideMenu();
+        },
+        setActiveMenuItem: function(activeMenuItem) {
+            if (this._activeMenuItem && this._activeMenuItem !== activeMenuItem)
+            {
+                this._activeMenuItem.hideMenu();
+            }
+            this._activeMenuItem = activeMenuItem;
+            return true;
+        },
+        onActiveMenuClicked: function() {
+        },
+        canHideMenu: function() {
+            return true;
+        },
+        ready: function() {
+            var that = this;
+            this.hideMenu();
+
+            this.$.contextMenu.addEventListener("blur", function(event) {
+                if (!event.target.contains(event.relatedTarget)) 
+                {
+                    that.hideMenu();
+                }
+            }, true);
+            
+            var doHideMenu = this.hideMenu.bind(this);
+            window.addEventListener('resize', doHideMenu);
+            window.addEventListener('scroll', doHideMenu);
+        },
+        onClickHandler: function(event) {
+            event.stopPropagation();
+            this.hideMenu();
+        },
+        onDomReady: function() {
+            var that = this;
+            var parentElement = Polymer.dom(this).parentNode;
+            if (parentElement) {
+                parentElement.addEventListener('contextmenu', function(event) {
+                    that.showMenu(event);
+                }, false);
+            }
+        }
+    });
+    </script>
+</dom-module>
+    

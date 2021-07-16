@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ *  Modified by Texas Instruments - 2021
+ * 
  */
 
 #if HAVE_CONFIG_H
@@ -526,18 +528,19 @@ DBusIPCAPI_v1::status_response_helper(
 			append_dict_entry(&dict, kWPANTUNDProperty_NCPHardwareAddress, value);
 		}
 
+#ifndef TI_WISUN_FAN
 		if (ncp_state_is_commissioned(ncp_state))
 		{
 			value = interface->property_get_value(kWPANTUNDProperty_NCPChannel);
 			if (!value.empty()) {
 				append_dict_entry(&dict, kWPANTUNDProperty_NCPChannel, value);
 			}
-
+#endif
 			value = interface->property_get_value(kWPANTUNDProperty_NetworkNodeType);
 			if (!value.empty()) {
 				append_dict_entry(&dict, kWPANTUNDProperty_NetworkNodeType, value);
 			}
-
+#ifndef TI_WISUN_FAN
 			value = interface->property_get_value(kWPANTUNDProperty_NetworkName);
 			if (!value.empty()) {
 				append_dict_entry(&dict, kWPANTUNDProperty_NetworkName, value);
@@ -547,12 +550,13 @@ DBusIPCAPI_v1::status_response_helper(
 			if (!value.empty()) {
 				append_dict_entry(&dict, kWPANTUNDProperty_NetworkXPANID, value);
 			}
+#endif
 
 			value = interface->property_get_value(kWPANTUNDProperty_NetworkPANID);
 			if (!value.empty()) {
 				append_dict_entry(&dict, kWPANTUNDProperty_NetworkPANID, value);
 			}
-
+#ifndef TI_WISUN_FAN
 			value = interface->property_get_value(kWPANTUNDProperty_IPv6LinkLocalAddress);
 			if (!value.empty()) {
 				append_dict_entry(&dict, kWPANTUNDProperty_IPv6LinkLocalAddress, value);
@@ -582,7 +586,9 @@ DBusIPCAPI_v1::status_response_helper(
 			if (!value.empty()) {
 				append_dict_entry(&dict, kWPANTUNDProperty_NestLabs_NetworkAllowingJoin, value);
 			}
+
 		}
+#endif
 
 		dbus_message_iter_close_container(&iter, &dict);
 

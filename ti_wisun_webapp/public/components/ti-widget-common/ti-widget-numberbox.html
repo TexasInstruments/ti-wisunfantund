@@ -1,0 +1,165 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<!--
+`ti-widget-numberbox` is a text box widget for entering numbers.  Although you can use a
+ti-widget-editbox to enter numbers too, this widget supports min and max numbers as well
+as the number of decimal places to round the numbers to.
+
+Example:
+
+    <ti-widget-numberbox decimalPlaces="2"></ti-widget-numberbox>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-numberbox
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-numberbox'>
+
+    <template>
+        <style>
+            :host 
+            {
+                padding: 0px;
+        		text-decoration: inherit;
+            }
+            #numberbox 
+            {
+                width: 100%;
+                vertical-align:middle; 
+        		text-decoration: inherit;
+                font-weight: inherit;
+                font-style: inherit;
+                font-size: inherit;
+            }
+        </style>
+
+        <input type="text" id="numberbox" on-change="onChangeHandler" on-input="onIntermediateChangeHandler" 
+                on-focus="focusHandler" on-blur="blurHandler"></input>
+        <shadow></shadow>
+    </template>
+    
+    <script>
+        Polymer ({
+          is: 'ti-widget-numberbox',  
+         
+            behaviors: [TiWidgetBase, TiWidgetBaseText, TiWidgetBaseInput, TiWidgetBaseNumberbox],
+            
+            properties: 
+            {
+                /**
+                 * Controls the numeric value input by the user.
+                 *
+                 * @attribute value
+                 * @type number
+                 */
+                value: 
+                {
+                    notify: true,
+                    type: Number,
+                    value: 0,
+                    observer: "valueChanged"
+                },
+
+                /**
+                 * Controls the number of decimal places that the input value is rounded to.
+                 *
+                 * @attribute decimalPlaces
+                 * @type number
+                 * @default 0
+                 */
+                decimalPlaces: 
+                {
+                    notify: false,
+                    type: Number,
+                    value: 0,
+                    observer: "decimalPlacesChanged"
+                }
+            },
+
+           /**
+			 * Provides a minimum value below which the user cannot enter.
+			 *
+			 * @attribute minValue
+			 * @type number
+			 */
+
+            /**
+			 * Provides a maximum value above which the user cannot enter.
+ 			 *
+ 			 * @attribute maxValue
+ 			 * @type number
+ 			 */
+
+ 			/**
+ 			 * Fired each time the input value is changed.
+             * Add the attribute on-changed="myHandler" to receive the callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("changed",function(event){...});
+ 			 *
+ 			 * @event changed
+ 			 */
+             
+             /**
+  			 * Controls whether or not intermediate changes due to the user's active typing are committed to the value attribute. 
+  			 * If intermediate changes are not allowed, then the value attribute will only update when the user
+  			 * has finished typing in a new value as indicated by the enter key, or loss of focus from this widget.
+  			 *
+  			 * @attribute intermediateChanges
+  			 * @type boolean
+  			 * @default false
+  			 */
+
+             /**
+  			 * Controls whether or not the input text within this widget is automatically highlighted when this widget gains focus
+  			 * as a result of the user clicking in the text.  Once the widget has focus, the user is free to change the highlighted
+  			 * selection with the mouse or key board commands.
+  			 *
+  			 * @attribute selectOnClick
+  			 * @type boolean
+  			 * @default false
+  			 */
+ 			 
+            _roundDecimalPlaces : 0,    // default, round to nearest integer.
+            decimalPlacesChanged : function()
+            {
+                this._roundDecimalPlaces = Math.round(+this.decimalPlaces);   // make sure its an integer.
+                
+                this.refreshValue();  // decimal points changed so 
+            },
+            getElement : function()
+            {
+                return this.$ && this.$.numberbox;
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,129 @@
+<!--
+    Copyright (c) 2016, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-radio-group/paper-radio-group.html">
+<!--
+`ti-widget-radio-group` is container for radio buttons that are mutually exclusive in selection.  Only one can be selected at a time.
+
+Example:
+
+    <ti-widget-radio-group selectedText="small">
+    	<ti-widget-radio-button label="small"></ti-widget-radio-button>
+    	<ti-widget-radio-button label="medium"></ti-widget-radio-button>
+    	<ti-widget-radio-button label="large"></ti-widget-radio-button>
+    </ti-widget-radio-group>
+
+By default, the radio buttons are aligned horizontally.  To align them vertically,
+- with the group selected
+    - set layout to vertical
+    - set justify to start-justify
+    - set align to start
+    - set padding to 5px
+    - set overflow to hidden
+- for each radio button in the group
+    - set layout to vertical
+    - set padding to 3px
+
+@group Ti Elements
+@element ti-widget-radio-group
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-radio-group'>
+
+    <template>
+        <style>
+            :host {
+                display: inline;
+            }
+        </style>
+
+        <paper-radio-group selected="{{selectedText}}" attr-for-selected="label" selectable="ti-widget-radio-button"
+                           allow-empty-selection="[[allowEmptySelection]]">
+            <content></content>
+        </paper-radio-group>
+
+    </template>
+    <script>
+        Polymer (
+            {
+                is: 'ti-widget-radio-group',
+
+                /**
+                 * Fired when the selected radio button has changed.
+                 * - The event.detail object contains selectedText value.
+                 * - To receive the callback, add the attribute on-changed="myHandler" as an attribute to this component's tag
+                 * or in javascript, use templateObj.$.<componentId>.addEventListener("changed",function(event){...});
+                 *
+                 * @event  changed
+                 */
+                properties:
+                    {
+                        /**
+                         * Provides the label text of the currently selected radio button.  Setting this value will change the current radio selection.
+                         *
+                         * @attribute selectedText
+                         * @type string
+                         */
+                        selectedText: {
+                            notify: true,
+                            type: String,
+                            value: "",
+                            observer: "_selectedTextChanged"
+                        },
+
+                        /**
+                         * Provides a flag to control whether an empty selection is valid.  If false, you cannot toggle off the selected radio button.
+                         * If true, you can toggle off the selected radio button to achieve an empty selection.
+                         *
+                         * @attribute allowEmptySelection
+                         * @type boolean
+                         */
+                        allowEmptySelection: {
+                            notify: true,
+                            type: Boolean,
+                            value: false
+                        }
+                    },
+
+                _selectedTextChanged: function()
+                {
+                    // TODO: add code to calculate the selected value and selected index, so that we can offer these as alternative binding options.
+                    this.fire("changed",{ selectedText: this.selectedText});
+                },
+                onSettingChildPropertyValue: function(child, name, value)
+                {
+                    if (name === 'checked')
+                    {
+                        return { name: 'selectedText', value: (!value && this.allowEmptySelection) ? '' : child.label };
+                    }
+                }
+            });
+    </script>
+</dom-module>

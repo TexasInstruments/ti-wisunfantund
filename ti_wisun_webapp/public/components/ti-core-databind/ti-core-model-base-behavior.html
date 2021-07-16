@@ -1,0 +1,291 @@
+<script>
+
+(function() 
+{
+	 /** @polymerBehavior TICoreModelBaseBehavior */
+	window.TICoreModelBaseBehavior = 
+	{
+		properties: 
+		{
+			/**
+			 * Automatic connect the target
+			 */
+			autoConnect: 
+			{
+				type: Boolean,
+				notify: true,
+				value: false
+			},
+			/**
+			 * Connection status.  One of 'connected', 'connecting', 'disconnected', or 'disconnecting'.
+			 */
+			status:
+			{
+			    type: String,
+			    value: 'disconnected',
+			    notify: true,
+	            observer: "_statusChanged"
+			}
+		},
+		
+		/**
+		 * Send a message to the target
+		 */
+	    send: function(message)
+	    {
+	        var that = this;
+	        var args = message.split("=");
+	        for(var i = args.length; i --> 0; )
+	        {
+	            args[i] = args[i].trim();
+	        }
+	
+	        if (args.length === 1)
+	        {
+	            that.readValue(args[0]).then(function(value) 
+	            {
+	                that.addConsoleMessage(gc.utils.value2string(value));
+	            }).fail(function(errMsg) 
+	            {
+	                that.addConsoleError(errMsg);
+	            });
+	        }
+	        else if (args.length === 2)
+	        {
+	            that.writeValue(args[0], gc.utils.string2value(args[1])).fail(function(errMsg) 
+	            {
+	                that.addConsoleError(errMsg);
+	            });
+	        }
+	        else
+	        {
+	            that.addConsoleError("syntax error: too many equals '=' operators.");
+	        }
+	    },
+	    readValue: function(expression)
+	   	{
+            var bindExpression = this.id + '.' + expression;
+	        return Q.promise(function(resolve, reject) 
+	       	{
+	            var bind = gc.databind.registry.getBinding(bindExpression);
+	            if (bind)
+	            {
+	                resolve(gc.databind.DataConverter.convert(bind.getValue(), bind.getType(), 'string'));
+	            }
+	            else
+	            {
+	                reject('Binding "' + bindExpression + '" does not exist');
+	            }
+	       	});
+
+	   	},
+	   	writeValue: function(expression, value)
+	   	{
+            var bindExpression = this.id + '.' + expression;
+	        return Q.promise(function(resolve, reject) 
+	       	{
+	            var bind = gc.databind.registry.getBinding(bindExpression);
+	            if (bind)
+	            {
+	                bind.setValue(gc.databind.DataConverter.convert(value, undefined, bind.getType()));
+	                resolve();
+	            }
+	            else
+	            {
+	                reject('Binding "' + bindExpression + '" does not exist');
+	            }
+	       	});
+	    },
+
+		addConsoleMessage: function(message, type, tooltip, toast)
+		{
+		    if (message)
+		    {
+	        	this.fire('console-output', { message: message, type: type || 'data', tooltip: tooltip, showToast: toast } );
+		    }
+	        if (this.id)
+	        {
+	        	gc.connectionManager.addConsoleMessage(message, type, this.id, tooltip, toast);
+	        }
+		},
+		
+		addConsoleError: function(errMsg, tooltip, toast)
+		{
+		    this.addConsoleMessage(errMsg, 'error', tooltip, toast);
+		},
+		
+		addConsoleProgress: function(message, tooltip)
+		{
+		    this.addConsoleMessage(message, 'info', tooltip);
+		},
+		
+		addConsoleDataReceived: function(value)
+		{
+            this.addConsoleMessage(gc.utils.value2string(value), 'data');
+		},
+		
+		setConnectedState: function(connected)
+		{
+		    gc.connectionManager.setConnectedState(this.id, connected);
+		},
+		
+		/**
+		 * Returns the bindable object
+		 *
+		 * name - consoleOutput, targetStatus, etc... 
+		 *
+		 * eg.	getBinding("console").addListener()
+		 *		getBinding("console").removeListener()
+		 *		getBinding("console").getValue()
+		 */
+		getBinding: function(name) 
+		{
+			return gc.databind.registry.getBinding(this.id + '.' + name);		    
+		},
+		
+		attached: function()
+		{
+		    gc.connectionManager.register(this.id, this);
+		},
+		
+		detached: function()
+		{
+			gc.connectionManager.unregister(this.id);	    
+		},
+		
+		_statusChanged: function()
+		{
+		    console.log('status for model #' + this.id + ' changed to ' + this.status);
+		},
+		
+		/**
+		 * Hook method called by the project properties wizard to load persistent settings into the model.  Persistent settings includes 
+		 * the symbolic bindings learned while connected to the target that help the designer perform edit completion.
+		 * The default action is to do nothing.  Override this and modify/change modelDataObj {object} as necessary to persist the model settings.    
+		 */
+		saveSettingsToProjectDatabase: function(modelDataObj, projectName)
+		{
+			if (this.doSaveSettingsToProjectDatabase)
+			{
+				modelDataObj[this.id] = modelDataObj[this.id] || {}; 
+				return this.doSaveSettingsToProjectDatabase(modelDataObj[this.id], projectName);
+			}
+		},
+		
+		/**
+		 * Method used to load persistent settings from the project database, saved by saveSettingsToProjectDatabase().
+		 */
+	    loadSettingsFromProjectDatabase: function(projectName)
+	    {
+            if (gc.designer && gc.designer.newprojectwizard)
+            {
+                return Q({});
+            }
+	        var projectPath = projectName ? gc.designer.workspace.folderName + '/' + projectName +'/' : "";
+	        var modelId = this.id;
+	        return gc.fileCache.readJsonFile(projectPath + 'targetsymbols.json').fail(function() 
+	        { 
+	            return {}; 
+	        }).then(function(properties) 
+	        {
+	            return properties[modelId] || {};
+	        });
+	    },
+		 
+		loadRecommendedComPort: function(keyPrefix)
+		{
+		    this._recommendedKeyPrefix = undefined;
+		    if (!gc.designer || !gc.designer.newprojectwizard)
+		    {
+				this._recommendedComPort = gc.localStorage.getItem(keyPrefix+'_comPort');
+				this._recommendedBaudRate = gc.localStorage.getItem(keyPrefix+'_baudRate');
+			    this._recommendedKeyPrefix = keyPrefix;
+		    }
+        },
+		
+		saveRecommendedComPort: function(keyPrefix)
+		{
+		    if (this._recommendedComPort)
+		    {
+		        gc.localStorage.setItem(keyPrefix+'_comPort', this._recommendedComPort);
+		    }
+		    if (this._recommendedBaudRate)
+		    {
+		        gc.localStorage.setItem(keyPrefix+'_baudRate', this._recommendedBaudRate);
+		    }
+		    if (this.__recommendedKeyPrefix && this.__recommendedKeyPrefix !== keyPrefix)
+		    {
+		        gc.localStorage.removeItem(this.__recommendedKeyPrefix+'_comPort');
+		        gc.localStorage.removeItem(this.__recommendedKeyPrefix+'_baudRate');
+		    }
+		},
+		
+	    pickRecommendedComPort: function(serialPorts)
+	    {
+	        var comPortSavedByUser;
+	        var baudRateSavedByUser;
+	        
+	        if (gc.designer)
+	        {
+	            comPortSavedByUser = this._recommendedComPort;
+	            baudRateSavedByUser = this._recommendedBaudRate;
+	        }
+	        else
+	        {
+		        var keyPrefix = this.getRecommendedComPortKeyPrefix();
+		        comPortSavedByUser = gc.localStorage.getItem(keyPrefix+'_comPort');
+		        baudRateSavedByUser = gc.localStorage.getItem(keyPrefix+'_baudRate');
+	        }
+	        var result = {};
+	        
+	        for (var i = 0; i < serialPorts.length; i++)
+	        {
+	            if (serialPorts[i].comName === comPortSavedByUser)
+	            {
+	                result.selectedSerialPort = serialPorts[i];
+	                result.selectedBaudRate = baudRateSavedByUser;
+	                break;
+	            }
+	            else if (serialPorts[i].selected)
+	            {
+	                result.selectedSerialPort = serialPorts[i];
+	                result.selectedBaudRate = serialPorts[i].baudRate;
+	            }
+	        }
+	        return result;
+	    },
+	    
+	    setRecommendedComPort: function(comPort, baudRate)
+	    {
+	        if (gc.designer)
+	        {
+	            this._recommendedComPort = comPort;
+	            this._recommendedBaudRate = baudRate;
+	        }
+	        else
+	        {
+		        var keyPrefix = this.getRecommendedComPortKeyPrefix();
+                gc.localStorage.setItem(keyPrefix+'_comPort', comPort);
+                gc.localStorage.setItem(keyPrefix+'_baudRate', baudRate);
+	        }
+	    },
+	    
+	    getConnectionManager: function()
+	    {
+	        return gc.connectionManager;
+	    }
+	    
+	};
+
+	// The following code, mixes in the AbstractTargetConnection methods to the TICoreModelBaseBehavior, like connect() and disconnect().
+	var methods = gc.databind.internal.AbstractTargetConnection.prototype;
+	
+	for(methodName in methods)
+	{
+	    if (methods.hasOwnProperty(methodName))
+	    {
+	        TICoreModelBaseBehavior[methodName] = methods[methodName];
+	    }
+	}
+})();
+</script>

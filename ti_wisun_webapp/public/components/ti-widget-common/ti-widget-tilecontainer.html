@@ -1,0 +1,163 @@
+
+<!--
+    Copyright (c) 2018, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!--
+`ti-widget-container` is an empty container widget to host child widgets.
+
+Example:
+
+    <ti-widget-container></ti-widget-container>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-container
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<dom-module id='ti-widget-tilecontainer'  >
+
+    <template>
+        <style>
+            :host {
+                display : inline-block;
+        		text-decoration: inherit;
+        		position : relative;
+            }
+        </style>
+       <!-- <div class="layoutOwner _container_"><content></content></div> -->
+        <content id="contentNode"></content>
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-widget-tilecontainer',
+
+            behaviors: [TiWidgetBase, TiWidgetBaseText, TiBehaviorContainer],
+            properties: {
+                /**
+                 * TODO: description of value property.
+                 *
+                 * @attribute value
+                 * @type string
+                 * @default undefined
+                 */
+                tileTitleBackgroundColor: {
+                    notify: true,
+                    type: String,
+                    value: "#ffffff",
+                    observer: "_updateTiles"
+                },
+                tileTitleStyle: {
+                    notify: true,
+                    type: String,
+                    value: "",
+                    observer: "_updateTiles"
+                },
+                tileStyle: {
+                    notify: true,
+                    type: String,
+                    value: "margin:10px;",
+                    observer: "_updateTiles"
+                },
+                tileBodyStyle: {
+                    notify: true,
+                    type: String,
+                    value: "",
+                    observer: "_updateTiles"
+                }
+            },
+            getElement : function()
+            {
+                return this;
+            },
+            _updateTile: function(tile){
+                if ((tile.titleBackgroundColor !== undefined) && (this.tileTitleBackgroundColor)) {
+                    tile._defaultTitleBackgroundColor = this.tileTitleBackgroundColor;
+                }
+                if ((tile.titleStyle !== undefined) && (this.tileTitleStyle)) {
+                    tile.titleStyle = this.tileTitleStyle;
+                }
+                if ((tile.tileBodyStyle !== undefined) && (this.tileBodyStyle)) {
+                    tile.tileBodyStyle = this.tileBodyStyle;
+                }
+                if (this.tileStyle !== undefined) {
+                    tile.setAttribute('style',this.tileStyle);
+                }
+                tile.updateStyles();
+            },
+            _updateTiles: function(){
+                this.async(function(){
+                    var children = this.children;
+                    if (children){
+                        for (var i=0; i < children.length; i++){
+                            var child = children[i];
+                            if (child.localName.indexOf('ti-tile') === 0){
+                                this._updateTile(child);
+                            }
+                        }
+                    }
+                }.bind(this),10)
+            },
+            processNewNodes: function(addedNodes){
+                for (var i=0; i < addedNodes.length; i++){
+                    var tile = addedNodes[i];
+                    if ((tile.localName) && (tile.localName.indexOf('ti-tile') >= 0)) {
+                        try {
+                            if (!tile.classList) {
+                                tile.className = "item align-self-auto";
+                            } else {
+                                tile.classList.add('item', 'align-self-auto');
+                            }
+                            this._updateTile(tile);
+                        }
+                        catch (ex) {
+                            console.log("Error adding tile to tile container: ex=" + ex);
+                        }
+                    }
+                }
+            },
+            processRemovedNodes: function(removedNodes){
+
+            },
+            attached: function(){
+                this.async(function(){
+                    this._updateTiles();
+                    this._observer =
+                        Polymer.dom(this.$.contentNode).observeNodes(function(info) {
+                            this.processNewNodes(info.addedNodes);
+                            this.processRemovedNodes(info.removedNodes);
+                            this.style.overflow = "auto";  // For some reason, this style gets overwritten with 'initial' in the Designer.
+                        }.bind(this));
+                }.bind(this),1)
+            }
+        });
+    </script>
+</dom-module>

@@ -3,14 +3,14 @@ Hacking wpantund
 
 ## Prerequisite Knowledge ##
 
-The wpantund project makes heavy use of the following:
+The wfantund project is based on wpantund project which makes heavy use of the following:
 
 * [Protothreads](http://dunkels.com/adam/pt/)
 * [`boost::any`](http://www.boost.org/doc/libs/1_57_0/doc/html/any.html)
 * [`boost::signals2`](http://www.boost.org/doc/libs/1_51_0/doc/html/signals2.html)
 
 Understanding what these are and how they work are critical to being able to
-successfully work on WPAN Tunnel Driver.
+successfully work on WFAN Tunnel Driver.
 
 
 ## General Project Structure ##

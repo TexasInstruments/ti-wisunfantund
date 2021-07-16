@@ -32,9 +32,8 @@
 const char getprop_cmd_syntax[] = "[args] <property-name>";
 
 static const arg_list_item_t getprop_option_list[] = {
-	{'h', "help", NULL, "Print Help"},
+	{'h', "help", NULL, "Print Help.  For the list of TI Wi-SUN Supported Properties, please see ti_wisun_commands.MD."},
 	{'t', "timeout", "ms", "Set timeout period"},
-	{'a', "all", NULL, "Print all supported properties"},
 	{'v', "value-only", NULL, "Print only the value of the property"},
 	{0}
 };

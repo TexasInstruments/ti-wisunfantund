@@ -23,6 +23,9 @@
  *    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *    Modified by Texas Instruments - 2021
+ *
  */
 
 /*
@@ -1591,24 +1594,24 @@ const char *spinel_prop_key_to_cstr(spinel_prop_key_t prop_key)
         ret = "NET_PSKC";
         break;
 
-    case SPINEL_PROP_THREAD_LEADER_ADDR:
-        ret = "THREAD_LEADER_ADDR";
+    case SPINEL_PROP_PHY_REGION:
+        ret = "PHY_REGION";
         break;
 
-    case SPINEL_PROP_THREAD_PARENT:
-        ret = "THREAD_PARENT";
+    case SPINEL_PROP_PHY_MODE_ID:
+        ret = "PHY_MODE_ID";
         break;
 
-    case SPINEL_PROP_THREAD_CHILD_TABLE:
-        ret = "THREAD_CHILD_TABLE";
+    case SPINEL_PROP_PHY_UNICAST_CHANNEL_LIST:
+        ret = "UNICAST_CHANNEL_LIST";
         break;
 
-    case SPINEL_PROP_THREAD_LEADER_RID:
-        ret = "THREAD_LEADER_RID";
+    case SPINEL_PROP_PHY_BROADCAST_CHANNEL_LIST:
+        ret = "BROADCAST_CHANNEL_LIST";
         break;
 
-    case SPINEL_PROP_THREAD_LEADER_WEIGHT:
-        ret = "THREAD_LEADER_WEIGHT";
+    case SPINEL_PROP_PHY_ASYNC_CHANNEL_LIST:
+        ret = "ASYNC_CHANNEL_LIST";
         break;
 
     case SPINEL_PROP_THREAD_LOCAL_LEADER_WEIGHT:
@@ -1651,12 +1654,12 @@ const char *spinel_prop_key_to_cstr(spinel_prop_key_t prop_key)
         ret = "THREAD_MODE";
         break;
 
-    case SPINEL_PROP_THREAD_CHILD_TIMEOUT:
-        ret = "THREAD_CHILD_TIMEOUT";
+    case SPINEL_PROP_PHY_CH_SPACING:
+        ret = "CH_SPACING";
         break;
 
-    case SPINEL_PROP_THREAD_RLOC16:
-        ret = "THREAD_RLOC16";
+    case SPINEL_PROP_PHY_CHO_CENTER_FREQ:
+        ret = "CHO_CENTER_FREQ";
         break;
 
     case SPINEL_PROP_THREAD_ROUTER_UPGRADE_THRESHOLD:
@@ -1903,8 +1906,8 @@ const char *spinel_prop_key_to_cstr(spinel_prop_key_t prop_key)
         ret = "IPV6_LL_ADDR";
         break;
 
-    case SPINEL_PROP_IPV6_ML_ADDR:
-        ret = "IPV6_ML_ADDR";
+    case SPINEL_PROP_CONNECTED_DEVICES:
+        ret = "CONNECTED_DEVICES";
         break;
 
     case SPINEL_PROP_IPV6_ML_PREFIX:
@@ -1919,12 +1922,8 @@ const char *spinel_prop_key_to_cstr(spinel_prop_key_t prop_key)
         ret = "IPV6_ROUTE_TABLE";
         break;
 
-    case SPINEL_PROP_IPV6_ICMP_PING_OFFLOAD:
-        ret = "IPV6_ICMP_PING_OFFLOAD";
-        break;
-
-    case SPINEL_PROP_IPV6_MULTICAST_ADDRESS_TABLE:
-        ret = "IPV6_MULTICAST_ADDRESS_TABLE";
+    case SPINEL_PROP_NUM_CONNECTED_DEVICES:
+        ret = "NUM_CONNECTED_DEVICES";
         break;
 
     case SPINEL_PROP_IPV6_ICMP_PING_OFFLOAD_MODE:

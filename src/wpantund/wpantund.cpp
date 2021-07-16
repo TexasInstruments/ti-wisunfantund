@@ -19,6 +19,8 @@
  *		This file implements the main program entry point for the
  *		WPAN Tunnel Driver, masterfuly named `wpantund`.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -81,7 +83,7 @@
 
 #include "any-to.h"
 #include "sec-random.h"
-
+#include "../wpanctl/webserver-config.h"
 #include <boost/shared_ptr.hpp>
 using ::boost::shared_ptr;
 
@@ -140,6 +142,7 @@ extern "C" {
 
 using namespace nl;
 using namespace wpantund;
+int WEBSERVER_APP = 0;
 
 static arg_list_item_t option_list[] = {
 	{ 'h', "help",   NULL,	"Print Help"},
@@ -150,6 +153,7 @@ static arg_list_item_t option_list[] = {
 	{ 's', "socket", "<socket>", "Socket file"},
 	{ 'b', "baudrate", "<integer>", "Baudrate"},
 	{ 'v', "version", NULL, "Print version" },
+	{ 'w', "webserver", NULL, "Run app in webserver mode" },
 #if HAVE_PWD_H
 	{ 'u', "user", NULL, "Username for dropping privileges" },
 #endif
@@ -158,7 +162,7 @@ static arg_list_item_t option_list[] = {
 
 static int gRet;
 
-static const char* gProcessName = "wpantund";
+static const char* gProcessName = "wfantund";
 static const char* gPIDFilename = NULL;
 static const char* gChroot = WPANTUND_DEFAULT_CHROOT_PATH;
 
@@ -429,7 +433,7 @@ nl::wpantund::get_wpantund_version_string(void)
 static void
 print_version()
 {
-	printf("wpantund %s\n", get_wpantund_version_string().c_str() );
+	printf("wfantund %s\n", get_wpantund_version_string().c_str() );
 }
 
 /* ------------------------------------------------------------------------- */
@@ -750,12 +754,13 @@ main(int argc, char * argv[])
 			{"interface",	required_argument,	0,	'I'},
 			{"socket",	required_argument,	0,	's'},
 			{"baudrate",	required_argument,	0,	'b'},
+			{"webserver",	no_argument,	0,	'w'},
 			{"user",	required_argument,	0,	'u'},
 			{0,		0,			0,	0}
 		};
 
 		int option_index = 0;
-		c = getopt_long(argc, argv, "hvd:c:o:I:s:b:u:", long_options,
+		c = getopt_long(argc, argv, "hvd:c:o:I:s:b:w:u:", long_options,
 			&option_index);
 
 		if (c == -1)
@@ -771,6 +776,11 @@ main(int argc, char * argv[])
 			print_version();
 			gRet = 0;
 			goto bail;
+
+		case 'w':
+			WEBSERVER_APP = 1;
+			fprintf(stdin, "%d", optind);
+			break;
 
 		case 'd':
 			setlogmask(~0);
@@ -795,7 +805,6 @@ main(int argc, char * argv[])
 		case 'u':
 			cmd_line_settings[kWPANTUNDProperty_ConfigDaemonPrivDropToUser] = optarg;
 			break;
-
 		case 'o':
 			if ((optind >= argc) || (strhasprefix(argv[optind], "-"))) {
 				syslog(LOG_ERR, "Missing argument to '-o'.");

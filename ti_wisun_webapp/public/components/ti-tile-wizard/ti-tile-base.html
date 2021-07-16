@@ -1,0 +1,401 @@
+<!--
+    Copyright (c) 2015-2019, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../ti-core-assets/ti-core-assets.html">
+<!--
+`ti-tile-base` provides common properties and methods shared by all tiles.
+  You should not use this in your project directly.
+
+
+@group Instrument Tiles
+@polymerBehavior TiTileBase
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+
+<script>
+    /** @polymerBehavior */
+    TiTileBase = {
+
+
+        // hide the following from bindings in designer
+
+
+        hostAttributes: {
+        },
+
+        properties: {
+            /**
+             * Controls whether or not scroll bars, both horizontal and/or vertical, are added to this container
+             * automatically when child widgets are positioned outside of this continers boundaries.  Use this
+             * to create scrollable container.
+             *
+             * @attribute _autoScroll
+             * @type Boolean
+             * @default false
+             */
+            _autoScroll: {
+                notify: true,
+                type: Boolean,
+                value: false,
+                observer: "_autoScrollChanged"
+            },
+            /**
+             * elevation controls the drop shadow depth behind the tiles
+             *
+             * @attribute elevation
+             * @type number
+             * @default 2
+             */
+            elevation: {
+                notify: true,
+                type: Number,
+                value: 3,
+                observer: "elevationChanged",
+                reflectToAttribute: true
+            },
+            /**
+             * Controls the visible state of the tile.
+             *
+             * @attribute visible
+             * @type boolean
+             * @default true
+             */
+            visible: {
+                notify: true,
+                type: Boolean,
+                value: true,
+                observer: "visibleChanged"
+            },
+            /**
+             * Controls the non-visible state of the tile.  This is the opposite of the
+             * visible attribute.  If the visible attribute is bound to a target variable,
+             * you can use this attribute to hide the tile until the visible binding has
+             * been evaluated.
+             *
+             * @attribute nonvisible
+             * @type boolean
+             * @default false
+             */
+            nonvisible: {
+                notify: true,
+                type: Boolean,
+                value: false,
+                observer: "nonvisibleChanged"
+            },
+
+            /**
+             * the css string used to style the title section.  e.g. font-weight:bold;font-size:24px;padding-left:30px;"
+             *
+             * @attribute titleStyle
+             * @type string
+             * @default "";
+             */
+            titleStyle:{
+                notify: true,
+                type: String,
+                value: "",
+                observer: "updateVisibility"
+            },
+            /**
+             * The background color of the tile Title at the top.
+             *
+             * @attribute titleBackgroundColor
+             * @type color
+             * @default '#ffffff'
+             */
+            titleBackgroundColor: {
+                notify: false,
+                type: String,
+                value: ""
+            },
+            _defaultTitleBackgroundColor: {
+                notify: false,
+                type: String,
+                value: ""
+            },
+            /**
+             * the css string to style the body of the tile (i.e. the div underneath the tile title)
+             *
+             * @attribute tileBodyStyle
+             * @type String
+             * @default "1em"
+             */
+            tileBodyStyle: {
+                notify: false,
+                type: String,
+                value: "padding:0 1em 1em 1em;"
+            },
+            /**
+             * The background color of the tile.
+             *
+             * @attribute backgroundColor
+             * @type color
+             * @default '#ffffff'
+             */
+            backgroundColor: {
+                notify: false,
+                type: String,
+                value: "#ffffff"
+            },
+            _iconColor:{
+                notify: true,
+                type: String,
+                value: '#a0a0a0',
+                observer: "updateVisibility"
+            },
+            _resizeCornerColor:{
+                notify: true,
+                type: String,
+                value: '#222222',
+                observer: "updateVisibility"
+            },
+            _arrowStyle:{
+                notify: true,
+                type: String,
+                value: '',
+                observer: "updateVisibility"
+            },
+            _pinIcon:{
+                notify: true,
+                type: String,
+                value: 'lock',
+                observer: "updateVisibility"
+            },
+            _isInDesigner: {
+                type: Boolean,
+                value: false,
+                notify: true
+            },
+            _resizeCtr: {
+                type: Number,
+                value: 0,
+                notify: true
+            },
+            pin: {
+                type: Boolean,
+                value: false,
+                observer: "pinChanged"
+            }
+
+        },
+        /**
+         * Set the z-depth of the shadow. This should be used after element
+         * creation instead of setting the z property directly.
+         *
+         * @method elevationChanged
+         * @param {number} oldValue,newValue
+         */
+        elevationChanged: function(newValue,oldValue){
+            var shadowBottom = this.$['shadow-bottom'];
+            var shadowTop = this.$['shadow-top'];
+            if (oldValue) {
+                if (shadowBottom) {
+                    shadowBottom.classList.remove('paper-material-bottom-z-' + oldValue);
+                }
+                if (shadowTop) {
+                    shadowTop.classList.remove('paper-material-top-z-' + oldValue);
+                }
+            }
+            if (newValue) {
+                if (shadowBottom){
+                    shadowBottom.classList.add('paper-material-bottom-z-' + newValue);
+                }
+                if (shadowTop) {
+                    shadowTop.classList.add('paper-material-top-z-' + newValue);
+                }
+            }
+        },
+        _autoScrollChanged : function()
+        {
+            this.style.overflow = this._autoScroll == true ? "auto" : "initial";
+        },
+        getElement : function()
+        {
+            return this;
+        },
+        _inDesigner: function(){
+            return gc.utils.isInDesigner();
+        },
+        pinChanged: function(){
+            this._pinIcon = this.pin ? "lock" : "lock-open";
+            this._updateTileIcons();
+        },
+        togglePin: function(event) {
+            if (this.__canvasElement__) {
+                this.__canvasElement__.setAttribute('pin', !this.pin);
+            } else {
+                this.pin = !this.pin;
+            }
+        },
+        editProperties: function(event){
+            var designer = gc.utils.getDesigner();
+            designer.ownerDocument.dispatchEvent(new CustomEvent('open-panel', {detail: 'properties'}));
+        },
+        moveLeft: function(event){
+            if (this.__canvasElement__) {
+                this.__canvasElement__.dom.promoteElements([this.__canvasElement__]);
+            }
+        },
+        moveRight: function(event){
+            if (this.__canvasElement__) {
+                this.__canvasElement__.dom.demoteElements([this.__canvasElement__]);
+            }
+        },
+        updateVisibility : function()
+        {
+            if ((!this._isInDesigner)||(this.id === 'helpButtonInfo') || (this.id === 'readmeText')) {
+                var show = this.visible !== false && this.visible !== "false";
+                var element = this.getElement();
+                if (element) {
+                    element.style.display = show ? "" : "none";
+                }
+                this.style.visibility = show ? "visible" : "hidden";
+            }
+        },
+        visibleChanged : function()
+        {
+            if (this.nonvisible === this.visible)
+            {
+                this.nonvisible = !this.visible;
+                this.updateVisibility();
+            }
+        },
+        nonvisibleChanged : function()
+        {
+            if (this.nonvisible === this.visible)
+            {
+                this.visible = !this.nonvisible;
+                this.updateVisibility();
+            }
+        },
+        _getTileTitleStyle: function(titleStyle,titleBackgroundColor,_defaultTitleBackgroundColor){
+            var result = titleStyle;
+            if (result.indexOf(";") < 0) {
+                result = result +";"
+            }
+            if (this.titleBackgroundColor && this.titleBackgroundColor.length > 0){
+                result += "background-color:"+this.titleBackgroundColor+";";
+            } else if (this._defaultTitleBackgroundColor && this._defaultTitleBackgroundColor.length > 0){
+                result += "background-color:"+this._defaultTitleBackgroundColor+";";
+            }
+            return result;
+        },
+        _getDecoratedLabelStyle: function(fontColor,fontSize,fontWeight,textDecoration){
+            var result = "color:"+fontColor+";font-size:"+fontSize+";font-weight:"+fontWeight+";text-decoration:"+textDecoration+";";
+            return result;
+        },
+        _getIconStyle: function(color){
+            var result = "color:"+color+";";
+            if (!this._isInDesigner){
+                result = "display:none;";
+            }
+            return result;
+        },
+        _getArrowStyle: function(displayStyle,color){
+            var result = "color:"+color+";"+displayStyle;
+            if (!this._isInDesigner){
+                result = "display:none;";
+            }
+            return result;
+        },
+        _getMeterStyle: function(_resizeCtr){
+            var result = "";
+            var instRect = this.$.meter_div.getBoundingClientRect();
+            var displayRect = this.$.containerDiv.getBoundingClientRect();
+            // meter is ~2x wider than it is tall
+            var topOffset = instRect.top - displayRect.top;
+            var h = instRect.height;
+            if (h > (displayRect.height - topOffset)){
+                h = displayRect.height - topOffset;
+            }
+            var w = instRect.width;
+            if ((h === 0) || (w === 0)) return result;
+            h = instRect.height;
+            if ((topOffset + instRect.height) > displayRect.height) {
+                h = displayRect.height - topOffset;
+            }
+            var sizeInPx = h - 50;
+            if (w < sizeInPx*2){
+                sizeInPx = w/2;
+            }
+            result = "width:"+sizeInPx*1.6+"px;max-width:"+sizeInPx*1.6 +"px;height:"+sizeInPx*0.8+"px;max-height:"+sizeInPx*0.8+"px;";
+            return result;
+        },
+        onResizedByDesigner: function () {
+            this.async(function(){
+                this._resizeCtr++;
+            }.bind(this),1)
+        },
+        _updateTileIcons: function() {
+            var moveLeftIcon = this.$$('#moveLeftIcon');
+            if (moveLeftIcon) {
+                moveLeftIcon.disabled = this.__canvasElement__ == null || !this.__canvasElement__.dom.canPromoteElements([this.__canvasElement__]);
+            }
+
+            var moveRightIcon = this.$$('#moveRightIcon');
+            if (moveRightIcon) {
+                moveRightIcon.disabled = this.__canvasElement__ == null || !this.__canvasElement__.dom.canDemoteElements([this.__canvasElement__]);
+            }
+            this._arrowStyle = this.parentElement && this.parentElement.hasAttribute('layout') ? "" : "display:none";
+
+            var pinIcon = this.$$("#pinIcon");
+            if (pinIcon) {
+                pinIcon.title = this.pin ? "click to unpin (enable dragging)" : "click to pin (disable dragging)";
+            }
+            
+            var resizeIcon = this.$$("#resizeIcon");
+            if (resizeIcon) {
+                resizeIcon.style.visibility = this.pin ? "hidden" : "visible";
+            }
+        },
+        created: function() {
+            this.ownerDocument.addEventListener('design-changed', this._updateTileIcons.bind(this));
+        },
+        attached: function() {
+            this.async(function(){
+                this._tileBaseDomReady();
+                this._updateTileIcons();
+            }.bind(this),1);
+        },
+        _tileBaseDomReady: function(){
+            this._resizeCtr++;
+            this._titleFontWeight = 'bold';
+            this._isInDesigner = this._inDesigner();
+           // this.onResizedByDesigner = this._onResizedByDesigner.bind(this);
+        },
+
+        /**
+         * This method is called when the element is attached to the design.
+         */
+        onAttachedToDesignCanvas: function(canvasElement) {
+            this._updateTileIcons();
+        }
+
+    };
+</script>

@@ -1,0 +1,190 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="../ti-widget-common/ti-widget-multiimage.html">
+<link rel="import" href="ti-tile-base.html">
+<link rel="import" href="ti-tile-styles.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+
+<!--
+`ti-tile-images` is a tile containing an "LED" image, which can be
+  used to display the true / false value of another widget or a target variable
+
+Example:
+
+    <ti-tile-images value="true" ></ti-tile-images>
+
+See demo for a full working example of how to use this component.
+
+@group Instrument Tiles
+@element ti-tile-images
+@extends ti-tile-base
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-tile-images'  >
+
+    <template>
+        <style include="ti-tile-styles">
+            :host {
+                width: 150px;
+				min-width:100px;
+                min-height:100px;
+            }
+            #instrument_div {
+            	padding-left: 1em;
+            	padding-right: 1em;
+                text-align: center;
+            }
+            #instrument {
+                width:100%;
+                height:100%;
+                position: static;
+            }
+        </style>
+        <div id="containerDiv" layout vertical style$="background-color:{{backgroundColor}};">
+	        <div id="shadow-bottom" fit  class$="paper-material-bottom-z-[[elevation]]"></div>
+	        <div id="shadow-top" fit  class$="paper-material-top-z-[[elevation]]"></div>
+            <div id="tileTitle" style$="[[_getTileTitleStyle(titleStyle,titleBackgroundColor,_defaultTitleBackgroundColor)]];">
+                <span>{{titleText}}</span>
+            </div>
+            <div id="instrument_div" flex layout vertical center-justified style$="[[tileBodyStyle]]">
+            	<div layout horizontal center-justified>
+                    <ti-widget-multiimage id="instrument" image-paths="{{imagePaths}}" image-folder="{{imageFolder}}" lock-aspect-ratio="true" hover-effect="false" initial-index="0" selected-index="{{selectedIndex}}" selected-value="{{value}}" values="{{values}}" ></ti-widget-multiimage>
+                </div>
+                <label id="label_div">[[value]]</label>
+            </div>
+            <template is="dom-if" restamp="true" if="{{_isInDesigner}}">
+                <paper-icon-button id="editIcon"  class="pointer" icon="create" on-tap="editProperties" title="edit tile properties" style$="[[_getIconStyle(_iconColor)]]" ></paper-icon-button>
+                <paper-icon-button id="moveLeftIcon" class="pointer" icon="arrow-back" on-tap="moveLeft" title="move tile left" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="moveRightIcon" class="pointer" icon="arrow-forward" on-tap="moveRight" title="move tile right" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="resizeIcon" class="resize" icon="device:signal-cellular-0-bar"  title="resize tile"  style$="[[_getIconStyle(_resizeCornerColor)]]"></paper-icon-button>
+                <paper-icon-button id="pinIcon" class="pointer" icon="{{_pinIcon}}" on-tap="togglePin" style$="[[_getIconStyle(_iconColor)]]"></paper-icon-button>
+            </template>
+        </div>
+        <content></content>
+    </template>
+    <script>
+
+        Polymer ({
+            is: 'ti-tile-images',
+
+
+            hostAttributes: {
+            },
+            behaviors: [TiTileBase],
+            properties: {
+                /**
+                 * The title to display at the top of the tile
+                 *
+                 * @attribute titleText
+                 * @type string
+                 * @default ''
+                 */
+                titleText: {
+                    notify: true,
+                    type: String,
+                    value: "Images"
+                },
+                /**
+                 * The file paths to the images to use, separated by | or ,
+                 *
+                 * @attribute imagePaths
+                 * @type string
+                 * @default ""
+                 */
+                imagePaths: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * The file path to the folder containing the images to use, relative to root of your app/project
+                 *
+                 * @attribute imageFolder
+                 * @type string
+                 * @default ""
+                 */
+                imageFolder: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+                /**
+                 * The 0-based index for the currently selected image
+                 *
+                 * @attribute selectedIndex
+                 * @type Number
+                 * @default 0
+                 */
+                selectedIndex: {
+                    notify: true,
+                    type: Number,
+                    value: 0
+                },
+                /**
+                 * The value (from the valueList property) of the image to display
+				 * (updated when the selectedIndex is changed to reflect the value of the current selection)
+                 *
+                 * @attribute value
+                 * @type string
+                 * @default undefined
+                 */
+                value: {
+                    notify: true,
+                    type: String,
+                    value: undefined
+                },
+                /**
+                 * The comma-separated list of values to assign to the various images
+                 *
+                 * @attribute valueList
+                 * @type string
+                 * @default ""
+                 */
+                values: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                }
+            },
+            getCategory: function(){
+                return 'Status';
+            },
+            getComponentName: function() {
+                return 'LED';
+            },
+            _getSelectedValue: function(value){
+                return value;
+            }
+        });
+    </script>
+</dom-module>

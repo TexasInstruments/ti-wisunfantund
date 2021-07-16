@@ -1,0 +1,346 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../ti-core-icons/ti-core-icons.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="ti-tile-base.html">
+<link rel="import" href="../mark-down/mark-down.html">
+<link rel="import" href="ti-tile-styles.html">
+
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<!--
+`ti-tile-markdown` is a tile that displays markdown text.
+see the [Markdown Basics Guide] (https://help.github.com/articles/markdown-basics/) for more info.
+
+Example:
+
+    <ti-tile-markdown markdown-text="This is some **Markdown** *text*"></ti-tile-markdown>
+
+See the [Markdown Basics Guide](https://help.github.com/articles/markdown-basics/) for info on Markdown.
+To embed an image in the markdown text, upload an image to your application folder and refer to it by name.  e.g. \!\[description\]\(myImage.gif\)
+If the image is in a subfolder, include the subfolder name as well e.g.  \!\[description\]\(myImageFolder/myImage.gif\)
+
+@group Instrument Tiles
+@element ti-tile-markdown
+@demo demo.html
+@extends ti-tile-base
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-tile-markdown'  >
+
+	<template>
+		<style include="ti-tile-styles">
+			#mark_down {
+				position: relative;
+				margin:0;
+				padding: 0;
+				text-align: left;
+				white-space: normal;
+				font-family: sans-serif;
+			}
+			#instrument_div {
+				width: 100%;
+				margin-bottom:12px;
+				overflow-y: auto;
+			}
+			:host {
+				width:200px;
+				min-width:150px;
+				min-height:30px;
+			}
+			paper-icon-button[icon='info-outline'] /deep/ iron-icon {
+				height: 18px;
+				width: 18px;
+			}
+		</style>
+		<div id="containerDiv" layout vertical style$="background-color:{{backgroundColor}};">
+			<div id="shadow-bottom" fit class$="paper-material-bottom-z-[[elevation]]"></div>
+			<div id="shadow-top" fit class$="paper-material-top-z-[[elevation]]"></div>
+			<div id="tileTitle" style$="[[_getTileTitleStyle(titleStyle,titleBackgroundColor,_defaultTitleBackgroundColor)]];">
+				<span>{{titleText}}</span>
+			</div>
+			<template is="dom-if" if="[[_isMarkdownText(markdownText)]]">
+				<div id="instrument_div" flex style$="[[tileBodyStyle]]">
+					<mark-down id="mark_down" text="{{markdownText}}"></mark-down>
+				</div>
+			</template>
+			<template is="dom-if" restamp="true" if="{{showSaveCancelButtons}}">
+				<div layout horizontal end-justified>
+					<template is="dom-if" restamp="true" if="{{!hideCancelButton}}">
+						<paper-button id="cancelBtn" on-tap="cancel">CLOSE</paper-button>
+					</template>
+					<template is="dom-if" restamp="true" if="{{!hideSaveButton}}">
+						<paper-button id="saveBtn" on-tap="save">OK</paper-button>
+					</template>
+				</div>
+			</template>
+			<template is="dom-if" restamp="true" if="{{_editIconsEnabled(helpButtonMode)}}">
+				<paper-icon-button id="editIcon"  class="pointer" icon="create" on-tap="editProperties" title="edit tile properties" style$="[[_getEditIconStyle(_iconColor)]]" ></paper-icon-button>
+				<paper-icon-button id="moveLeftIcon" class="pointer" icon="arrow-back" on-tap="moveLeft" title="move tile left" style$="[[_getEditArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+				<paper-icon-button id="moveRightIcon" class="pointer" icon="arrow-forward" on-tap="moveRight" title="move tile right" style$="[[_getEditArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+				<paper-icon-button id="resizeIcon" class="resize" icon="device:signal-cellular-0-bar"  title="resize tile"  style$="[[_getEditIconStyle(_resizeCornerColor)]]"></paper-icon-button>
+				<paper-icon-button id="pinIcon" class="pointer" icon="{{_pinIcon}}" on-tap="togglePin" style$="[[_getEditIconStyle(_iconColor)]]"></paper-icon-button>
+			</template>
+			<paper-icon-button id="restoreIcon"  class="pointer" icon="ti-core-icons:restore-window" on-tap="restore" title="restore" style$="[[_getRestoreIconStyle(_iconColor, _isMaximized, showCloseIcon)]]" ></paper-icon-button>
+			<paper-icon-button id="maximizeIcon"  class="pointer" icon="ti-core-icons:maximize-window" on-tap="maximize" title="maximize" style$="[[_getMaximizeIconStyle(_iconColor, _isMaximized, showCloseIcon)]]" ></paper-icon-button>
+			<paper-icon-button id="closeIcon"  class="pointer" icon="icons:close" on-tap="hide" title="close" style$="[[_getCloseIconStyle(_iconColor, showCloseIcon)]]" ></paper-icon-button>
+
+		</div>
+		<content ></content>
+
+	</template>
+	<script>
+        Polymer ({
+            is: 'ti-tile-markdown',
+
+            hostAttributes: {
+            },
+            behaviors: [TiTileBase],
+            properties: {
+                /**
+                 * The title to display at the top of the tile
+                 *
+                 * @attribute titleText
+                 * @type string
+                 * @default ''
+                 */
+                titleText: {
+                    notify: false,
+                    type: String,
+                    value: "Instructions"
+                },
+
+                /**
+                 * The Markdown text to display in the body of the tile.
+                 * see the [Markdown Basics Guide](https://help.github.com/articles/markdown-basics/) for info on Markdown
+                 *
+                 * @attribute markdownText
+                 * @type string
+                 * @default ''
+                 */
+                markdownText: {
+                    notify: true,
+                    type: String,
+                    value: "",
+                    reflectToAttribute: true
+
+                },
+
+
+                /**
+                 * Turns off the icons that are normally displayed while the tile is running in the designer.
+                 * For use when the tile is used by ti-widget-helpbutton for providing help tips within the designer
+                 *
+                 * @attribute helpButtonMode
+                 * @type boolean
+                 * @default false
+                 */
+                helpButtonMode: {
+                    notify: false,
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * showSaveCancelButtons - set to true to enable the hideSaveButton and hideCancelButton properties.
+                 *
+                 * @attribute showSaveCancelButtons
+                 * @type Boolean
+                 * @default  false
+                 */
+                showSaveCancelButtons: {
+                    notify: false,
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * hideSaveButton - if showSaveCancelButtons is true, set to true to hide the Save button
+                 *
+                 * @attribute hideSaveButton
+                 * @type Boolean
+                 * @default  false
+                 */
+                hideSaveButton: {
+                    notify: true,
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * hideCancelButton - if showSaveCancelButtons is true, set to true to hide the Cancel button
+                 *
+                 * @attribute hideCancelButton
+                 * @type Boolean
+                 * @default  false
+                 */
+                hideCancelButton: {
+                    notify: true,
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * saveCallback - specifies the function to call when the Save button is clicked
+                 *
+                 * @attribute saveCallback
+                 * @type Function
+                 * @default  undefined
+                 */
+                saveCallback: {
+                    notify: false,
+                    type: Function,
+                    value: undefined
+                },
+                /**
+                 * cancelCallback - specifies the function to call when the Cancel button is clicked
+                 *
+                 * @attribute cancelCallback
+                 * @type Function
+                 * @default  undefined
+                 */
+                cancelCallback: {
+                    notify: false,
+                    type: Function,
+                    value: undefined
+                },
+                /**
+                 * showCloseIcon - set to true to have the close icon displayed in the upper right corner
+                 *
+                 * @attribute showCloseIcon
+                 * @type Boolean
+                 * @default  false
+                 */
+                showCloseIcon: {
+                    notify: false,
+                    type: Boolean,
+                    value: false
+                },
+                _isMaximized: {
+                    notify: false,
+                    type: Boolean,
+                    value: false
+                }
+            },
+            _isMarkdownText: function(markdownText){
+                var result = false;
+                if ((markdownText) && (markdownText.length > 0)) {
+                    result = true;
+                }
+                return result;
+            },
+            getMarkdownStyle: function(showSaveCancelButtons){
+                var result = "bottom:0px;";
+                if (showSaveCancelButtons) {
+                    result = "bottom:30px;";
+                }
+                this.async(function(){
+                    this.updateStyles();
+                }.bind(this),1);
+                return result;
+            },
+            getCategory: function() {
+                return 'Text and Images';
+            },
+            getComponentName: function() {
+                return 'Markdown';
+            },
+            maximize: function(e,detail){
+                this._isMaximized = true;
+                this.fire("maximizeWindow");
+            },
+            restore: function(e,detail){
+                this._isMaximized = false;
+                this.fire("restoreWindow");
+
+            },
+            hide: function(e,detail){
+                this.close(false);
+            },
+            save: function(){
+                if (this.saveCallback){
+                    this.saveCallback();
+                }
+                this.close(true);
+            },
+            cancel: function(){
+                this.close(false);
+            },
+            close: function(noCallback){
+                this.visible = false;
+                if ((!noCallback) && (this.cancelCallback)){
+                    this.cancelCallback();
+                }
+                this.fire("close");
+            },
+            _getMaximizeIconStyle: function(color, isMaximized, showCloseIcon){
+                var result = "color:"+color+";";
+                if (!this.showCloseIcon || isMaximized){
+                    result = "display:none;"
+                }
+                return result;
+            },
+            _getRestoreIconStyle: function(color, isMaximized, showCloseIcon){
+                var result = "color:"+color+";";
+                if (!this.showCloseIcon || !isMaximized){
+                    result = "display:none;"
+                }
+                return result;
+            },
+            _getCloseIconStyle: function(color, showCloseIcon){
+                var result = "color:"+color+";";
+                if (!this.showCloseIcon){
+                    result = "display:none;"
+                }
+                return result;
+            },
+            _closeIconEnabled: function(helpButtonMode,showCloseIcon){
+                var result = (this.helpButtonMode && this.showCloseIcon);
+                return result;
+            },
+            _editIconsEnabled: function(helpButtonMode) {
+                var result = !this.helpButtonMode && this._inDesigner();
+                return result;
+            },
+            _getEditIconStyle: function(color){
+                var result = "color:"+color+";";
+                if (!this._inDesigner() || this.helpButtonMode) {
+                    result = "display:none;";
+                }
+                return result;
+            },
+            _getEditArrowStyle: function(displayStyle,color){
+                var result = "color:"+color+";"+displayStyle;
+                if (!this._inDesigner() || this.helpButtonMode){
+                    result = "display:none;";
+                }
+                return result;
+            },
+        });
+	</script>
+</dom-module>

@@ -1,0 +1,264 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="../ti-widget-graphs/ti-widget-scalargraph.html">
+<link rel="import" href="ti-tile-base.html">
+<link rel="import" href="ti-tile-styles.html">
+
+<!--
+`ti-tile-scalargraph` is a graph capable of displaying up to 3 different value series as lines.
+(This tile is called the 'XYZ graph' in the tile wizard component list.)
+
+Example:
+
+    <ti-tile-scalargraph></ti-tile-scalargraph>
+
+See demo for a full working example of how to use this component.
+
+@group Instrument Tiles
+@element ti-tile-scalargraph
+@demo demo.html
+@extends ti-tile-base
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-tile-scalargraph'  >
+
+    <template>
+        <style  is="custom-style" include="ti-tile-styles">
+            :host {
+                width: 470px;
+                min-width: 250px;
+                min-height:150px;
+            }
+            #instrument_div {
+                width: 100%;
+                top: 0;
+                bottom: 0;
+            }
+            #instrument {
+                top: 0px;
+                bottom: 5px;
+                right: 5px;
+                left: 5px;
+                position: absolute;
+                display:block;
+
+            }
+        </style>
+        <div id="containerDiv" layout vertical style$="background-color:{{backgroundColor}};">
+	        <div id="shadow-bottom" fit class$="paper-material-bottom-z-[[elevation]]"></div>
+	        <div id="shadow-top" fit class$="paper-material-top-z-[[elevation]]"></div>
+            <div id="tileTitle" style$="[[_getTileTitleStyle(titleStyle,titleBackgroundColor,_defaultTitleBackgroundColor)]];">
+                <span>{{titleText}}</span>
+            </div>
+            <div id="instrument_div" flex style$="[[tileBodyStyle]]">
+                <ti-widget-scalargraph id="instrument" num-channels="{{numChannels}}" hide-yaxis1 hide-yaxis2 fixed-scale series_0_min="{{minValue}}" series_0_max="{{maxValue}}" series_0_units="{{units}}" series_1_min="{{minValue}}" series_1_max="{{maxValue}}" series_1_Units="{{units}}" series_2_min="{{minValue}}" series_2_max="{{maxValue}}" series_2_units="{{units}}" value_0="{{value_x}}" series_0_label="{{label_x}}" value_1="{{value_y}}" series_1_label="{{label_y}}" value_2="{{value_z}}" series_2_label="{{label_z}}"></ti-widget-scalargraph>
+            </div>
+            <template is="dom-if" restamp="true" if="{{_isInDesigner}}">
+                <paper-icon-button id="editIcon"  class="pointer" icon="create" on-tap="editProperties" title="edit tile properties" style$="[[_getIconStyle(_iconColor)]]" ></paper-icon-button>
+                <paper-icon-button id="moveLeftIcon" class="pointer" icon="arrow-back" on-tap="moveLeft" title="move tile left" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="moveRightIcon" class="pointer" icon="arrow-forward" on-tap="moveRight" title="move tile right" style$="[[_getArrowStyle(_arrowStyle,_iconColor)]]"></paper-icon-button>
+                <paper-icon-button id="resizeIcon" class="resize" icon="device:signal-cellular-0-bar"  title="resize tile"  style$="[[_getIconStyle(_resizeCornerColor)]]"></paper-icon-button>
+                <paper-icon-button id="pinIcon" class="pointer" icon="{{_pinIcon}}" on-tap="togglePin" style$="[[_getIconStyle(_iconColor)]]"></paper-icon-button>
+            </template>
+
+        </div>
+        <content></content>
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-tile-scalargraph',
+
+            hostAttributes: {
+            },
+            behaviors: [TiTileBase],
+            properties: {
+                /**
+                 * The title to display at the top of the tile
+                 *
+                 * @attribute titleText
+                 * @type string
+                 * @default ''
+                 */
+                titleText: {
+                    notify: false,
+                    type: String,
+                    value: ""
+                },
+				/**
+                 * The units string to display on the Y axis.
+                 *
+                 * @attribute units
+                 * @type String
+                 * @default "mV"
+                 */
+                units: {
+                    notify: false,
+                    type: String,
+                    value: "mV"
+                },
+				/**
+                 * The value to display for the first line (labelled X by default).
+				 * To display a line, bind this value to something that changes over time.
+                 *
+                 * @attribute value_x
+                 * @type Number
+                 * @default 0
+                 */
+                value_x: {
+                    notify: false,
+                    type: Number,
+                    value: 0
+                },
+				/**
+                 * The label used to describe the first line (labelled X by default).
+                 *
+                 * @attribute label_x
+                 * @type String
+                 * @default "X"
+                 */
+                label_x: {
+                    notify: false,
+                    type: String,
+                    value: "X"
+                },
+				/**
+                 * The value to display for the second line (labelled Y by default).
+				 * To display a line, bind this value to something that changes over time.
+                 *
+                 * @attribute value_y
+                 * @type Number
+                 * @default 0
+                 */
+                value_y: {
+                    notify: false,
+                    type: Number,
+                    value: 0
+                },
+				/**
+                 * The label used to describe the second line (labelled Y by default).
+                 *
+                 * @attribute label_y
+                 * @type String
+                 * @default "Y"
+                 */
+                label_y: {
+                    notify: false,
+                    type: String,
+                    value: "Y"
+                },
+				/**
+                 * The value to display for the third line (labelled X by default).
+				 * To display a line, bind this value to something that changes over time.
+                 *
+                 * @attribute value_x
+                 * @type Number
+                 * @default 0
+                 */
+                value_z: {
+                    notify: false,
+                    type: Number,
+                    value: 0
+                },
+				/**
+                 * The label used to describe the third line (labelled Z by default).
+                 *
+                 * @attribute label_z
+                 * @type String
+                 * @default "Z"
+                 */
+                label_z: {
+                    notify: false,
+                    type: String,
+                    value: "Z"
+                },
+				/**
+                 * The minimum value to display in the graph
+                 *
+                 * @attribute minValue
+                 * @type string
+                 * @default 0
+                 */
+                minValue: {
+                    notify: false,
+                    type: Number,
+                    value: 0
+                },
+				/**
+                 * The maximum value to display in the graph
+                 *
+                 * @attribute value
+                 * @type Number
+                 * @default 100
+                 */
+                maxValue: {
+                    notify: false,
+                    type: Number,
+                    value: 100
+                },
+				/**
+                 * The number of lines to display in the graph.
+				 * - 1 will display only the value_x line.
+				 * - 2 will displya both the value_x and value_y lines.
+				 * - 3 will display all three of the lines.
+                 *
+                 * @attribute numChannels
+                 * @type Number
+                 * @default 3
+                 */
+                numChannels: {
+                    notify: false,
+                    type: Number,
+                    value: 3
+                }
+            },
+
+            getCategory: function() {
+                return 'Graph';
+            },
+            getComponentName: function() {
+                return 'XYZ Line Graph';
+            },
+            ready: function() {
+                this.async(function() {
+                    this.onResizedByDesigner();
+                }.bind(this),0);
+            },
+            onResizedByDesigner: function(){
+				if (this.$ && this.$.instrument.onResize) {
+					this.$.instrument.onResize();
+				}
+            }
+
+        });
+    </script>
+</dom-module>

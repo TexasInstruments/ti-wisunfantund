@@ -1,0 +1,503 @@
+<!--
+    Copyright (c) 2018-2019, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../ti-widget-common/../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../ti-core-assets/ti-core-assets.html">
+
+<!--
+`ti-widget-dialog` is a wrapper for the paper-dialog, used to create modal dialogs.
+ To automatically close the dialog when a button is pressed:
+  * add the dialog-dismiss attribute to the button if it is a 'Cancel' button
+  * add the dialog-confirm attribute to the button if it is an 'OK' button
+
+Example:
+
+    <ti-widget-dialog heading="My DialogHeading">
+        <ti-widget-container>
+            <ti-widget-label label="Please select option:"></ti-widget-label>
+            <ti-widget-textbox></ti-widget-textbox>
+        </ti-widget-container>
+        <ti-widget-container>
+            <ti-widget-button on-click="onOKSelectedHdlr" label="OK" dialog-confirm></ti-widget-button>
+            <ti-widget-button style="float:right" label="Cancel" dialog-dismiss></ti-widget-button>
+        </ti-widget-container>
+	</ti-widget-dialog>
+
+@group Ti Elements
+@element ti-widget-dialog
+@hero heroImages/heroDialog.svg
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-dialog'>
+
+<template>
+	<style>
+		#dialog /deep/ #scroller {
+			max-width: none !important;
+			max-height: none !important;
+			overflow: hidden;
+		}
+
+		#dialog /deep/ .actionBar {
+			margin-top: 5px;
+			@apply --layout-horizontal;
+			@apply --layout-end-justified;
+		}
+
+		paper-dialog {
+			outline: none;
+            line-height: normal;
+		}
+
+		paper-dialog > * {
+			padding: 0px 20px;
+            margin: 0px;
+		}
+
+		paper-dialog > *:first-child {
+			margin-top: 15px;
+		}
+		paper-dialog > *:last-child {
+			margin-bottom: 15px;
+		}
+
+		#dialogIcon {
+			/*-webkit-mask-image: -webkit-gradient(linear, right top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0))); */
+			color: #fff;
+			position: absolute;
+			right: 0;
+			top: 0px;
+			margin-right: 5px;
+		}
+
+		#header {
+			color: #fff;
+			padding-bottom: 20px;
+            -webkit-touch-callout: none; /* iOS Safari */
+              -webkit-user-select: none; /* Safari */
+               -khtml-user-select: none; /* Konqueror HTML */
+                 -moz-user-select: none; /* Firefox */
+                  -ms-user-select: none; /* Internet Explorer/Edge */
+                      user-select: none; /* Non-prefixed version, currently
+                                            supported by Chrome and Opera */
+		}
+
+		.headerText {
+			color: #fff;
+			text-shadow: 1px 1px rgba(0, 0, 0, 0.48);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+		}
+
+		#headerBackground {
+			width: 100%;
+			top: 0;
+			position: absolute;
+			left: 0;
+			z-index: -1;
+			/* background: #115566; */
+			/* background: -webkit-linear-gradient(left, #115566, #115566, #eeeeee); */
+		}
+		#helpBtnDialog {
+			display: none;
+			position: absolute;
+			top:12px;
+			left: calc(100% - 45px);
+			z-index:333;
+		}
+		#helpBtnDialog.show{
+			cursor: pointer;
+			display: inline-block;
+		}
+	</style>
+
+	<paper-dialog id="dialog" modal="{{isModal}}" with-backdrop="{{withBackdrop}}" style$="[[_getWidthStyle(width)]]" on-iron-overlay-opened="patchOverlay">
+        <template is="dom-if" restamp="true" if="[[_hasDialogHeading(heading)]]">
+            <div id="header">
+                <div id="headerBackground" style$="[[_getHeaderBackgroundHeightStyle(heading, desc)]]"></div>
+
+                <h1 id="heading" class="headerText" style$="margin: 0px; [[_getTextMargin(heading, desc, dialogImage)]]">{{heading}}</h1>
+                <ti-widget-helpbutton icon="icons:help-outline" help-button-mode="true" host-container-obj="{{_getOwner(owner)}}"
+                                        tile-position="right" icon-color="white" icon-size-in-px="25" class$="helpIcon {{_showHelpIcon(helpCallback)}}" id="helpBtnDialog"
+                                        open-callback="{{helpIconClickedHdlr}}"  ></ti-widget-helpbutton>
+
+                <template is="dom-if" restamp="true" if="[[_hasDialogDesc(desc)]]">
+                    <h4 id="desc" class="headerText" style$="[[_getTextMargin(heading, desc, dialogImage)]]">{{desc}}</h4>
+                </template>
+                <template is="dom-if" restamp="true" if="[[_hasDialogImage(dialogImage)]]">
+                    <iron-icon id="dialogIcon" icon="{{dialogImage}}" style$="[[_getHeaderImageSizeStyle(heading, desc)]]"></iron-icon>
+                </template>
+            </div>
+        </template>
+        <div style="position: relative;" id="contentElement" layout vertical>
+            <content></content>
+        </div>
+	</paper-dialog>
+	<iron-a11y-keys keys="esc enter" on-keys-pressed="onKeyPressed"></iron-a11y-keys>
+</template>
+
+<script>
+	Polymer ({
+		is: 'ti-widget-dialog',
+		hostAttributes: {
+		},
+        /**
+         * Fired each time the user clicks the 'confirm' (ok) button.
+		 * Add the attribute on-submit="myHandler" to receive the callback,
+		 * or in javascript, use templateObj.$.<componentId>.addEventListener("submit",function(event){...});
+         *
+         * @event submit
+         */
+        /**
+         * Fired each time the user clicks the 'dismiss' (cancel) button.
+         * Add the attribute on-dismiss="myHandler" to receive the callback,
+         * or in javascript, use templateObj.$.<componentId>.addEventListener("dismiss",function(event){...});
+         *
+         * @event dismiss
+         */
+        /**
+         * Fired each time the dialog is opened.
+         * Add the attribute on-opened="myHandler" to receive the callback,
+         * or in javascript, use templateObj.$.<componentId>.addEventListener("opened",function(event){...});
+         *
+         * @event opened
+         */
+        behaviors: [TiWidgetBase],
+		properties: {
+
+            /**
+             * Specifies the dialog heading to be display at the top of the dialog.
+             *
+             * @type string
+             * @default null
+             */
+			heading: {
+				notify: true,
+				type: String,
+				value: null
+            },
+
+            /**
+             * Specifies the name of the icon to be display at the top right of the dialog.
+             *
+             * @type string
+             * @defautl null
+             */
+			dialogImage: {
+				notify: true,
+				type: String,
+				value: null
+            },
+
+            /**
+             * Specifies the dialog description to be display at the top of the dialog and under the heading.
+             *
+             * @type string
+             * @default null
+             */
+			desc: {
+				notify: true,
+				type: String,
+				value: null
+            },
+
+            /**
+             * Specifies the width of the dialog, the dialog will automatically sized to fit the width of the containing elements.
+             *
+             * @type string
+             * @default undefined
+             */
+			width: {
+				notify: true,
+				type: String,
+				value: undefined
+			},
+			/**
+			 * If `modal` is true, this implies `no-cancel-on-outside-click`, `no-cancel-on-esc-key` and `with-backdrop`.
+			 */
+			isModal: {
+				type: Boolean,
+				value: false
+            },
+
+            /**
+             * Controls whether there should be a backdrop when the dialog is opened.
+             *
+             * @type boolean
+             * @default false
+             */
+			withBackdrop: {
+				type: Boolean,
+				value: false
+            },
+
+            /**
+             * Controls whether the dialog should close itself when the user pressed the OK button to submit changes.
+             *
+             * @type boolean
+             * @default false
+             */
+			noCloseOnSubmit: {
+				type: Boolean,
+				value: false
+            },
+
+            /**
+             * Controls the z-index of the dialog.
+             *
+             * @type number
+             * @default 303
+             */
+			zIndex: {
+				type: Number,
+				value: 303
+            },
+
+            /**
+             * Controls whether the dialog should handle the ENTER key for submit changes.
+             * The behavior is the same as the user pressed the OK button.
+             *
+             * @type boolean
+             * @default false
+             */
+			noEnterKeyHandling: {
+				type: Boolean,
+				value: false
+            },
+
+            /**
+             * Controls whether the dialog should handles ESC key to close itself.
+             *
+             * @type boolean
+             * @default false
+             */
+			noEscKeyHandling: {
+				type: Boolean,
+				value: false
+			},
+			/**
+			 * Callback function to be called when the Help Icon in the dialog header is clicked.
+			 * Leave undefined to hide the help icon.
+			 *
+			 * @attribute helpCallback
+			 * @type function
+			 * @default undefined
+			 */
+			helpCallback: {
+			    type: Function,
+				value: undefined
+            },
+
+            /**
+             * Toggle this option in to make the dialog visible in the designer.
+             *
+             * @type boolean
+             * @default false
+             */
+            visibleInDesigner: {
+                type: Boolean,
+                value: false,
+                observer: "_visibleInDesigner"
+            }
+		},
+		_getWidthStyle: function(width){
+            var result = "";
+          	if (width) {
+          	    result = "width:"+width+";min-width:"+width+";";
+			}
+			return result;
+		},
+		ready: function(){
+		    this.onKeyPressed = this._onKeyPressed.bind(this);
+            this.helpIconClickedHdlr = this._helpIconClickedHdlr.bind(this);
+		},
+		attached: function() {
+			var confirmBtn = this.querySelector("paper-button[dialog-confirm]")
+			if (confirmBtn) {
+				confirmBtn.addEventListener("click", function() {
+					this.fire("submit");
+					this.close();
+				}.bind(this));
+			}
+
+			var dismissBtn = this.querySelector("paper-button[dialog-dismiss]")
+			if (dismissBtn) {
+				dismissBtn.addEventListener("click", function() {
+					this.fire("dismiss");
+					this.close();
+				}.bind(this));
+			}
+
+            this.$.dialog.addEventListener('opened-changed', (e) => {
+                this.visibleInDesigner = e.detail.value;
+            });
+		},
+		// https://github.com/PolymerElements/paper-dialog/issues/7
+		patchOverlay: function(e) {
+			this.fire("opened");
+			this.$.dialog.style.zIndex = this.zIndex;
+			this.style.display = "";
+
+			if (e.target.withBackdrop) {
+				e.target.backdropElement.style.zIndex = this.zIndex - 1;
+				/*
+				   Since we move all the dialogs away from file drawer, we don't need this patch for now.
+				   This hack causes the backdrop to be removed from when one of the OK or Cancel button is pressed.
+				*/
+
+				//this.async(function() {
+				//	e.target.parentNode.insertBefore(e.target.backdropElement, e.target);
+				//}.bind(this), 10);
+			}
+
+			/* force the dialog to center itself */
+			this.$.dialog._fireResize();
+		},
+		_onKeyPressed: function(e, data) {
+			if (!this.noEscKeyHandling && data.key == "esc") {
+                this.fire("dismiss");
+                this.close();
+            } else if (!this.noEnterKeyHandling && data.key == "enter") {
+            	this.fire("submit");
+            	if (!this.noCloseOnSubmit) {
+            		this.close();
+            	}
+            }
+		},
+		onKeyPressed: undefined,
+		open: function() {
+			if (!this.$) return;
+			this.$.dialog.open();
+            if(this.$.dialog.opened) {
+                this.async(function () {
+                    this.$.dialog.notifyResize();
+                }.bind(this));
+            }
+		},
+		close: function() {
+			if (!this.$) return;
+			this.$.dialog.close();
+		},
+		toggle: function() {
+			if (!this.$) return;
+			this.$.dialog.toggle();
+            if(this.$.dialog.opened) {
+                this.async(function () {
+                    this.$.dialog.notifyResize();
+                }.bind(this));
+            }
+
+        },
+		_getHeaderBackgroundHeightStyle: function(heading, desc) {
+			var height = 0;
+			if (heading) {
+				height += 60;
+			}
+			if (desc) {
+				height += 20;
+			}
+			return "height: " + height + "px;";
+		},
+		_getHeaderImageSizeStyle: function(heading, desc) {
+			var size = 0;
+			if (heading) {
+				size += 60;
+			}
+			if (desc) {
+				size += 20;
+			}
+			return "height: " + size + "px; width: " + size + "px;";
+        },
+        _getTextMargin: function(heading, desc, dialogImage) {
+            if (dialogImage) {
+                var size = 0;
+                if (heading) {
+                    size += 50;
+                }
+                if (desc) {
+                    size += 20;
+                }
+
+                return "margin-right: " + size + "px;";
+
+            } else {
+                return "";
+            }
+        },
+		_hasDialogImage: function(dialogImage) {
+			return !!dialogImage;
+		},
+		_hasDialogDesc: function(desc) {
+			return !!desc;
+		},
+		_hasDialogHeading: function(heading) {
+			return !!heading;
+		},
+        _showHelpIcon: function(helpCallback){
+            var result = "";
+            if (helpCallback){
+                result = "show";
+			}
+			return result;
+        },
+        _helpIconClickedHdlr: function (helpButton){
+            if (this.helpCallback){
+                this.helpCallback(helpButton);
+            }
+
+        },
+        helpIconClickedHdlr: undefined,
+        _visibleInDesigner: function(value) {
+            if (gc.utils.isInDesigner()) {
+                value ? this.open() : this.close();
+            }
+        },
+        _tGetChildren: function(xpath) {
+        	var xpathResult = document.evaluate(xpath, this, null, XPathResult.ANY_TYPE, null);
+        	var elements = [];
+        	var element = xpathResult.iterateNext();
+        	while(element){
+        		elements.push(element);
+        		element = xpathResult.iterateNext();
+        	}
+        	return elements;
+        },
+
+        getOffsetParentForContent: function() {
+            return this.$.contentElement;
+        }
+	});
+</script>
+</dom-module>

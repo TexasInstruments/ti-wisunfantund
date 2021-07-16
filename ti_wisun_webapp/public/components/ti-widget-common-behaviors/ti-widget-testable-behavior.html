@@ -1,0 +1,42 @@
+<script>
+	/**
+	 * `ti-widget-testable-behavior` implements the testable behaviors
+	 *
+	 * @polymerBehavior TiWidgetTestableBehavior
+	 */
+	TiWidgetTestableBehavior = {
+		properties: {
+			
+		},
+		
+		/**
+		 * Returns an array of children, empty array if there is no children.
+		 *
+		 * @param xpath the children searxh path
+		 */
+		_tGetChildren : function(xpath) {
+			var xpathResult = document.evaluate(xpath, this, null, XPathResult.ANY_TYPE, null);
+	    	var elements = [];
+	    	var element = xpathResult.iterateNext();
+	    	while(element){
+	    		elements.push(element);
+	    		element = xpathResult.iterateNext();
+	    	}
+	    	return elements;
+		},
+		
+		/**
+		 * Returns the context menu that is currently open for this element.
+		 */
+		_tGetContextMenu: function() {
+			
+		},
+		
+		/**
+		 * Opens the context menu if there is one.
+		 */
+		_tOpenContextMenu: function() {
+			
+		}
+    };
+</script>

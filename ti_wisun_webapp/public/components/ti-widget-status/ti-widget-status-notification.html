@@ -1,0 +1,567 @@
+<!--
+    Copyright (c) 2017, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/communication-icons.html">
+<link rel="import" href="../neon-animation/neon-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="ti-widget-status-behavior.html">
+<link rel="import" href="ti-widget-status-shared-styles.html">
+<link rel="import" href="ti-widget-status-notification-echo.html">
+<link rel="import" href="../ti-widget-common/ti-widget-dialog.html">
+
+<dom-module id="ti-widget-status-notification">
+<template>
+    <style is="custom-style" include="ti-widget-status-shared-styles iron-flex iron-flex-alignment">
+        :host {
+            color: #231F20;
+        }
+
+        #mailIcon {
+            --iron-icon-fill-color: #fff;
+            --iron-icon-stroke-color: #c0c0c0;
+            --iron-icon-width: 20px;
+            --iron-icon-height: 20px;
+            height: 100%;
+            margin: 0 7px;
+            outline: none;
+            background-color: transparent;
+        }
+
+        #notificationArrow {
+            position: absolute;
+            z-index: 1001;
+            width: 0;
+            height: 0;
+            margin-top: -4px;
+            margin-left: 7px;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid #bababa;
+        }
+
+        #notificationArrow-inner {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid #ffffff;
+            top: 2px;
+            left: -10px;
+        }
+
+        #notification {
+            position: absolute;
+            z-index: 1000;
+            border: 2px solid #bababa;
+            border-radius: 3px;
+            box-shadow: 3px 3px 3px;
+            padding: 5px;
+            margin-top: 6px;
+            margin-left: 7px;
+            background: #ffffff;
+            max-height: var(--notification-height, 140px);
+            overflow-y: auto;
+            outline: none;
+            font-size: inherit;
+            width: var(--notification-width, 301px);
+        }
+
+        #notification .notification-item {
+            background-color: #eeeeee;
+        }
+
+        .notification-item paper-icon-button {
+            width: 24px;
+            height: 24px;
+            padding: 5px;
+            color: #98999b;
+        }
+
+        .notification-item:hover paper-icon-button {
+            color: #63666a;
+        }
+
+        .notification-item .title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .notification-item {
+            padding: 5px;
+            margin: 3px;
+            cursor: default;
+            border-radius: 3px;
+            white-space: normal;
+        }
+
+        #announcement {
+            padding: 10px;
+            --paper-toast-background-color: #fbeea3;
+            --paper-toast-color: #231F20;
+            --paper-font-common-base: {
+                -webkit-transition: -webkit-transform 0s, opacity 0s;
+                transition: transform 0s, opacity 0s;
+                max-width: 100% !important;
+                max-height: 200px;
+            };
+            max-height: 200px !important;
+            z-index: 1000;
+            overflow: auto;
+        }
+
+        #announcement paper-icon-button {
+            width: 40px;
+            position: fixed;
+            right: 0;
+            top: 0;
+        }
+
+        span.type {
+            text-transform: uppercase;
+        }
+
+        span.title {
+            text-transform: capitalize;
+        }
+    </style>
+
+
+    <iron-icon id="mailIcon" class="pointer" icon="communication:email" hidden on-click="_showNotificationContainer" tabindex="0"></iron-icon>
+    <div id="notificationContainer" hidden>
+        <div id="notificationArrow">
+            <div id="notificationArrow-inner"></div>
+        </div>
+        <div id="notification" class="scroll" on-blur="_hideNotificationContainer" on-focus="_cancelNotificationTimer" on-mouseover="_notificationMouseOver" on-mouseout="_notificationMouseOut" tabindex="0">
+            <template is="dom-repeat" items="[[notifications]]">
+                <div class="notification-item layout horizontal center">
+                    <div class="flex">
+                        <div class="title"><span class="type">[[item.type]]</span> - <span class="title">[[item.title]]</span></div>
+                        <div inner-h-t-m-l="[[item.message]]"></div>
+                    </div>
+                    <paper-icon-button icon="icons:cancel" on-click="removeHdlr"></paper-icon-button>
+                </div>
+            </template>
+        </div>
+    </div>
+
+
+    <paper-toast id="announcement" duration="0" class="fit-bottom scroll" vertical-align="top">
+        <template is="dom-repeat" items="[[announcements]]">
+            <div class="notification-item">
+                <div class="title"><span class="type">[[item.type]]</span> - <span class="title">[[item.title]]</span></div>
+                <ti-widget-status-notification-echo html="[[item.message]]"></ti-widget-status-notification-echo>
+            </div>
+        </template>
+        <paper-icon-button icon="icons:cancel" onclick="announcement.close(true)" title="Close"></paper-icon-button>
+    </paper-toast>
+
+    <ti-widget-dialog id="serviceChangedPrompt" is-modal with-backdrop no-close-on-submit width="500px" style="display: none;" heading="Server Changed Detected">
+        <p>Server upgrade detected.<br>Please refresh your browser by pressing the 'Reload' button to continue.</p>
+        <div class="actionBar">
+            <paper-button on-click="_reload">Reload</paper-button>
+        </div>
+    </ti-widget-dialog>
+</template>
+<script>
+    Polymer({
+        is: "ti-widget-status-notification",
+        observers: [
+            "_loggedInChanged(user.loggedIn)"
+        ],
+        behaviors: [
+            Polymer.NeonAnimationRunnerBehavior,
+            TiWidgetStatusBehavior
+        ],
+        listeners: {
+            "neon-animation-finish": "_onNeonAnimationFinish"
+        },
+        properties: {
+            notifications: {
+                type: Array,
+                value: []
+            },
+            announcements: {
+                type: Array,
+                value: []
+            },
+            announcementFitInto: {
+                type: String,
+                value: undefined,
+                observer: "_announcementFitIntoChanged"
+            },
+            animationConfig: {
+                value: function() {
+                    return {
+                        "showNotification": [
+                            { name: "fade-in-animation", node: this.$.notificationArrow,	timing: {duration: this._animationDuration} },
+                            { name: "fade-in-animation", node: this.$.notification, timing: {duration: this._animationDuration}}
+                        ],
+                        "hideNotification": [
+                            { name: "fade-out-animation", node: this.$.notificationArrow, timing: {duration: this._animationDuration} },
+                            { name: "fade-out-animation", node: this.$.notification, timing: {duration: this._animationDuration} }
+                        ]
+                    }
+                }
+            }
+        },
+
+        created: function() {
+            var self = this;
+            TiWidgetStatusBehavior.created.call(self);
+
+            self._notificationIndex		= 0;
+            self._announcementIndex		= 0;
+            self._animationDuration		= 500;
+            self._notificationDuration	= 15000;
+            self._notificationLifespan	= 3600000;
+            self._lifespanTimeout		= 60000;
+            self._lifespanTimer			= null;
+
+            if (self.socket != null) {
+                self.socket.on("ServiceMonitor.ServiceChanged", function(serviceInfo) {
+                    if (serviceInfo.name.indexOf("gui-composer") != -1 && serviceInfo.reason == "registered") {
+                        self.$.serviceChangedPrompt.open();
+                        /*
+                        * Workaround backdrop issue - since this dialog only has a reload operation, so it is safe
+                        * to have the dialog move to the top of the backdrop.
+                        */
+                        setTimeout(function() {
+                            var bd = document.querySelector("iron-overlay-backdrop");
+                            if (bd) {
+                                bd.parentNode.appendChild(self.$.serviceChangedPrompt);
+                            }
+                        }, 100);
+                    }
+                });
+            }
+
+            this.remove = this._remove.bind(this);
+            this.removeAnnouncement = this._removeAnnouncement.bind(this);
+            this.removeHdlr = this._removeHdlr.bind(this);
+        },
+
+        ready: function() {
+            /*
+            * Workaround paper-toast limitation - where there can only be one toast visible in the system
+            * in any given moment. Hence, override the close method and not close the toast if caller
+            * call the close method without passing the force argument.
+            */
+            var self = this;
+            self._closeToast = this.$.announcement.close;
+            self.$.announcement.close = function(force) {
+                if (force) {
+                    self._closeToast.apply(self.$.announcement, arguments);
+                    self.$.announcement.hidden = true;
+                }
+            };
+        },
+
+        _announcementFitIntoChanged: function() {
+            this.$.announcement.fitInto = document.querySelector("#" + this.announcementFitInto);
+        },
+
+        _reload: function() {
+            location.reload();
+        },
+
+        /**
+         * Add a message to the notification status.
+         *
+         * @type one of the following type - info, warning, error
+         * @title the tile of the message
+         * @message the message body
+         *
+         * @returns the notification item
+         */
+        add: function(type, title, message) {
+            this.$.mailIcon.hidden = false;
+            this.$.announcement.hidden = true;
+
+            var item = {
+                "type": type,
+                "title": title,
+                "message": message,
+                "handle": this._notificationIndex++,
+                "timestamp": new Date().getTime()
+            };
+            this.splice("notifications", 0, 0, item);
+
+            this._updateNotificationPosition();
+            this._showNotificationContainer();
+
+            if (!this._lifespanTimer) {
+                this._lifespanTimer = setInterval(this._cleanupExpiredNotifications.bind(this), this._lifespanTimeout);
+            }
+
+            return item;
+        },
+
+        /**
+         * Remove a message from the notification status.
+         */
+        remove: undefined,
+        _remove: function(item) {
+            if (!item) return;
+
+            for (var i = 0; i < this.notifications.length; ++i) {
+                if (this.notifications[i].handle === item.handle) {
+                    this.splice("notifications", i, 1);
+
+                    if (this.notifications.length == 0) {
+                        this._hideNotificationContainer(true);
+                    }
+
+                    return;
+                }
+            }
+        },
+
+        removeHdlr: undefined,
+        _removeHdlr: function(event) {
+            this.remove(event.model.get("item"));
+        },
+
+        /**
+         * Add a message to the announcement area.
+         *
+         * @type one of the following type - info, warning, error
+         * @title the tile of the message
+         * @message the message body
+         *
+         * @return the announcement item
+         */
+        addAnnouncement: function(type, title, message) {
+            var item = {
+                "type": type,
+                "title": title,
+                "message": message,
+                "handle": this._announcementIndex++,
+                "timestamp": new Date().getTime()
+            };
+
+            this._hideNotificationContainer(true);
+            this.async(() => {
+                this.$.announcement.close(true);
+                this.splice("announcements", 0, 0, item);
+                this.$.announcement.open();
+                this.$.announcement.hidden = false;
+            }, 250);
+
+            return item;
+        },
+
+        /**
+         * Remove an announcement from the toast popup.
+         */
+        removeAnnouncement: undefined,
+        _removeAnnouncement: function(item) {
+            if (!item) return;
+
+            for (var i = 0; i < this.announcements.length; ++i) {
+                if (this.announcements[i].handle === item.handle) {
+                    this.splice("announcements", i, 1);
+
+                    if (this.announcements.length == 0) {
+                        this.$.announcement.close(true);
+                    }
+
+                    return;
+                }
+            }
+        },
+
+        _cleanupExpiredNotifications: function() {
+            var timestamp = new Date().getTime();
+
+            for (var i = this.notifications.length-1; i >= 0; --i) {
+                var notification = this.notifications[i];
+                if (timestamp - notification.timestamp >= this._notificationLifespan) {
+                    this.splice("notifications", i, 1);
+                }
+            }
+
+            if (this.notifications.length <= 0) {
+                // reset the timer
+                clearInterval(this._lifespanTimer);
+                this._lifespanTimer = null;
+
+                // hide the container
+                this._hideNotificationContainer();
+            }
+        },
+
+        /**
+         * Clear all notifications.
+         */
+        clear: function() {
+            var notifications = this.notifications;
+            if (notifications.length > 0) {
+
+                // Set a flag to clear all notifications from this index
+                this._clearAllNotificationsFromHandle = notifications[0].handle;
+
+                // hide the notification container and clear the messages when animation finished
+                this._hideNotificationContainer();
+            }
+
+            if (this._lifespanTimer) {
+                clearInterval(this._lifespanTimer);
+                this._lifespanTimer = null;
+            }
+        },
+
+        /**
+         * Clear all announcements.
+         */
+        clearAnnouncement: function() {
+            if (this.announcements.length > 0) {
+                this.splice("announcements", 0, this.announcements.length);
+            }
+            this.$.announcement.close(true);
+        },
+
+
+        _notificationMouseOver: function() {
+            this._mouseHovering = true;
+        },
+
+        _notificationMouseOut: function() {
+            this._mouseHovering = false;
+        },
+
+        _getParentWidth: function(element) {
+            var parentElement = element.parentElement;
+            if (parentElement) {
+                if (parentElement.tagName.toLowerCase() === "ti-widget-status") {
+                    return parentElement.clientWidth;
+                } else {
+                    return this._getParentWidth(parentElement);
+                }
+            } else {
+                return window.innerWidth;
+            }
+        },
+
+        _updateNotificationPosition: function() {
+            var alignRight = true;
+
+            // calculate alignment based on position relative to screen
+            try {
+                var windowCenter = this._getParentWidth(this)/2;
+                var iconOffset = this.$.mailIcon.offsetLeft;
+                var iconWidth = this.$.mailIcon.clientWidth;
+                var iconPos = iconOffset + (iconWidth/2);
+
+                if (iconPos < windowCenter) {
+                    alignRight = false;
+                }
+            } catch (t) {}
+
+            var element = this.$.notification;
+            var marginWidth = 40;
+            var marginLeft = "-" + marginWidth + "px";
+            if (alignRight) {
+                var width = window.getComputedStyle(this.$.notification).width || "200px";
+                width = width.replace("px", "");
+                marginLeft = "-" + (width-marginWidth) + "px";
+            }
+            element.style.marginLeft = marginLeft;
+        },
+
+        _showNotificationContainer: function() {
+            if (!this._notificationVisible) {
+                this.$.notificationContainer.hidden = false;
+                this._notificationVisible = true;
+                this.playAnimation("showNotification");
+            }
+
+            this._createNotificationTimer();
+        },
+
+        _hideNotificationContainer: function(force) {
+            if (!force && this._mouseHovering) {
+                setTimeout(function() {
+                    this._hideNotificationContainer();
+                }.bind(this), 100);
+
+            } else {
+                this._notificationVisible = false;
+                this._cancelNotificationTimer();
+                this.playAnimation("hideNotification");
+            }
+        },
+
+        _createNotificationTimer: function() {
+            this._cancelNotificationTimer();
+
+            this._notificationTimer = setTimeout(function() {
+                this._hideNotificationContainer();
+            }.bind(this), this._notificationDuration);
+        },
+
+        _cancelNotificationTimer: function() {
+            if (this._notificationTimer) {
+                clearTimeout(this._notificationTimer);
+                delete this._notificationTimer;
+            }
+        },
+
+        _onNeonAnimationFinish: function() {
+            if (!this._notificationVisible) {
+                this.$.notificationContainer.hidden = true;
+                var notifications = this.notifications;
+
+                var notificationHandle = this._clearAllNotificationsFromHandle;
+                if (notificationHandle !== undefined && notificationHandle !== null) {
+                    for (var i = 0; i < notifications.length; ++i) {
+                        if (notifications[i].handle === notificationHandle) {
+                            this.splice("notifications", i, notifications.length-i);
+                            delete this._clearAllNotificationsFromHandle;
+
+                            break;;
+                        }
+                    }
+                }
+
+                /* if there is no more notification, hide the icon */
+                if (notifications.length <= 0) {
+                    this.$.mailIcon.hidden = true;
+                }
+
+            }
+        }
+    });
+</script>
+</dom-module>

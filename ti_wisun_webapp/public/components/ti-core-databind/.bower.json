@@ -1,0 +1,13 @@
+{
+  "name": "ti-core-databind",
+  "_release": "1.0.0",
+  "main": "ti-core-databind.html",
+  "private": true,
+  "description": "Manages bindings between application variables and supported TI embedded devices.",
+  "dependencies": {
+    "polymer": "Polymer/polymer#~1.7.0"
+  },
+  "_source": "git@bitbucket.itg.ti.com/gc/ti-guicomposer-components.git",
+  "_target": "*",
+  "_originalSource": "git@bitbucket.itg.ti.com/gc/ti-guicomposer-components.git"
+}

@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -33,7 +35,7 @@
 const char updateprop_syntax[] = "[args] <property-name> <property-value>";
 
 static const arg_list_item_t insertprop_option_list[] = {
-	{'h', "help", NULL, "Print Help"},
+	{'h', "help", NULL, "Print Help.  For the list of TI Wi-SUN Supported Properties, please see ti_wisun_commands.MD."},
 	{'t', "timeout", "ms", "Set timeout period"},
 	{'d', "data", NULL, "Value is binary data (in hex)"},
 	{'s', "string", NULL, "Value is a string"},
@@ -51,6 +53,7 @@ int tool_updateprop(const char *dbus_method_name, int argc, char* argv[])
 	DBusMessage *reply = NULL;
 	DBusError error;
 	const char* property_name = NULL;
+	
 	char* property_value = NULL;
 
 	enum {
@@ -99,6 +102,7 @@ int tool_updateprop(const char *dbus_method_name, int argc, char* argv[])
 
 		case 'v':
 			property_value = optarg;
+			fprintf(stderr, "Setting property value: %s", property_value);
 			break;
 		}
 	}
@@ -112,6 +116,8 @@ int tool_updateprop(const char *dbus_method_name, int argc, char* argv[])
 
 	if (optind < argc) {
 		if (!property_value) {
+			/* This is where additional arguments are set based
+			on optind length */
 			property_value = argv[optind];
 			optind++;
 		}
@@ -133,6 +139,7 @@ int tool_updateprop(const char *dbus_method_name, int argc, char* argv[])
 
 	if (!property_value) {
 		fprintf(stderr, "%s: error: Missing property value.\n", argv[0]);
+		fprintf(stderr, "optind=%d, argc=%d", optind, argc);
 		ret = ERRORCODE_BADARG;
 		goto bail;
 	}

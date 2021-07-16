@@ -14,6 +14,8 @@ dnl # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 dnl # See the License for the specific language governing permissions and
 dnl # limitations under the License.
 dnl #
+dnl # Modified by Texas Instruments - 2021
+dnl #
 
 AC_PREREQ(2.59)
 
@@ -316,6 +318,9 @@ else {
 fi
 
 AC_DEFINE_UNQUOTED([WPANTUND_DEFAULT_NCP_PLUGIN], ["${default_ncp_plugin}"], [Set to the name of the default NCP plugin])
+
+echo "Definiting TI_WISUN_FAN"
+AC_DEFINE_UNQUOTED([TI_WISUN_FAN], [1], [TI WiSUN FAN Solution Specific Changes])
 
 AM_CONDITIONAL(STATIC_LINK_NCP_PLUGIN,[test "x${enable_static_link_ncp_plugin}" = "xyes"])
 

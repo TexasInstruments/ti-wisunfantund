@@ -1,0 +1,664 @@
+<!--
+    Copyright (c) 2019, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../ti-core-connection-manager/ti-core-connection-manager.html">
+<link rel="import" href="../ti-service-serialio/ti-service-serialio.html">
+<link rel="import" href="../ti-service-targetaccess/ti-service-targetaccess.html">
+<link rel="import" href="../ti-core-databind/ti-core-transport-base-behavior.html">
+<link rel="import" href="../ti-core-databind/ti-core-persistent-settings-behavior.html">
+<!--
+`ti-transport-usb` adds the serial port model for databinding to a uart or usb stream of data.
+    -
+Example:
+
+    <ti-transport-usb></ti-transport-usb>
+
+See ../demo/ti-transport-usb/demo.html for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-transport-usb
+@homepage elements/ti-guicomposer-helpindex/demo.html
+@demo demo.html
+-->
+<dom-module id='ti-transport-usb'>
+    <template>
+        <style>
+            :host {
+                display: none;
+            }
+        </style>
+
+
+        <content></content>
+
+        <ti-service-serialio id="serialIO" hid="[[isHid(pm,hid)]]" usb="[[isUsb(pm,usb)]]" pm="[[pm]]" vendor-id-filter="[[vendorIdFilter]]" serial-model-output-hdlr="{{serialPortDataHdlr}}" device-name="[[deviceName]]" backplane="{{backplane}}"
+                             default-baud-rate="{{defaultBaudRate}}" transport-id="[[id]]" wait-for-data-timeout-in-ms="[[waitForDataTimeoutInMs]]" description="[[description]]" optional="[[optional]]"></ti-service-serialio>
+        <template is="dom-if" restamp="true" if="[[pm]]" on-dom-change="pmChanged">
+            <ti-service-targetaccess id="ds" transport="uart" transport-id="[[id]]" backplane="{{backplane}}"></ti-service-targetaccess>
+        </template>
+    </template>
+    <script>
+
+        (function() {
+            var targetStatusHandler = function(e)
+            {
+                var msg = e.currentTarget.status;
+                if (msg.toUpperCase().indexOf("ERROR") >= 0)
+                {
+                    this.addConsoleError(msg);
+                    this.onDisconnected(msg);
+                }
+            };
+
+            var transportName = 'ti-transport-usb';
+            var scanSerialPorts = function() {
+                if (this._usbModule) {
+                    var serialIO = this.serialIO;
+                    if (serialIO) {
+                        serialIO.getListOfSerialPorts().then(function(serialPortData) {
+                            if (this.status === 'connected' || this.status === 'connecting') {
+                                return _testSerialPortDataResults('testForDroppedPortDetected', 'disconnect', serialIO, serialPortData, this);
+                            } else if (this.status === 'disconnected') {
+                                if (this.optional && gc.connectionManager.status === 'connected') {
+                                    return _testSerialPortDataResults('testForNewPortsDetected', 'connect', serialIO, serialPortData, this);
+                                } else if (!this.optional && gc.connectionManager.status === 'disconnected') {
+                                    return _testSerialPortDataResults('testForNewPortsDetected', 'connect', serialIO, serialPortData, gc.connectionManager);
+                                }
+                            }
+                        }.bind(this));
+                    }
+                }
+            };
+
+            var _testSerialPortDataResults = function(testFn, action, serialIO, serialPortData, transport) {
+                var added = serialPortData.newSerialPortsAdded.length > 0;
+                var removed = serialPortData.oldSerialPortsRemoved.length > 0;
+                
+                if (added)
+                {
+                    gc.console.log(transportName, 'USB Device Detection found new port(s) for transport #' + this.id);
+                }
+                if (removed)
+                {
+                    gc.console.log(transportName, 'USB Device Detection found port(s) detached for transport#' + this.id);
+                }
+
+                Q(serialIO[testFn](serialPortData)).then(function(result) {
+                    if (result === true) {
+                        // If the dialog is open, instead of automatically connecting, wait for the user
+                        // to select a port and click OK to initiate the connection.
+                        if ((action !== "connect") || !(serialIO.dialog && serialIO.dialog._isDialogOpen)) {
+                            gc.console.log(transportName, 'Device Detection ' + action + 'ing target for transport #' + this.id);
+                            return gc.connectionManager.toggleTransportConnectedState(transport);
+                        }
+                    }
+                }).finally(function() {
+                    if ((added || removed) && serialIO && serialIO.dialog && serialIO.dialog._isDialogOpen) {
+                         serialIO.dialog.updatePortSelections(false);
+                    }
+                });
+            };
+
+            Polymer ({
+                is: 'ti-transport-usb',
+
+                behaviors: [TICorePersistentSettingsBehavior, TICoreTransportBaseBehavior],
+
+                properties: {
+                    /**
+                     * Indicates USB-HID support mode only.  Add this attribute for to use hid port only.
+                     *
+                     * @attribute hid
+                     * @type String
+                     */
+                    hid: {
+                        type: Boolean,
+                        value: false
+                    },
+
+                    /** indicates regular USB support mode only.  Add this attribute for to use regular usb ports only and not usb-hid ports.
+                     *
+                     * @attribute usb
+                     * @type String
+                     */
+                    usb: {
+                        type: Boolean,
+                        value: false
+                    },
+
+                    /** indicates using a regular USB serial port with ds-lite for target access using a read/write monitor running on the target.
+                     *
+                     * @attribute usb
+                     * @type String
+                     */
+                    pm: {
+                        type: Boolean,
+                        value: false
+                    },
+
+                    /**
+                     *  The vendorIdFilter is used by the low-level node-hid module to specify which USB-HID ports to
+                     * include in the list of available ports.  This is currently restricted to the vendorId for
+                     * Texas Instruments (8263).
+                     *
+                     * @attribute vendorIdFilter
+                     * @type Number
+                     * @default 8263
+                     */
+                    vendorIdFilter: {
+                        type: Number,
+                        value: 8263
+                    },
+
+                    /** the name of the target device for serial communications with the target.  This is only needed to auto program the
+                     * the target device with an image.
+                     *
+                     * @attribute deviceName
+                     * @type String
+                     */
+                    deviceName: {
+                        type: String,
+                        value: undefined
+                    },
+
+                    /** the serial port baud rate to use by default for serial communications with the target
+                     *
+                     * @attribute defaultBaudRate
+                     * @type Number
+                     * @default 9600
+                     */
+                    defaultBaudRate: {
+                        notify: true,
+                        type: Number,
+                        value: 9600
+                    },
+                    /**
+                     * the protocol used for communicating with the target device ('json', 'monitor', 'custom')
+                     *
+                     * @attribute protocol
+                     * @type string
+                     */
+                    protocol: {
+                        type: String,
+                        value: undefined
+                    },
+                    /**
+                     * Timeout period in ms to wait for data to be sent by the target before automatically
+                     * closing the serial port and re-opening the serial port to retry establishing communication
+                     * with the target.
+                     * - Set this to 0 in situations where the target is not continuously
+                     * sending data to the GUI (e.g. monitor)
+                     * - set this to a value > 0 (e.g. 4000) to specify the timeout period to wait before trying
+                     * to reestablish the serial port connection for situations where the target is continuously
+                     * sending data to the GUI but serial communications is not robust (e.g. when working with the MSP-EXP430G2 board)
+                     *
+                     * @attribute waitForDataTimeoutInMs
+                     * @type number
+                     * @default 0
+                     */
+                    waitForDataTimeoutInMs: {
+                        type: Number,
+                        value: 0,
+                        notify: true
+                    },
+                    /**
+                     * an optional description to identify this usb transport in the serial port selection dialog.  If this property
+                     * is not provided, then the id will be used as the identifier.
+                     *
+                     * @attribute description
+                     * @type string
+                     */
+                    description: {
+                        type: String,
+                        value: undefined
+                    }
+
+                },
+                /* bc: initializing serialPortDataHdlr too early can cause it to not be picked up properly
+                * by the ti-service-serialio serialModelOutputHdlr change monitor
+                * serialPortDataHdlr: gc.databind.SerialPortModel.serialPortRecievedHandler, */
+                serialPortDataHdlr: undefined,
+                // Method called when serial port(s) are ready, or have changed.
+                _startDeviceDetection: function(serialPortData)
+                {
+                    if (!gc.designer && gc.connectionManager.status === 'connecting')
+                    {
+                        if (this._usbModule === undefined) 
+                        {
+                            // make sure we only get the USB module (and add listeners to it) once, even
+                            // if _startDeviceDetection is called multiple times before getUsbModule returns
+	                        this._usbModule = null;
+	                        
+	                        var usbService = gc.services['ti-service-usb'];
+	                        usbService.getUsbModule(this._usbModule, this._scanSerialPorts).then(function(result) {
+	                            this._usbModule = result;
+	                        }.bind(this));
+                        }
+                    }
+                },
+                _getSerialModeRecommendation: function() {
+                    var children = Polymer.dom(this).children;
+
+                    // don't bother filtering if no children or transport level filters are already defined.
+                    if (children && !this.hid && !this.usb)
+                    {
+                        var promises = [];
+                        for(var i = 0; i < children.length; i++ )
+                        {
+                            var child = children[i];
+                            if (child && child.getSerialPortModeFilter)
+                            {
+                                promises.push(child.getSerialPortModeFilter());
+                            }
+                        }
+
+                        if (promises.length > 0)
+                        {
+                            var that = this;
+                            return Q.all(promises).then(function(results)
+                            {
+                                var serialPortMode;
+                                var first = true;
+
+                                for(var i = results.length; i--> 0; )
+                                {
+                                    if (first)
+                                    {
+                                        serialPortMode = child.serialPortMode;
+                                        first = false;
+                                    }
+                                    else
+                                    {
+                                        serialPortMode = serialPortMode === child.serialPortMode ? serialPortMode : undefined;
+                                    }
+                                }
+                                return serialPortMode;
+                            });
+                        }
+                    }
+                    return Q();
+                },
+                ready: function()
+                {
+                    this.serialIO = this.$.serialIO;
+
+                    this.serialIO.getRecommendedSerialMode = this._getSerialModeRecommendation.bind(this);
+                    this.targetStatusHandler = targetStatusHandler.bind(this);
+                    this._scanSerialPorts = scanSerialPorts.bind(this);
+                    this.async(this.domReady, 1);
+                },
+                domReady: function()
+                {
+                    var that = this;
+
+                    this.serialPortDataHdlr =
+                        {
+                            data:  this.decodeDataReceived.bind(this)
+                        };
+
+                    if (gc.designer && !(window.global && global.document && global.document.gc && global.document.gc.designer))
+                    {
+                        this.serialIO.loadRecommendedComPort();
+                    }
+                    else
+                    {
+                        gc.connectionManager.autoConnect();
+                    }
+
+                    that.serialIO.addEventListener('serialPortListUpdated', function(event)
+                    {
+                        that.onSerialPortListChanged(event.detail);
+                    });
+
+                    that.serialIO.addEventListener('serialPortsReadyToBeOpened', function()
+                    {
+                        // if someone reconnects the backplane while in connected state, then open the serial port automatically.
+                        if (!that._waitForTargetReady && !that.pm)
+                        {
+                            that.serialIO.updateStateMachine('userOpenSerialPort');
+                        }
+                    });
+
+                    that.serialIO.addEventListener('serialPortOpen', function()
+                    {
+                        if (that.pm)
+                            return;
+                        try
+                        {
+                            if (that.serialPortDataHdlr !== that.serialIO['serialModelOutputHdlr']) {
+                                console.error("Something changed the serialPortDataHdlr!  Reassigning...");
+                                that.serialIO['serialModelOutputHdlr'] = that.serialPortDataHdlr;
+                            }
+
+                            var backplane = that.serialIO.backplane;
+                            that.addConsoleProgress('waiting for data ...', 'Please ensure your hardware is actually transmitting data on the same USB port.');
+
+                            var protocol = that.protocol || that.getControllerName() || 'json';
+                            // Add +hid to protocol, when appropriate, to do the hid framing for usb-hid transport.
+                            if (that.hid && protocol.indexOf('+hid') < 0)
+                            {
+                                protocol += '+hid';
+                            }
+                            that.createProtocol(protocol, !that.hid).then(function(settings)
+                            {
+                                that._codec.connect(settings).then(function()
+                                {
+                                    return Q.Promise(function(resolve) {
+                                        var progress = new gc.databind.ProgressCounter(function() {
+                                            resolve();
+                                        });
+                                        that.fire('onCodecConnected', { transportId: that.id, codec: that._codec, progress: progress} );
+                                        progress.done();
+                                    });
+                                }).then(function() 
+                                {
+                                    return that.verifyConnection(that.serialIO.getAutoDetectIdentity());
+                                }).then(function()
+                                {
+                                    that.setReceivingDataState(true);
+                                }).fail(function(reason)
+                                {
+                                    if (that._codec)
+                                    {
+                                        that.addConsoleError("Failed to connect.", reason, reason);
+                                        that.setReceivingDataState(false);
+                                        that.onDisconnected(reason);
+                                    }
+                                });
+                            });
+                        }
+                        catch(e)
+                        {
+                            that.addConsoleError(e);
+                            that.onDisconnected();
+                        }
+                    });
+
+                    that.serialIO.addEventListener('currentStateUpdated', function()
+                    {
+                        if (!that.pm && that.serialIO.currentState.name.indexOf('running') !== 0 &&
+                            that.serialIO.currentState.name.indexOf('findingSerialPorts') !== 0 &&
+                            that.serialIO.currentState.name.indexOf('openSerialPort') !== 0)
+                        {
+                            if (that._codec)
+                            {
+                                that._codec.disconnect();
+                                that._codec = undefined;
+                            }
+                            that.setReceivingDataState(false);
+
+                            if (that.status === 'disconnecting' &&
+                                (that.serialIO.currentState.name.indexOf('serialPortReady') == 0 ||
+                                    that.serialIO.currentState.name.indexOf('disconnected') === 0))
+                            {
+                                that.onDisconnected();
+                            }
+                        }
+                    });
+
+                    that.serialIO.addEventListener('serialportchangedbyuser', function(event)
+                    {
+                        if (that._codec)
+                        {
+                            that._codec.disconnect();
+                            that._codec = undefined;
+                        }
+                        that.setReceivingDataState(false);
+                    });
+                },
+                sendPacket: function(packet)
+                {
+                    if (this.serialIO)
+                    {
+                        (this.serialIO.serialSend || this.serialIO.usbHidSend)(packet);
+                    }
+                },
+                onSerialPortListChanged : function(serialPortsData)
+                {
+                    if (!this.serialIO) return;
+
+                    var serialIO = this.serialIO;
+
+                    if (serialPortsData)
+                    {
+                        gc.console.log(transportName, 'Serial ports changed event received.  Port count delta = ' +
+                            (serialPortsData.newSerialPortsAdded.length - serialPortsData.oldSerialPortsRemoved.length) +
+                            ', selectedSerialPort.comName = ' + (serialIO.selectedSerialPort && serialIO.selectedSerialPort.comName));
+                    }
+                    this._startDeviceDetection(serialPortsData);
+                },
+
+                attached: function()
+                {
+                    this.async(function() {
+                        this.serialIO.registerSerialPortInstance(this._myId || this.id);
+                    }.bind(this), 1);
+                },
+                detached: function()
+                {
+                    var usbService = gc.services['ti-service-usb'];
+                    if (usbService && this._usbModule) {
+                        usbService.freeUsbModule(this._usbModule, this._scanSerialPorts);
+                    }
+                    this._usbModule = undefined;
+                    this.serialIO.unregisterSerialPortInstance(this._myId || this.id);
+                },
+                _waitForTargetReady: true,
+                startConnecting: function(selectedDevice, preventClientAgentInstallCallback)
+                {
+                    if (!this.pm)
+                    {
+                        selectedDevice = selectedDevice || this.serialIO.selectedDevice;
+                    }
+
+                    this.serialIO.waitForTargetReady = true;
+                    this.serialIO.updateStateMachine('reconnect');  // if in serialPortReady state, then back to finding serial ports; otherwise, this does nothing.
+                    this.startBackplane(selectedDevice, preventClientAgentInstallCallback);
+                    gc.connectionManager.sequencer.when('targetReady').thenDo(function()
+                    {
+                        this.serialIO.waitForTargetReady = false;
+
+                        if (!this.isBackplaneReady())
+                        {
+                            this.onDisconnected();
+                        }
+                        else if (this.shouldAutoConnect())
+                        {
+                            this.onStartConnecting();
+                            this.addConsoleProgress('Connecting to target ...', '');
+
+                            this.waitForEvent(this.serialIO, 'serialPortUIVisibilityChanged', 'isSerialPortUIVisible', true).then(function()
+                            {
+                                this._waitForTargetReady = false;
+                                if (this.pm)
+                                {
+                                    this.getTargetAccess().then(function(ds)
+                                    {
+                                        this.startDSLite(ds, true);
+                                    }.bind(this));
+                                }
+                                else
+                                {
+                                    this.serialIO.updateStateMachine('userOpenSerialPort');
+                                }
+                            }.bind(this));
+                        }
+                    }.bind(this));
+                },
+                startDisconnecting: function()
+                {
+                    if (this._ds)
+                    {
+                        this.stopDSLite(this._ds);
+                    }
+                    else
+                    {
+                        this._waitForTargetReady = true;
+                        this.serialIO.updateStateMachine('userCloseSerialPort');
+                    }
+
+                    this.stopBackplane();
+                    this.onDisconnected();
+
+                    if (this._codec)
+                    {
+                        this._codec.disconnect();
+                        this._codec = undefined;
+                    }
+
+                    var models = this.getModels();
+                    for(var i = 0; i < models.length; i++ )
+                    {
+                        models[i].onDisconnected();
+                    }
+                },
+                changeSerialPort: function(comPort, baudRate)
+                {
+                    if (this.serialIO)
+                    {
+                        this.serialIO.changeSerialPort(comPort, baudRate || this.defaultBaudRate);
+                        return this.serialIO._selectedSerialMode;
+                    }
+                },
+                saveSettingsToProjectDatabase: function(modelObjData, projectName)
+                {
+                    if (this.serialIO)
+                    {
+                        this.serialIO.saveRecommendedComPort(projectName);
+                    }
+
+                    return TICoreTransportBaseBehavior.saveSettingsToProjectDatabase.call(this, modelObjData, projectName);
+                },
+
+
+                getListOfAvailableSerialPorts: function(preventSerialPortModeFiltering)
+                {
+                    var serialIO = this.$.serialIO;
+                    var that = this;
+
+                    return serialIO.listSerialPorts(undefined, preventSerialPortModeFiltering && !this.pm).then(function(result)
+                    {
+                        var recommended = serialIO.pickRecommendedComPort(result.serialPorts);
+                        if (recommended.selectedSerialPort)
+                        {
+                            result.selectedSerialPort = serialIO.selectedSerialPort = recommended.selectedSerialPort;
+                            result.selectedSerialMode = serialIO.getModeForSerialPort(result.selectedSerialPort);
+                            if (result.selectedSerialMode = 'usb')
+                            {
+                                result.selectedUsbPort = result.selectedSerialPort;
+                            }
+                            else if (result.selectedSerialMode = 'hid')
+                            {
+                                result.selectedUsbHidPort = result.selectedSerialPort;
+                            }
+                        }
+                        if (recommended.selectedBaudRate)
+                        {
+                            result.selectedBaudRate = serialIO.selectedBaudRate = recommended.selectedBaudRate;
+                        }
+                        return result;
+                    });
+                },
+                getTargetAccess: function()
+                {
+                    var result = this._dsDeferred = this._dsDeferred || Q.defer();
+
+                    if (this._ds)
+                    {
+                        this._dsDeferred.resolve(this._ds);
+                        this._dsDeferred = undefined;
+                    }
+                    return result.promise;
+                },
+                isHid: function(pm, hid)
+                {
+                    return pm ? false : hid;
+                },
+                isUsb: function(pm, usb)
+                {
+                    return pm ? true : usb;
+                },
+                pmChanged: function()
+                {
+                    if (this._ds)
+                    {
+                        this._ds.removeEventListener('statusMsgUpdated', this.targetStatusHandler);
+                        this._ds = undefined;
+                    }
+
+                    if (this.pm)
+                    {
+                        this._ds = this.querySelector('#ds');
+                        if (this._ds)
+                        {
+                            this._ds.addEventListener('statusMsgUpdated', this.targetStatusHandler);
+                            if (this._ds.serialIO !== this.serialIO)
+                            {
+                                this._ds.serialIO = this.serialIO;
+                            }
+                            if (this._ds && this._dsDeferred)
+                            {
+                                this._dsDeferred.resolve(this._ds);
+                                this._dsDeferred = undefined;
+                            }
+                        }
+                    }
+                },
+                readValue: function(expression)
+                {
+                    if (this.pm)
+                    {
+                        return gc.target.access.readValue(expression).fail(function(error) { throw error.message; });
+                    }
+                    return TICoreTransportBaseBehavior.readValue.call(this, expression);
+                },
+                writeValue: function(expression, value)
+                {
+                    if (this.pm)
+                    {
+                        return gc.target.access.writeValue(expression, value).fail(function(error) {throw error.message; });
+                    }
+                    return TICoreTransportBaseBehavior.writeValue.call(this, expression, value);
+                },
+                setConnectedState: function(connected)
+                {
+                    TICoreTransportBaseBehavior.setConnectedState.call(this, connected);
+
+                    if (connected)
+                    {
+                        this.serialIO.rememberSuccessfullyConnectedPort();
+                    }
+                }
+            });
+        }());
+    </script>
+
+</dom-module>

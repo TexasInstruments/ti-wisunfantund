@@ -1,0 +1,321 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/image-icons.html">
+<link rel="import" href="../ti-widget-menubar/ti-widget-base-menuaction.html">
+<link rel="import" href="../ti-core-assets/ti-core-assets.html">
+
+<script src='src/nav.js'></script>
+<!--
+`ti-widget-menuaction` a sub menu item that performs an action.  These are typically dropped onto
+an existing ti-widget-menuitem element.
+Actions are register in javascript so that they can be reused in more than
+one place; for example, in toolbars and context menus, and also keep track of state like enabled and
+disabled in one place.  Menu action widgets will automatically show themselves as disabled when the
+registered action is not found, or it has been explicitly disabled.  The following is an example of
+how to register an action in javascript and control it's enabled/disabled state.
+
+Example:
+
+	// wait for gc.nav javascript library to be loaded and ready to use.
+	document.addEventListener('gc-nav-ready', function()
+	{
+    	gc.nav.registerAction('average', function()
+	    {
+	        window.alert('Statistics action taken');
+	    });
+
+	    // use the following to disable any action
+	    gc.nav.enableAction('average', false);
+
+	    // use the following to enable the action again
+	    gc.nav.enableAction('average', true);
+	}
+
+See demo.html for a full working example of how to use this component.
+
+@group TI Widget
+@element ti-widget-menuaction
+@homepage https://gitorious.design.ti.com/guicomposer-nw/ti-widget-menuaction
+-->
+<dom-module id="ti-widget-menuaction">
+<template>
+    <style>
+        :host {
+            display: block;
+        }
+        #icon {
+        	margin-right: 6px;
+        }
+        #menuAction {
+        	list-style-type: none;
+        }
+        td {
+            padding: 0px;
+            white-space: nowrap;
+        }
+        td.fixed {
+            width: 1px;
+            padding: 0px;
+        }
+        td.stretch {
+            width: 98%;
+            padding: 0px 8px 0px 0px;
+        }
+        table.stretch {
+            width: 100%;
+        }
+
+        iron-icon {
+            height: 24px;
+            width: 24px;
+            margin-right: 6px;
+        }
+
+        :host.rotate90 iron-icon {
+            transform: rotate(90deg);
+        }
+
+        :host.rotate180 iron-icon {
+            transform: rotate(180deg);
+        }
+
+        :host.rotate270 iron-icon {
+            transform: rotate(270deg);
+        }
+
+        #menuIcon {
+            @apply(--menu-icon-styles);
+        }
+
+        td {
+            font-size: var(--font-size, 14px);
+        }
+    </style>
+
+
+    <li id="menuAction" style="padding: 8px 8px 6px 16px; cursor:default;" title="{{description}}" on-mouseenter="onMouseEnterHandler">
+        <table class="stretch"><tr>
+            <td class="fixed"><iron-icon id="menuIcon" icon$="{{iconName}}" src="{{iconPath}}"></iron-icon></td>
+            <td class="stretch">{{_displayName}}</td>
+            <td class="fixed">{{_hotKey}}</span></div></td>
+        </tr></table>
+    </li>
+</template>
+<script>
+	var gc = gc || {};
+
+	(function() {
+	    var StateListener = function(node)
+	    {
+	        this.node = node;
+	    };
+
+	    StateListener.prototype = new gc.nav.IStateListener();
+
+	    StateListener.prototype.onStateChanged = function(enabled)
+	    {
+	        this.node.disabled = !enabled;
+	        this.node.className = enabled ? "" : "unenabled";
+	    };
+
+	    Polymer ({
+		    is: 'ti-widget-menuaction',
+
+			behaviors: [TiWidgetBaseMenuaction],
+			properties:
+			{
+	            /**
+	             * Provides a label to display for the action in the menu item.
+	             *
+	             * @attribute name
+	             * @type string
+	             */
+	            name:
+	            {
+					notify: true,
+					type: String,
+					value: undefined,
+					observer: "nameChanged"
+	            },
+
+	            /**
+	             * Provides a description that is shown as a tooltip for this action.
+	             *
+	             * @attribute description
+	             * @type string
+	             */
+	            description:
+	            {
+					notify: true,
+					type: String,
+					value: ""
+	            },
+
+	            /**
+	             * Identifies the action to perform when this menu is clicked.  The action must be
+	             * registered in javascript using the api gc.nav.registerAction(&gt;name&lt;, function() { ...  };);
+	             *
+	             * @attribute action
+	             * @type string
+	             */
+	            action:
+	            {
+	                notify: true,
+	                type: String,
+	                value: undefined,
+	                observer: "actionChanged"
+	            },
+
+	            /**
+	             * Provides the optional icon to display next to the action in the menu.
+	             * This atribute should be use execlusively form the iconPath attribute.
+
+	             * @attribute iconName
+	             * @type string
+	             */
+	            iconName:
+	            {
+		            notify: true,
+		            type: String,
+		            value: ""
+	            },
+
+	            /**
+	             * Provides the optional icon image path to display next to the action in the menu.
+	             * This attribute should be use exclusively from the iconName attribute.
+	             *
+	             * @attribute iconPath
+	             * @type string
+	             */
+	            iconPath:
+	            {
+	            	notify: true,
+	            	type: String,
+	            	value: ""
+	            },
+
+	            /**
+	             * Set true to always enable this menu item.  If false, the menu item will be enabled when connected to the target device.
+	             *
+	             * @attribute alwaysenabled
+	             * @type boolean
+	             * @default false
+	             */
+	            alwaysenabled:
+	            {
+					notify: true,
+					type: Boolean,
+					value: false
+	            }
+	        },
+	        _displayName: "",
+	        _hotKey: "",
+	        nameChanged: function()
+	        {
+	            if (this.name)
+	            {
+	                var names = this.name.split('\\t');
+	                this._displayName = names[0].trim();
+	                var hotKey = "";
+	                for(var i = 1; i < names.length; i++)
+	                {
+	                    hotKey += ' ' + names[i].trim();
+	                }
+	                this._hotKey = hotKey;
+	            }
+	            else
+	            {
+	                this._displayName = "";
+	                this._hotKey = "";
+	            }
+	        },
+	        run : function(event)
+	        {
+                event.stopPropagation();
+                if (!gc.nav.onClick(this._actionId) && this._activeMenuManager)
+                {
+                    this._activeMenuManager.onActiveMenuClicked();
+                }
+                else if (this._activeMenuManager && this._activeMenuManager.blur)
+                {
+                    this._activeMenuManager.blur();
+                }
+	        },
+            ready : function()
+            {
+                this.async(this.onReady.bind(this), 1);
+            },
+    		onReady: function()
+            {
+	            var that = this;
+	            that._actionId = that.action || that.id;
+	            if (gc.nav && gc.nav.addStateListener)
+	            {
+	                that._actionListener = new StateListener(that.$.menuAction);
+	                gc.nav.addStateListener(that._actionId, that._actionListener);
+	            }
+	            if (this.alwaysenabled){
+	                gc.nav.enableAction(that._actionId);
+	            }
+
+                this.$.menuAction.addEventListener("click", function(event)
+                {
+                    that.run(event);
+                });
+	        },
+	        actionChanged : function()
+	        {
+	            var action = this.action;
+	            if (action !== undefined && action !== null && gc.nav && gc.nav.registerAction)
+	            {
+	                gc.nav.removeStateListener(this._actionId, this._actionListener);
+	                this._actionId = action;
+	                gc.nav.addStateListener(this._actionId, this._actionListener);
+	            }
+	        },
+	        onShowParentMenu : function()
+	        {
+	            if (this._actionId && gc.nav && gc.nav.testAvailability)
+	            {
+	            	visible = gc.nav.testAvailability(this._actionId);
+	            	if (visible !== undefined)
+	            	{
+	                    this.style.display = visible ? '' : 'none';
+	            	}
+	            }
+	        }
+	    });
+	})();
+</script>
+
+</dom-module>

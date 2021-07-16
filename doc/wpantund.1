@@ -59,7 +59,7 @@ Overwrites config file options.
      Specify socket location (e.g. /dev/ttyUSB0).
 
   -- WPANInterfaceName \fIINTERFACE\fR
-     Specify the name of the created network interface (e.g. wpan0).
+     Specify the name of the created network interface (e.g. wfan0).
 
   -- SyslogMask \fIMASK\fR
      To add more logs, start \fBwpantund\fP with SyslogMask all.
@@ -78,8 +78,8 @@ Overwrites config file options.
 .SH EXAMPLES
 
 .TP
-$ sudo wpantund -o NCPSocketName /dev/ttyUSB0 -o WPANInterfaceName wpan0
-Starts wpantund on /dev/ttyUSB0 and create network intarfeca called wpan0.
+$ sudo wpantund -o NCPSocketName /dev/ttyUSB0 -o WPANInterfaceName wfan0
+Starts wpantund on /dev/ttyUSB0 and create network intarfeca called wfan0.
 
 .SH FILES
 .TP

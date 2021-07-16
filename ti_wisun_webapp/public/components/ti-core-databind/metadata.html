@@ -1,0 +1,118 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--
+    Copyright (c) 2014, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<x-meta id="ti-transport-usb" label="USB Transport" is-hidden is-container group="Data Binding Services">
+  <template>
+    <ti-transport-usb hidden></ti-transport-usb>
+  </template>
+  <template id="imports">
+    <link rel="import" href="ti-transport-usb.html">
+  </template>
+</x-meta>
+
+<x-meta id="ti-transport-network" label="Network Transport" is-hidden is-container group="Data Binding Services">
+    <template>
+      <ti-transport-network hidden></ti-transport-network>
+    </template>
+    <template id="imports">
+      <link rel="import" href="ti-transport-network.html">
+    </template>
+  </x-meta>
+
+<x-meta id="ti-transport-xds" label="XDS Transport" is-hidden is-container group="Data Binding Services">
+    <template>
+      <ti-transport-xds hidden></ti-transport-xds>
+    </template>
+    <template id="imports">
+      <link rel="import" href="ti-transport-xds.html">
+    </template>
+  </x-meta>
+
+<x-meta id="ti-model-streaming" label="Streaming Model" is-hidden group="Data Binding Services">
+  <template>
+    <ti-model-streaming hidden></ti-model-streaming>
+  </template>
+  <template id="imports">
+    <link rel="import" href="ti-model-streaming.html">
+  </template>
+</x-meta>
+
+<x-meta id="ti-model-program" label="Program Model" is-hidden group="Data Binding Services">
+  <template>
+    <ti-model-program hidden></ti-model-program>
+  </template>
+  <template id="imports">
+    <link rel="import" href="ti-model-program.html">
+  </template>
+</x-meta>
+
+
+<x-meta id="ti-model-register" label="Register Model" is-hidden group="Data Binding Services">
+  <template>
+    <ti-model-register hidden></ti-model-register>
+  </template>
+  <property name="systemInfoFile" kind="string" order="1"></property>
+  <property name="selectedDevice" kind="string" order="2"></property>
+  <property name="selectedController" kind="string" order="3"></property>
+  <property name="selectedConfiguration" kind="string" order="4"></property>
+  <property name="isDeviceArray" kind="boolean" order="5"></property>
+  <property name=ignoreWriteOperationsWhenDisconnected kind="boolean" order="6"></property>
+  <template id="imports">
+    <link rel="import" href="ti-model-register.html">
+  </template>
+</x-meta>
+
+<x-meta id="ti-model-custom" label="Custom Model" is-hidden group="Data Binding Services">
+  <template>
+    <ti-model-custom hidden></ti-model-custom>
+  </template>
+  <template id="imports">
+    <link rel="import" href="ti-model-custom.html">
+  </template>
+</x-meta>
+
+<x-meta id="ti-core-programloader" label="Program Loader (core)" is-hidden group="Data Binding Services">
+  <template>
+    <ti-core-programloader hidden></ti-core-programloader>
+  </template>
+  <property name="loadAddress" kind="number" order=1></property>
+  <property name="coreName" kind="string" order=2></property>
+  <template id="imports">
+    <link rel="import" href="ti-core-programloader.html">
+  </template>
+</x-meta>

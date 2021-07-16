@@ -1,0 +1,416 @@
+<!--
+    Copyright (c) 2018-2019, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+
+<!--
+`ti-widget-eventlog` manages a filterable list of events that the application has logged.
+Please use ti-widget-eventlog-view to provide a UI for this list, and call the ti-widget-eventlog-view.log
+API to log an event.
+
+Example:
+
+    <ti-widget-eventlog-view></ti-widget-eventlog-view>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-eventlog
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-styles/color.html">
+<link rel="import" href="../paper-styles/typography.html">
+<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-icons/iron-icons.html" >
+<link rel="import" href="../iron-icons/av-icons.html" async>
+<link rel="import" href="../iron-icons/communication-icons.html" async>
+<link rel="import" href="../iron-icons/device-icons.html" async>
+<link rel="import" href="../iron-icons/editor-icons.html" async>
+<link rel="import" href="../fa-icons/fa-icons.html" async>
+<link rel="import" href="../iron-icons/hardware-icons.html" async>
+<link rel="import" href="../iron-icons/notification-icons.html" async>
+<link rel="import" href="../iron-icons/places-icons.html" async>
+<link rel="import" href="../iron-icons/social-icons.html" async>
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../ti-core-icons/ti-core-icons.html" async>
+
+
+<dom-module id="ti-widget-eventlog">
+
+    <template>
+        <style>
+            :host {
+                display: block;
+                @apply(--paper-font-common-base);
+            }
+
+
+
+            iron-list {
+                --iron-list-items-container: {
+                    margin: auto;
+                    margin-top: 10px;
+                    margin-bottom: 0px;
+                };
+                background-color: white;
+
+            }
+            .flex-vertical {
+                @apply(--layout-vertical);
+            }
+            .flex-horizontal {
+                @apply(--layout-horizontal);
+                width:100%;
+            }
+            .flexchild {
+                @apply(--layout-flex);
+            }
+            .item {
+                width: 100%;
+                padding-left: 20px;
+                padding-right:20px;
+                background-color: white;
+                cursor: pointer;
+                display:flex;
+                height: 40px;
+                font-size:12px;
+            }
+            .number {
+                vertical-align:middle;
+                width: 50px;
+                border-right: solid 1px #e0e0e0;
+                text-align: center;
+            }
+            .date {
+                vertical-align:middle;
+                width: 110px;
+                text-align: center;
+            }
+            .time {
+                vertical-align:middle;
+                width: 100px;
+                vertical-align:middle;
+                text-align: center;
+                border-left: solid 1px #e0e0e0;
+            }
+            .icon {
+                width: 20px;
+                height: 20px;
+                margin: -2px;
+            }
+            .icon_div {
+                vertical-align:middle;
+                border-left: solid 1px #e0e0e0;
+                text-align:center;
+                width: 60px;
+                height:inherit;
+            }
+            .info {
+                border-left: solid 1px #e0e0e0;
+                padding-left:10px;
+                vertical-align:middle;
+                height: 40px;
+            }
+
+        </style>
+        <iron-list id="list" items="[[visibleItems]]" as="item" selected-items="{{selectedItem}}" selection-enabled scroll-target="{{scrollTarget}}">
+            <template>
+                <div style="vertical-align:middle;background-color:white;">
+                    <div class="item flex-horizontal" style="display:flex;">
+                        <template is="dom-if" if="{{_isShowEventNumber(showEventNumber,visibleItems)}}">
+                            <div class="number" style$="[[_getLeft(0,showEventNumber)]]">[[item.number]]</div>
+                        </template>
+                        <div class="date" style$="[[_getLeft(1,showEventNumber)]]">[[item.date]]</div>
+                        <div class="time" style$="[[_getLeft(2,showEventNumber)]]">[[item.time]]</div>
+                        <div class="icon_div" style$="[[_getLeft(3,showEventNumber)]]"><iron-icon class="icon" icon="[[item.icon]]" style$="font-weight:bold;color:[[item.iconColor]];"></iron-icon></div>
+                        <div class="info flexchild" style$="[[_getLeft(4,showEventNumber)]]">[[item.text]]</div>
+                    </div>
+                </div>
+            </template>
+        </iron-list>
+    </template>
+    <script>
+        var gc = gc || {};
+        if (window.parent.gc)
+        {
+            // take the designer from the parent iframe, if available.
+            gc.designer = gc.designer || window.parent.gc.designer;
+        }
+        if (window.global && global.document && global.document.gc)
+        {
+            // take the designer from the global node-webkit document if available
+            gc.designer = gc.designer || global.document.gc.designer;
+        }
+
+        Polymer(
+            {
+                is: 'ti-widget-eventlog',
+
+                behaviors: [TiWidgetBase],
+
+                properties:
+                    {
+                        /**
+                         * list of json objects to be displayed in the grid
+                         *
+                         * @attribute items
+                         * @type Array
+                         */
+                        items:  {
+                            type: Array,
+                            value: undefined,
+                            notify: true,
+                            observer: "itemsUpdated"
+                        },
+                        visibleItems: {
+                            type: Array,
+                            value: undefined,
+                            notify: true,
+                        },
+                        scrollTarget: {
+                            type: Object,
+                            value: undefined,
+                            notify: true
+                        },
+                        isInfoVisible: {
+                            type: Boolean,
+                            value: true,
+                            notify: true,
+                            observer: "_updateVisibleItems"
+                        },
+                        isWarningVisible: {
+                            type: Boolean,
+                            value: true,
+                            notify: true,
+                            observer: "_updateVisibleItems"
+                        },
+                        isErrorVisible: {
+                            type: Boolean,
+                            value: true,
+                            notify: true,
+                            observer: "_updateVisibleItems"
+                        },
+                        isDebugVisible: {
+                            type: Boolean,
+                            value: true,
+                            notify: true,
+                            observer: "_updateVisibleItems"
+                        },
+                        selectedItem: {
+                            type: Object,
+                            value: undefined,
+                            notify: true
+                        },
+                        showEventNumber: {
+                            notify: true,
+                            type: Boolean,
+                            value: false,
+                            observer: "refreshList"
+                        },
+                        showNewestFirst: {
+                            notify: true,
+                            type: Boolean,
+                            value: true,
+                            observer: "_updateVisibleItems"
+                        },
+                        _eventNumber: {
+                            notify: false,
+                            type: Number,
+                            value: 0
+                        }
+
+                    },
+                _isShowEventNumber: function(showEventNumber, items){
+                    return showEventNumber;
+                },
+                _getLeft: function(itemPropertyNumber,showEventNumber){
+                    var left = 0;
+                    var offset = 0;
+                    if (showEventNumber){
+                        offset = 75;
+                    }
+                    switch(itemPropertyNumber){
+                        case 0: left = 2; break;
+                        case 1: left = 0 + offset; break;
+                        case 2: left = 140 + offset; break;
+                        case 3: left = 320 + offset; break;
+                        case 4: left = 380 + offset; break;
+                    }
+                    return "left:"+left.toString()+"px;"
+                },
+                _isItemVisible: function(item){
+                    var result = false;
+                    switch(item.type){
+                        case "info": result = this.isInfoVisible; break;
+                        case "warning": result = this.isWarningVisible; break;
+                        case "error": result = this.isErrorVisible; break;
+                        case "debug": result = this.isDebugVisible; break;
+                    }
+                    return result;
+                },
+                addLeadingZeros: function(str,numDigits){
+                    var result = str.toString();
+                    while (result.length < numDigits){
+                        result = "0"+result;
+                    }
+                    return result;
+                },
+                log: function(eventType,eventText){
+                    var timeInMs = new Date().getTime();
+                    var d = new Date(timeInMs);
+                    var strDate = d.toDateString(timeInMs);
+                    var strTime =  d.getHours(timeInMs)+':'+ this.addLeadingZeros(d.getMinutes(timeInMs),2)+":"+this.addLeadingZeros(d.getSeconds(timeInMs),2);
+                    var item = {
+                        number: this.items.length,
+                        date: strDate,
+                        time: strTime,
+                        type: eventType,
+                        icon: this.iconForItem(eventType),
+                        iconColor: this.getIconColor(eventType),
+                        text: eventText
+                    };
+                    this.push("items",item);
+
+                    if (this.showNewestFirst){
+                        if (this._isItemVisible(item)) {
+                            this.unshift("visibleItems", item);
+                        }
+                    } else {
+                        if (this._isItemVisible(item)) {
+                            this.push("visibleItems", item);
+                        }
+                    }
+                },
+                clear: function(){
+                    if (!this.$) return;
+                    this.splice("visibleItems",0,this.visibleItems.length);
+                    this.splice("items",0,this.items.length);
+                },
+                refreshList: function(){
+                    if (!this.visibleItems) return;
+                    this.$.list.hidden = false;
+                    this._updateVisibleItems();
+                    this.notifyPath("visibleItems.*");
+                },
+                _updateVisibleItems: function(){
+                    if (!this.visibleItems) return;
+                    this.splice("visibleItems",0,this.visibleItems.length);
+                    for (var i=0; i < this.items.length; i++){
+                        var item = this.items[i];
+                        if (this._isItemVisible(item)){
+                            if (this.showNewestFirst){
+                                this.unshift("visibleItems", item);
+                            } else {
+                               this.push("visibleItems", item);
+                            }
+                        }
+                    }
+                },
+                attached: function() {
+                    // Use the document element
+                    this.async(function(){
+                        var viewport = document.querySelector('#viewport');
+                        if (viewport){
+                            this.scrollTarget = viewport;
+                        } else {
+                            this.scrollTarget = this.ownerDocument.documentElement;
+                        }
+                        if (gc.utils.isInDesigner()) {
+                            // in the designer, so generate some dummy items to allow the user to see a list
+                            this.log("info","to log an event, call the ti-widget-eventlog_view.log API.");
+                        }
+                        this.$.list.fire('iron-resize');
+                    }.bind(this),100);
+
+                },
+                iconForItem: function(itemType) {
+                    result = "info";
+                    switch(itemType){
+                        case "info": result = "info"; break;
+                        case "warning": result = "warning"; break;
+                        case "error": result = "error"; break;
+                        case "debug": result = "editor:format-indent-decrease";break;
+                        default: result = "help-outline";
+                            break;
+                    }
+                    return result;
+                },
+
+                getIconColor: function(itemType){
+                    var result = "color:black;";
+                    switch(itemType){
+                        case 'info': result = "#49b"; break;
+                        case 'warning': result = "#f80"; break;
+                        case 'error': result = "#f00";break;
+                        case 'debug': result = "#49b";break;
+                    }
+                    return result;
+                },
+
+                itemsUpdated:  function(newValue, oldValue){
+                    this.notifyPath('items.*',this.items);
+                },
+                getEventLogAsCsv: function(){
+                    var result = "Number,Date,Time,Type,Event,\n";
+                    for (var i=0; i < this.items.length; i++) {
+                        var item = this.items[i];
+                        result += item.number+","+item.date+","+item.time+","+item.icon+","+item.text+"\n";
+                    }
+                    return result;
+                },
+                ready: function(){
+                    if (!this.items) {
+                        this.items = [];
+                    }
+                    if (!this.visibleItems){
+                        this.visibleItems = [];
+                    }
+                },
+                selectedItemChanged: function(){
+                    this.fire('selected');
+                }
+
+            });
+    </script>
+</dom-module>

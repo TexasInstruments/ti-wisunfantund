@@ -1,0 +1,22 @@
+@font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: url(Roboto+Mono_400_normal.eot); /* {{embedded-opentype-gf-url}} */
+    src: local('☺'),
+        url(Roboto+Mono_400_normal.eot?#iefix) format('embedded-opentype'), /* {{embedded-opentype-gf-url}} */
+        url(Roboto+Mono_400_normal.woff) format('woff'), /* http://fonts.gstatic.com/s/robotomono/v4/hMqPNLsu_dywMa4C_DEpY4bN6UDyHWBl620a-IRfuBk.woff */
+        url(Roboto+Mono_400_normal.ttf) format('truetype'), /* http://fonts.gstatic.com/s/robotomono/v4/hMqPNLsu_dywMa4C_DEpYywlidHJgAgmTjOEEzwu1L8.ttf */
+        url(Roboto+Mono_400_normal.svg#Roboto+Mono_400_normal) format('svg'); /* http://fonts.gstatic.com/l/font?kit=hMqPNLsu_dywMa4C_DEpY3NsigHlcrQGNV8nkUSFQfc&skey=7b92570108d40690&v=v4#RobotoMono */
+}
+@font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 700;
+    src: url(Roboto+Mono_700_normal.eot); /* {{embedded-opentype-gf-url}} */
+    src: local('☺'),
+        url(Roboto+Mono_700_normal.eot?#iefix) format('embedded-opentype'), /* {{embedded-opentype-gf-url}} */
+        url(Roboto+Mono_700_normal.woff) format('woff'), /* http://fonts.gstatic.com/s/robotomono/v4/N4duVc9C58uwPiY8_59FzzqR_3kx9_hJXbbyU8S6IN0.woff */
+        url(Roboto+Mono_700_normal.ttf) format('truetype'), /* http://fonts.gstatic.com/s/robotomono/v4/N4duVc9C58uwPiY8_59FzzdGNerWpg2Hn6A-BxWgZ_I.ttf */
+        url(Roboto+Mono_700_normal.svg#Roboto+Mono_700_normal) format('svg'); /* {{svg-gf-url}} */
+}

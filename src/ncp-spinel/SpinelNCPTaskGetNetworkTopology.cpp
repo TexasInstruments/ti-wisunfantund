@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
  */
 
 #if HAVE_CONFIG_H
@@ -438,10 +439,6 @@ nl::wpantund::SpinelNCPTaskGetNetworkTopology::property_key_for_type(Type type)
 
 	switch (type)
 	{
-	case kChildTable:
-		prop_key = SPINEL_PROP_THREAD_CHILD_TABLE;
-		break;
-
 	case kChildTableAddresses:
 		prop_key = SPINEL_PROP_THREAD_CHILD_TABLE_ADDRESSES;
 		break;

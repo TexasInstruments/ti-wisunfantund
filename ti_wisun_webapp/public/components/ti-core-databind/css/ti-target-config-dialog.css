@@ -1,0 +1,120 @@
+html /deep/ paper-dialog#targetConfigDialog * {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+    
+    -webkit-box-sizing : border-box;
+    -moz-box-sizing : border-box;
+    box-sizing : border-box;
+}
+html /deep/ paper-dialog#targetConfigDialog::shadow #scroller {
+    max-width: none !important;
+    max-height: none !important;
+    overflow: hidden;
+}
+
+html /deep/ paper-dialog#targetConfigDialog .col1 {
+    width: 1px;
+    white-space: nowrap;
+    text-align: right;
+}
+html /deep/ paper-dialog#targetConfigDialog .col2 {
+    width: 98%;
+    white-space: nowrap;
+    position: relative;
+}
+html /deep/ paper-dialog#targetConfigDialog table {
+    width: 100%;
+    border-spacing: 8px 2px;
+}
+html /deep/ paper-dialog#targetConfigDialog paper-input {
+    width: 100%;
+}
+html /deep/ paper-dialog#targetConfigDialog paper-icon-button {
+    vertical-align: middle;
+    padding: 0; 
+}
+html /deep/ paper-dialog#targetConfigDialog section {
+    white-space: nowrap;
+    margin-bottom: 20px;
+}
+html /deep/ paper-dialog#targetConfigDialog section paper-input {
+    display: inline-block !important;
+    padding-top: 2px;
+    padding-bottom: 2px; 
+}
+html /deep/ paper-dialog#targetConfigDialog .transition {
+    -webkit-transition: all .3s ease .15s;
+    -moz-transition: all .3s ease .15s;
+    -o-transition: all .3s ease .15s;
+    -ms-transition: all .3s ease .15s;
+    transition: all .3s ease .15s;
+}
+html /deep/ paper-dialog#targetConfigDialog .consoleGroup {
+    opacity: 1;
+    height: 170px;
+}
+html /deep/ paper-dialog#targetConfigDialog .consoleGroup[collapsed] {
+    opacity:0;
+    clear: both;
+    height: 0;
+    margin: 0 !important;
+    overflow: hidden;
+}
+html /deep/ paper-dialog#targetConfigDialog #flash {
+    height: 24px;
+    margin-top: 0.7em;	
+}
+html /deep/ paper-dialog#targetConfigDialog #flash::shadow > iron-icon,
+html /deep/ paper-dialog#targetConfigDialog #trash::shadow > iron-icon {
+    width: 16px;
+    height: 16px;
+    margin: 4px;
+}
+html /deep/ paper-dialog#targetConfigDialog #targetOutFile, 
+html /deep/ paper-dialog#targetConfigDialog #targetOutputFiles::shadow > select {
+    width: calc(100% - 24px);
+    display: inline-block;
+}
+html /deep/ paper-dialog#targetConfigDialog .smallBtn /deep/ .button-content {
+    margin-top: 5px;
+}
+
+html /deep/ paper-dialog#targetConfigDialog .smallFont {
+    font-size: x-small;
+    font-style: italic;
+}
+html /deep/ paper-dialog#targetConfigDialog #uploadProgress {
+    background-color: #C00;
+    position: absolute;
+    visibility: hidden;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+}
+html /deep/ paper-dialog#targetConfigDialog #targetConnectProgress {
+    background-color: #C00;
+    visibility: hidden;
+    height: 2px;
+}
+html /deep/ paper-dialog#targetConfigDialog span {
+    margin-right: 1em;
+}
+html /deep/ paper-dialog#targetConfigDialog #serialPortLabel, 
+html /deep/ paper-dialog#targetConfigDialog #serialPortOptions {
+    visibility: hidden;
+}
+html /deep/ paper-dialog#targetConfigDialog #serialPortName, 
+html /deep/ paper-dialog#targetConfigDialog #baudRates {
+    width: auto;
+    display: inline-block;
+}
+html /deep/ paper-dialog#targetConfigDialog paper-icon-button[disabled] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+html /deep/ paper-dialog#targetConfigDialog /deep/ paper-checkbox {
+    padding: 0px !important;
+}

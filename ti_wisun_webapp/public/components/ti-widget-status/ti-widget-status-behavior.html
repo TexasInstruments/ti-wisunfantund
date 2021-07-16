@@ -1,0 +1,28 @@
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+	/**
+	 * `ti-widget-status-behavior` implements the status behaviors
+	 *
+	 * @polymerBehavior TiWidgetStatusBehavior
+	 */
+	TiWidgetStatusBehavior = {
+		properties: {
+			socket: {
+				type: "Object",
+				value: undefined
+			}	
+		},
+		
+		created: function() {
+			try {
+				this.socket = gc.serverSocket ? gc.serverSocket : new io.connect(location.origin);
+				if (!gc.serverSocket) {
+					gc.serverSocket = this.socket;
+				}
+			} catch (err) {
+				/* ignore - offline doesn't have socket or IO */
+			}
+		}
+    };
+</script>

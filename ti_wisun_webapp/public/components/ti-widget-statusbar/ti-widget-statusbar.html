@@ -1,0 +1,578 @@
+<!--
+    Copyright (c) 2019, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-core-assets/ti-core-assets.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../ti-core-icons/ti-core-icons.html">
+<link rel="import" href="../ti-widget-common/ti-widget-label.html">
+<link rel="import" href="../paper-progress/paper-progress.html">
+<link rel="import" href="../ti-widget-status/ti-widget-status-container.html">
+<link rel="import" href="../ti-widget-status/ti-widget-status-item.html">
+<link rel="import" href="../ti-widget-eventlog/ti-widget-eventlog-view.html">
+<link rel="import" href="../ti-core-connection-manager/ti-core-connection-manager.html">
+
+<!--
+`ti-widget-statusbar`
+
+Status bar widget - a bar along the bottom of the application page that can display status text and a progress bar
+
+Example:
+
+    <ti-widget-statusbar iconName="folder" appStatusText="hello world!"></ti-widget-statusbar>
+
+@group TI Core
+@element ti-widget-statusbar
+@demo demo.html
+-->
+<dom-module id='ti-widget-statusbar'>
+<template>
+    <style>
+        :host {
+            display: block;
+            position: fixed !important;
+            height: 30px;
+            max-height: 30px;
+            bottom: 0px;
+            left: 0px;
+            z-index: 301;
+            width: 100%;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        paper-progress {
+            --paper-progress-active-color: #c00;
+            width: 100%;
+        }
+
+        ti-widget-status-container {
+            position: absolute;
+            bottom: 0px;
+            max-height: 28px;
+            color: #e0e0e0;
+            background: #494949;
+            width: 100%;
+            height: 100%;
+            --left-container-mixin: {
+                padding-left: 4px;
+            };
+            --right-container-mixin: {
+                padding-right: 4px;
+            }
+        }
+
+        ti-widget-label {
+            color: inherit !important;
+            --label-mixin: {
+                margin: 0px 2px;
+            }
+        }
+
+        ti-widget-status-item {
+            --font-size: 14px;
+        }
+
+        iron-icon:hover {
+            opacity: 0.8;
+        }
+
+        .sub-item {
+            margin-left: 3px;
+        }
+
+        #banner {
+            height: 22px;
+        }
+
+        ti-widget-eventlog-view {
+            position: fixed;
+            width: 100%;
+            bottom: 30px;
+        }
+
+        paper-toast {
+            display: flex;
+            align-items: center;
+        }
+
+        paper-toast > * {
+            margin: 0 5px;
+        }
+
+        paper-toast > iron-icon {
+            width: 20px;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+        }
+
+        #toastContainer {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+
+    <paper-progress value="[[progress]]" style$="[[getProgressStyles(progressBarEnabled, progress)]];"></paper-progress>
+    <ti-widget-status-container id="status-container">
+
+        <ti-widget-status-item align="left">
+            <template is="dom-if" if="[[_enablePrivateLogView]]">
+                <iron-icon icon="ti-core-icons:book" title="Toggle Console Panel" style="padding: 2px;" on-click="toggleConsolePanelHdlr"></iron-icon>
+            </template>
+            <ti-core-connection-manager id="connectionManager" class="sub-item" hidden="[[hideConnection]]" progress="{{progress}}", progress-bar-enabled="{{progressBarEnabled}}" on-is-hardware-connected-changed="_onIsHardwareConnectedChanged"></ti-core-connection-manager>
+            <template is="dom-if" if="[[_appStatusIconName]]">
+                <iron-icon id="iron_icon_app" icon="[[_appStatusIconName]]" title="[[getAppStatusTooltip(appStatusTooltip, tooltipStatusString3)]]" on-click="_onAppStatusIconClicked" style="padding: 2px;"></iron-icon>
+            </template>
+            <ti-widget-label class="sub-item" label="[[getAppStatusText(appStatusText, statusString3)]]" title="[[getAppStatusTooltip(appStatusTooltip, tooltipStatusString3)]]"></ti-widget-label>
+        </ti-widget-status-item>
+
+        <content id="content"></content>
+
+        <ti-widget-status-item align="right">
+            <ti-widget-label class="sub-item progress-text" label="[[progress]]%" custom-css="text-align: center; display: block;" style$="[[getProgressStringStyles(progressBarEnabled, hideProgressString, progress)]]"></ti-widget-label>
+            <div id="banner" class="banner" hidden="[[!tiBrandingEnabled]]"></div>
+        </ti-widget-status-item>
+
+    </ti-widget-status-container>
+
+    <template is="dom-if" if="[[_enablePrivateLogView]]">
+        <!-- this widget depends on the display: none to have it hidden on startup -->
+        <ti-widget-eventlog-view id="statusbar-eventlog-view" style="display: none;" show-event-number show-newest-first></ti-widget-eventlog-view>
+    </template>
+
+    <paper-toast id="toast" vertical-offset="31" duration="[[toastDuration]]">
+        <div id="toastContainer">
+            <span>[[toastPreImageText]]</span>
+            <img src="[[toastImagePath]]" hidden="[[!toastImagePath]]" on-load="_onImageLoadedHdlr" on-error="_onImageLoadedHdlr">
+            <span>[[toastPostImageText]]</span>
+        </div>
+        <iron-icon icon="icons:close" on-click="hideToast"></iron-icon>
+    </div>
+    </paper-toast>
+</template>
+
+<script>
+    var gc = gc || {};
+    if (window.parent.gc) {
+        // take the designer from the parent iframe, if available.
+        gc.fileCache = gc.fileCache || window.parent.gc.fileCache;
+    }
+    if (window.global && global.document && global.document.gc) {
+        // take the designer from the global node-webkit document if available
+        gc.fileCache = gc.fileCache || global.document.gc.fileCache;
+    }
+
+    Polymer({
+        is: 'ti-widget-statusbar',
+        /**
+         * Fired when the user clicks the optional status icon in the status bar.
+         * - To receive the callback, add the attribute on-status-icon-clicked="myHandler" as an attribute to this component's tag
+         * or in javascript, use templateObj.$.<componentId>.addEventListener("status-icon-clicked",function(event){...});
+         *
+         * @event status-icon-clicked
+         */
+        properties: {
+
+            /**
+            * @deprecated The following properties are deprected, please use ti-widget-status-item to contribute additional
+            *             status to the status bar.
+            *
+            *             statusString1,
+            *             tooltipStatusString1,
+            *             statusString2,
+            *             tooltipStatusString2,
+            *             statusString3,
+            *             tooltipStatusString3,
+            *             appIconName,
+            *             appIconStyle,
+            *             tooltipAppIcon,
+            *             iconName,
+            *             iconEnabled,
+            *             tooltipIconImage,
+            *             initialized,
+            *             showProgressPercentString @see hideProgressString
+            *             hideConnectionIcon @see hideConnection
+            *             progressColor,
+            *             driverInstallMsgSuffix
+            */
+            /**
+             * The application status text.
+             *
+             * @attribute appStatusText
+             * @type string
+             * @default null
+             */
+            appStatusText: {
+                notify: true,
+                type: String,
+                value: null
+            },
+
+            /**
+             * The application status tooltip.
+             *
+             * @attribute appStatusTooltip
+             * @type string
+             * @default null
+             */
+            appStatusTooltip: {
+                notify: true,
+                type: String,
+                value: null
+            },
+
+            /**
+             * Controls whether the progress bar is visible or not.
+             *
+             * @attribute progressBarEnabled
+             * @type boolean
+             * @default false
+             */
+            progressBarEnabled: {
+                notify: true,
+                type: Boolean,
+                value: true
+            },
+
+            /**
+             * A value (0-100) that represents the percentage complete to show in the progress bar.
+             *
+             * @attribute progress
+             * @type number
+             * @default 0
+             */
+             progress: {
+                notify: true,
+                type: Number,
+                value: 0
+            },
+
+            /**
+             * Controls whether the progress percent text is visible or not.
+             *
+             * @attribute hideProgressString
+             * @type boolean
+             * @default true
+             */
+            hideProgressString: {
+                notify: true,
+                type: Boolean,
+                value: true
+            },
+
+            /**
+             * Sets to true to hide the system connection icon, connections popup icon, and connection status message
+             *
+             * @attribute hideConnection
+             * @type Boolean
+             * @default false
+             */
+             hideConnection: {
+                notify: true,
+                type: Boolean,
+                value: false,
+            },
+
+            /**
+             * Sets to true to hide the default log view
+             *
+             * @attribute hideLogView
+             * @type Boolean
+             * @default false
+             */
+            hideLogView: {
+                type: Boolean,
+                value: false
+            },
+
+            /**
+             * @deprecated
+             * @see appStatusText
+             */
+            statusString3: {
+                notify: true,
+                type: String,
+                value: null,
+            },
+
+            /**
+             * @deprecated
+             * @see appStatusTooltip
+             */
+            tooltipStatusString3: {
+                notify: true,
+                type: String,
+                value: null
+            },
+
+            /**
+             * A read-only flag that is true when the hardware is fully or even partially connected, but false if the hardware is not connected.
+             * @attribute isHardwareConnected
+             * @type boolean
+             * @default false
+             */
+             isHardwareConnected: {
+                 notify: true,
+                 type: Boolean,
+                 value: false,
+                 readOnly: true
+             },
+             
+             /** 
+             * A property to allow the status bar to be visible when deployed in CCS.  The default is false, because usually the target connection state
+             * follows the CCS debug launch state.  However, in cases where XDS is not used for connecting to the device, there is a need for
+             * manual connection, and to show connection status.  In this case, set this flag to true to prevent the status bar from being hidden within CCS.
+             */
+             showInCcs: {
+                 type: Boolean,
+                 value: false
+             }
+        },
+        _appStatusIconName: undefined, // The name of the icon to show to the left of the appStatusText
+        created() {
+            gc.services = gc.services || {};
+            this.updateBrandingHdlr = this._updateBrandingHdlr.bind(this);
+            this.showToastMessageHdlr = this._showToastMessageHdlr.bind(this);
+            this._onImageLoadedHdlr = this._onImageLoadedHdlr.bind(this);
+        },
+
+        ready() {
+            this.isDesign = gc.designer ? !this.domHost : false;
+
+            /* initialize the banner */
+            gc.fileCache.readTextFile(this.resolveUrl('../ti-widget-common/images/ti_horiz_banner_transparent.svg')).then((text) => {
+                let startIndex = text.indexOf('<svg');
+                text = text.substring(startIndex);
+                let banner = new DOMParser().parseFromString(text, "text/xml").firstElementChild;
+                banner.style.height = '100%';
+                banner.style.width = '150px';
+                this.$.banner.append(banner);
+            });
+
+            /* initialize the event log view */
+            if (!this.hideLogView && gc && !gc.services['ti-widget-eventlog-view']) {
+                this._enablePrivateLogView = true;
+            }
+            gc.console.debug(this.is, 'usePrivateLogView = ' + !!this._enablePrivateLogView);
+
+            /* hide the status bar and update related entities if hosted within Desktop CCS */
+            if (gc.desktop && gc.desktop.isCCS() && !this.showInCcs) {
+                this.async(() => {
+                    this.hidden = true;
+                    let viewport = document.querySelector('#viewport');
+                    if (viewport) {
+                        viewport.style.bottom = '0px';
+                    }
+                    var poweredBy = document.querySelector('#poweredby');
+                    poweredBy = poweredBy || document.querySelector('.poweredby-gc');
+                    if (poweredBy) {
+                        poweredBy.setAttribute('no-update', '');
+                        poweredBy.style.bottom = '0px';
+                    }
+                }, 100);
+            }
+
+            this.$.toast.addEventListener('opened-changed', (e) => {
+                if (e.detail.value) this._refitToast();
+            });
+            this.$.toast.sizingTarget = this.$.toastContainer;
+        },
+
+        attached() {
+            this.fire("ti-widget-statusbar-attached", this.$);
+
+            /* subscribes to events */
+            if (window.parent && window.parent.document) {
+                window.parent.document.addEventListener('tiBrandingChanged', this.updateBrandingHdlr);
+            }
+            if (gc.connectionManager && !this.isDesign) {
+
+                gc.connectionManager.addEventListener('console-output', this.consoleOutputHdlr);
+                this.$.connectionManager.addEventListener('show-toast-message', this.showToastMessageHdlr);
+            }
+
+            this.updateBrandingHdlr();
+        },
+
+        detached() {
+            /* unsubscribe to events */
+            if (window.parent && window.parent.document) {
+                window.parent.document.removeEventListener('tiBrandingChanged', this.updateBrandingHdlr);
+            }
+            if (gc.connectionManager && !this.isDesign) {
+                gc.connectionManager.removeEventListener('console-output', this.consoleOutputHdlr);
+                this.$.connectionManager.removeEventListener('show-toast-message', this.showToastMessageHdlr);
+            }
+        },
+
+        get progressInRange() {
+            return this.progress > 0 && this.progress < 100;
+        },
+
+        getProgressStyles(progressBarEnabled, progress) {
+            let progressStyles = '';
+            if (!this.progressInRange || !progressBarEnabled) {
+                progressStyles = 'display: none';
+            } else {
+                progressStyles = 'visibility: ' + (this.progressInRange ? 'visible' : 'hidden');
+            }
+
+            return progressStyles;
+        },
+
+        getProgressStringStyles(progressBarEnabled, hideProgressString, progress) {
+            let progressStringStyles = '';
+            if (!progressBarEnabled || hideProgressString) {
+                progressStringStyles = 'display: none';
+            } else {
+                progressStringStyles = 'visibility: ' + (this.progressInRange ? 'visible' : 'hidden');
+            }
+
+            return progressStringStyles;
+        },
+
+        getAppStatusText(appStatusText, statusString3) {
+            if (!!appStatusText) {
+                return appStatusText;
+            } else {
+                return statusString3;
+            }
+        },
+
+        getAppStatusTooltip(appStatusTooltip, tooltipStatusString3) {
+            if (appStatusTooltip) {
+                return appStatusTooltip;
+            } else if (tooltipStatusString3) {
+                return tooltipStatusString3
+            } else {
+                return '';
+            }
+        },
+
+        _updateBrandingHdlr() {
+            if (gc.desktop && gc.desktop.isCCS()) {
+                this.tiBrandingEnabled = false;    
+            } else {
+	            gc.fileCache.readJsonFile('project.json').then((manifest) => {
+	                this.tiBrandingEnabled = !!manifest.tiBrandingEnabled;
+	            }).fail((err) => {
+	                this.tiBrandingEnabled = false;
+	            });
+            }
+        },
+        updateBrandingHdlr: undefined,
+
+        consoleOutputHdlr(e) {
+            let data = e.detail;
+
+            /* append to event log*/
+            let logView = gc.services['ti-widget-eventlog-view'];
+            if (logView) {
+                logView.log('debug', data.id + ': ' + data.message);
+            }
+        },
+
+        toggleConsolePanelHdlr() {
+            if (this.isDesign) return;
+
+			let logView = gc.services['ti-widget-eventlog-view'];
+            if (logView) {
+                logView.toggleView();
+            }
+        },
+        // Added back for backwards compatibility:
+        setIcon (iconName) {
+            this._appStatusIconName = iconName;
+        },
+        _onAppStatusIconClicked(event) {
+            var detailObj = {
+                iconName: this._appStatusIconName,
+                appStatusText: this.getAppStatusText(this.appStatusText,this.statusString3)
+            };
+            this.fire('status-icon-clicked', detailObj);
+        },
+        _showToastMessageHdlr(event) {
+            let message = event.detail.errorMessage;
+            if (message && message.length > 0) {
+                this.showToastMessage(message, 0);
+            } else {
+                this.hideToast();
+            }
+        },
+        showToastMessageHdlr: undefined,
+
+        showToastMessage(toastPreImageText, duration, toastPostImageText, imagePath){
+            if (!this.$ || !this.$.toast) return;
+
+            this.toastDuration = duration > 0 && duration < 800 ? 800 : duration;
+            this.toastPreImageText = toastPreImageText;
+            this.toastPostImageText = toastPostImageText;
+            this.toastImagePath = null;
+
+            /* check for absolute path, otherwise resolve relative to images folder */
+            if (imagePath) {
+                if (imagePath.indexOf('//') === -1) {
+                    imagePath = this.resolveUrl(imagePath);
+                }
+                this.toastImagePath = imagePath;
+            }
+
+            this._refitToast().then(() => { if (!this.toastImagePath) this.$.toast.open(); });
+        },
+
+        hideToast() {
+            if ((!this.$) || (!this.$.toast)) return;
+
+            this.$.toast.hide();
+        },
+
+        _onIsHardwareConnectedChanged() {
+            this._setIsHardwareConnected(this.$.connectionManager.isHardwareConnected);
+        },
+
+        _onImageLoadedHdlr() {
+            if (this.toastImagePath) {
+                this._refitToast(500).then(() => { this.$.toast.open(); });
+            }
+        },
+
+        _refitToast(delay) {
+            let defer = Q.defer();
+            this.async(() => {
+                try {
+                    this.$.toast.notifyResize();
+                } finally {
+                    defer.resolve();
+                }
+            }, delay || 1);
+            return defer.promise;
+        }
+    });
+</script>
+</dom-module>

@@ -19,11 +19,60 @@
  *      This file contains the enumeration of the properties that can be
  *      gotten or set via the "get_prop()" and "set_prop()" methods.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #ifndef wpantund_wpan_properties_h
 #define wpantund_wpan_properties_h
 
+/* core */
+#define kWPANTUNDProperty_NCPProtocolVersion                    "NCP:ProtocolVersion"
+#define kWPANTUNDProperty_NCPVersion                            "NCP:Version"
+#define kWPANTUNDProperty_NCPInterfaceType                      "NCP:InterfaceType"
+#define kWPANTUNDProperty_NCPHardwareAddress                    "NCP:HardwareAddress"
+
+/* phy */
+#define kWPANTUNDProperty_NCPCCAThreshold                       "NCP:CCAThreshold"
+#define kWPANTUNDProperty_NCPTXPower                            "NCP:TXPower"
+
+/* Tech Specific-TI Wi-SUN PHY */
+#define kWPANTUNDProperty_NCPPhyRegion                          "NCP:Region"
+#define kWPANTUNDProperty_NCPModeID                             "NCP:ModeID"
+#define kWPANTUNDProperty_UnicastChList                         "UnicastChList"
+#define kWPANTUNDProperty_BroadcastChList                       "BroadcastChList"
+#define kWPANTUNDProperty_AsyncChList                           "AsyncChList"
+#define kWPANTUNDProperty_ChSpacing                             "ChSpacing"
+#define kWPANTUNDProperty_Ch0CenterFreq                         "Ch0CenterFreq"
+
+/* mac */
+#define kWPANTUNDProperty_NetworkPANID                          "Network:PANID"
+
+/* Tech Specific-TI Wi-SUN MAC */
+#define kWPANTUNDProperty_UCDwellInterval                       "UCDwellInterval"
+#define kWPANTUNDProperty_BCDwellInterval                       "BCDwellInterval"
+#define kWPANTUNDProperty_BCInterval                            "BCInterval"
+#define kWPANTUNDProperty_UCChFunction                          "UCChFunction"
+#define kWPANTUNDProperty_BCChFunction                          "BCChFunction"
+#define kWPANTUNDProperty_MacFilterList                         "MacFilterList"
+#define kWPANTUNDProperty_MacFilterMode                         "MacFilterMode"
+
+
+/* NET */
+#define kWPANTUNDProperty_InterfaceUp                           "Interface:Up"
+#define kWPANTUNDProperty_StackUp                               "Stack:Up"
+#define kWPANTUNDProperty_NetworkRole                           "Network:Role"
+#define kWPANTUNDProperty_NetworkName                           "Network:Name"
+
+/* Tech Specific-TI Wi-SUN NET */
+#define kWPANTUNDProperty_DodagRouteDest                        "DodagRouteDest"
+#define kWPANTUNDProperty_DodagRoute                            "DodagRoute"
+#define kWPANTUNDProperty_NumConnectedDevices                   "NumConnected"
+#define kWPANTUNDProperty_ConnectedDevices                      "ConnectedDevices"
+#define kWPANTUNDProperty_IPv6AllAddresses                      "IPv6:AllAddresses"
+
+
+/* Other Properties */
 #define kWPANTUNDProperty_ConfigNCPSocketPath                   "Config:NCP:SocketPath"
 #define kWPANTUNDProperty_ConfigNCPSocketBaud                   "Config:NCP:SocketBaud"
 #define kWPANTUNDProperty_ConfigNCPDriverName                   "Config:NCP:DriverName"
@@ -57,16 +106,12 @@
 #define kWPANTUNDProperty_DaemonOffMeshRouteFilterSelfAutoAdded "Daemon:OffMeshRoute:FilterSelfAutoAdded"
 #define kWPANTUNDProperty_DaemonOnMeshPrefixAutoAddAsIfaceRoute "Daemon:OnMeshPrefix:AutoAddAsInterfaceRoute"
 
-#define kWPANTUNDProperty_NCPVersion                            "NCP:Version"
 #define kWPANTUNDProperty_NCPState                              "NCP:State"
-#define kWPANTUNDProperty_NCPHardwareAddress                    "NCP:HardwareAddress"
 #define kWPANTUNDProperty_NCPExtendedAddress                    "NCP:ExtendedAddress"
 #define kWPANTUNDProperty_NCPMACAddress                         "NCP:MACAddress"
 #define kWPANTUNDProperty_NCPChannel                            "NCP:Channel"
 #define kWPANTUNDProperty_NCPFrequency                          "NCP:Frequency"
-#define kWPANTUNDProperty_NCPTXPower                            "NCP:TXPower"
 #define kWPANTUNDProperty_NCPTXPowerLimit                       "NCP:TXPowerLimit"
-#define kWPANTUNDProperty_NCPCCAThreshold                       "NCP:CCAThreshold"
 #define kWPANTUNDProperty_NCPChannelMask                        "NCP:ChannelMask"
 #define kWPANTUNDProperty_NCPPreferredChannelMask               "NCP:PreferredChannelMask"
 #define kWPANTUNDProperty_NCPSleepyPollInterval                 "NCP:SleepyPollInterval"
@@ -75,11 +120,9 @@
 #define kWPANTUNDProperty_NCPMCUPowerState                      "NCP:MCUPowerState"
 #define kWPANTUNDProperty_NCPCapabilities                       "NCP:Capabilities"
 
-#define kWPANTUNDProperty_InterfaceUp                           "Interface:Up"
 
-#define kWPANTUNDProperty_NetworkName                           "Network:Name"
+
 #define kWPANTUNDProperty_NetworkXPANID                         "Network:XPANID"
-#define kWPANTUNDProperty_NetworkPANID                          "Network:PANID"
 #define kWPANTUNDProperty_NetworkNodeType                       "Network:NodeType"
 #define kWPANTUNDProperty_NetworkKey                            "Network:Key"
 #define kWPANTUNDProperty_NetworkKeyIndex                       "Network:KeyIndex"
@@ -87,13 +130,11 @@
 #define kWPANTUNDProperty_NetworkIsCommissioned                 "Network:IsCommissioned"
 #define kWPANTUNDProperty_NetworkIsConnected                    "Network:IsConnected"
 #define kWPANTUNDProperty_NetworkPSKc                           "Network:PSKc"
-#define kWPANTUNDProperty_NetworkRole                           "Network:Role"
 #define kWPANTUNDProperty_NetworkPartitionId                    "Network:PartitionId"
 
 #define kWPANTUNDProperty_IPv6LinkLocalAddress                  "IPv6:LinkLocalAddress"
 #define kWPANTUNDProperty_IPv6MeshLocalAddress                  "IPv6:MeshLocalAddress"
 #define kWPANTUNDProperty_IPv6MeshLocalPrefix                   "IPv6:MeshLocalPrefix"
-#define kWPANTUNDProperty_IPv6AllAddresses                      "IPv6:AllAddresses"
 #define kWPANTUNDProperty_IPv6MulticastAddresses                "IPv6:MulticastAddresses"
 #define kWPANTUNDProperty_IPv6InterfaceRoutes                   "IPv6:Routes"
 #define kWPANTUNDProperty_IPv6SetSLAACForAutoAddedPrefix        "IPv6:SetSLAACForAutoAddedPrefix"
@@ -372,8 +413,8 @@
 
 // ----------------------------------------------------------------------------
 
-#define kWPANTUNDNodeType_Unknown                               "unknown"
-#define kWPANTUNDNodeType_Router                                "router"
+#define kWPANTUNDNodeType_BorderRouter                          "0 : Border Router"
+#define kWPANTUNDNodeType_Router                                "1 : Router"
 #define kWPANTUNDNodeType_EndDevice                             "end-device"
 #define kWPANTUNDNodeType_SleepyEndDevice                       "sleepy-end-device"
 #define kWPANTUNDNodeType_NestLurker                            "nl-lurker"

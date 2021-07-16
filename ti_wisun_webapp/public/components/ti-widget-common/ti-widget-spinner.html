@@ -1,0 +1,232 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<!--
+`ti-widget-spinner` is a text box widget for entering numbers that includes up and down arrows for
+incrementing and decrementing the value.
+
+Example:
+
+    <ti-widget-spinner increment="0.25"></ti-widget-spinner>
+
+See demo for a full working example of how to use this component.
+
+@group Ti Elements
+@element ti-widget-spinner
+@demo demo.html
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-widget-spinner'  >
+
+    <template>
+        <style>
+        	:host {
+        		text-decoration: inherit;
+        	}            
+            #spinnerWidget {
+                width: 100%;
+                vertical-align: middle;
+                display: inline-block;
+        		text-decoration: inherit;
+                font-weight: inherit;
+                font-style: inherit;
+                font-size: inherit;
+                color: inherit;
+            }
+            
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+            	opacity: 1;
+            }
+            
+        </style>
+
+        <input type="number" class="form-control" id="spinnerWidget" on-change="onChangeHandler" on-input="onIntermediateChangeHandler"
+                    on-focus="focusHandler" on-blur="blurHandler"  
+                    min="{{minValue}}" max="{{maxValue}}" step="{{increment}}"/>
+
+    </template>
+    <script>
+        Polymer ({
+          is: 'ti-widget-spinner',  
+         
+            behaviors: [TiWidgetBase, TiWidgetBaseText, TiWidgetBaseInput, TiWidgetBaseNumberbox],
+            
+            properties: 
+            {
+                /**
+                 * Controls the numeric value input by the user.
+                 *
+                 * @attribute value
+                 * @type number
+                 * @default 0
+                 */
+                value: 
+                {
+                    notify: true,
+                    type: Number,
+                    value: 0,
+                    observer: "valueChanged"
+                },
+
+                /**
+                 * Provides the numeric increment/decrement value that will be added/subtracted to the value
+                 * when the up/down arrow is pressed.  The increment will also be used to round values to
+                 * integer multiples of the increment value.
+                 *
+                 * @attribute increment
+                 * @type number
+                 * @default 1
+                 */
+                increment: 
+                {
+                    notify: false,
+                    type: Number,
+                    value: 1,
+                    observer: "incrementChanged"
+                },
+
+                /**
+                 * The number of decimal places to be displayed.
+                 *
+                 * @attribute decimalPlaces
+                 * @type number
+                 * @default undefined
+                 */
+                decimalPlaces: 
+                {
+                    notify: false,
+                    type: Number,
+                    value: 0,
+                    observer: "decimalPlacesChanged"
+                },
+
+                /**
+                 * Provides a minimum value below which the user cannot enter.
+                 *
+                 * @attribute minValue
+                 * @type number
+                 * @default 0
+                 */
+                minValue: 
+                {
+                    notify: false,
+                    type: Number,
+                    value: 0
+                },
+
+                /**
+                 * Provides a maximum value above which the user cannot enter.
+                 *
+                 * @attribute maxValue
+                 * @type number
+                 * @default 100
+                 */
+                maxValue: 
+                {
+                    notify: false,
+                    type: Number,
+                    value: 100
+                }
+            },
+
+ 			/**
+ 			 * Fired each time the input value is changed.
+             * Add the attribute on-changed="myHandler" to receive the callback,
+             * or in javascript, use templateObj.$.<componentId>.addEventListener("changed",function(event){...});
+ 			 *
+ 			 * @event changed
+ 			 */
+             
+             /**
+  			 * Controls whether or not intermediate changes due to the user's active typing are committed to the value attribute. 
+  			 * If intermediate changes are not allowed, then the value attribute will only update when the user
+  			 * has finished typing in a new value as indicated by the enter key, or loss of focus from this widget.
+  			 *
+  			 * @attribute intermediateChanges
+  			 * @type boolean
+  			 * @default false
+  			 */
+
+             /**
+  			 * Controls whether or not the input text within this widget is automatically highlighted when this widget gains focus
+  			 * as a result of the user clicking in the text.  Once the widget has focus, the user is free to change the highlighted
+  			 * selection with the mouse or key board commands.
+  			 *
+  			 * @attribute selectOnClick
+  			 * @type boolean
+  			 * @default false
+  			 */
+ 			 
+            getElement : function() 
+            {
+                return this.$ && this.$.spinnerWidget;
+            },
+            formatChangedValue : function(value)
+            {
+                var newValue = +value;
+                if (!isNaN(newValue) && 
+                    (this.minValue === undefined || this.minValue < newValue) && 
+                    (this.maxValue === undefined || this.maxValue > newValue))
+                {
+                    newValue = Math.round(((newValue - this.minValue ) / this.increment)) * this.increment + this.minValue;
+                }
+                
+                // return super.formatChangedValue(newValue);
+                return TiWidgetBaseNumberbox.formatChangedValue.call(this, newValue);
+            },
+            incrementChanged : function()
+            {
+                this.increment = +this.increment; // convert to number, if not already.
+                if (this.increment <= 0)
+                {
+                    this.increment = 1;
+                }
+                
+                //get number of decimal places in increment
+                var incrementString = this.increment.toString();
+                if(incrementString.includes("."))
+                	this.decimalPlaces = incrementString.length - incrementString.indexOf(".") - 1;
+                else
+                	this.decimalPlaces = 0;
+                
+                // update value in case the desired value can
+                this.refreshValue();
+            },
+            _roundDecimalPlaces : 0,    // default, round to nearest integer.
+            decimalPlacesChanged : function()
+            {
+                this._roundDecimalPlaces = Math.round(+this.decimalPlaces);   // make sure its an integer.
+                
+                this.refreshValue();  // decimal points changed so 
+            },
+        });
+    </script>
+</dom-module>

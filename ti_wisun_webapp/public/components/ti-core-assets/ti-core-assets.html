@@ -1,0 +1,302 @@
+<!--
+`ti-core-assets` pulls in common utilities like the Q.js library for everyone to use.
+
+Example:
+
+   &lt;link rel="import" src="../designer/components/ti-core-assets.html"&gt;
+
+@group TI Core
+@element ti-core-assetss
+@homepage ../ti-guicomposer-helpindex/demo.html
+-->
+<!--
+    Copyright (c) 2016, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+    its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<script src="../ti-core-assets/scripts/q.js"></script>
+<script src="../ti-core-assets/scripts/gcFileCache.js"></script>
+<script src="../ti-core-assets/scripts/gcDesktop.js"></script>
+<script src="../ti-core-assets/scripts/gcUtils.js"></script>
+<script type="text/javascript" src="./scripts/FileSaver.js"></script>
+<script type="text/javascript" src="./server-config.js"></script>"
+
+<link rel="import" href="../ti-widget-status/ti-widget-status-container.html">
+<link rel="import" href="../ti-widget-status/ti-widget-status-notification.html">
+
+<script>
+    // Disable tracking of unhandled rejected promises to avoid possible memory leaks
+    Q.stopUnhandledRejectionTracking();
+    /*
+     * Create a conditional console log API filtered on component.
+     *   - to enable logging per compoment, set cookie gclog.<component>=1
+     *   - to enable logging for all components, set cookie gclog.all=1
+     */
+    var cookieComponents = {};
+    var cookies = document.cookie.split(";");
+    cookies.forEach(function(cookie) {
+        var keyValue = cookie.split("=");
+        if ((keyValue) && (keyValue.length >= 2)) {
+            var key = keyValue[0].trim();
+            var value = keyValue[1].trim();
+            if (key.indexOf("gclog.") == 0) {
+                key = key.replace("gclog.", "");
+                cookieComponents[key] = value;
+            }
+        }
+    });
+
+    window.gc = window.gc || {};
+
+    /* GC localStorage wrapper */
+    (function() {
+        var isNW        = typeof process !== "undefined";
+        var initialized = false;
+        var properties  = {};
+        var storagePath =  (isNW ? nw.App.getDataPath() + require("path").sep + "Web Data - GC.json" : null);
+
+        function ensureProperties() {
+            if (!initialized) {
+                try {
+                    var fs = require("fs");
+                    properties = fs.existsSync(storagePath) ? JSON.parse(fs.readFileSync(storagePath, "utf-8")) : {};
+                } catch (e) { properties = {}; gc.console.error("ti-core-asset", e.toString()); }
+                initialized = true;
+            }
+        };
+
+        function storeToFile() {
+            try {
+                var fs = require("fs");
+                fs.writeFileSync(storagePath, JSON.stringify(properties, null, 4), "utf-8");
+            } catch (e) { gc.console.error("ti-core-asset", e.toString()); }
+        };
+
+        window.gc.localStorage = window.gc.localStorage || {
+            clear: function() {
+                if (isNW) { ensureProperties(); properties = {}; storeToFile(); }
+                else { localStorage.clear(); }
+            },
+            setItem: function(name, value) {
+                // Convert values to string for isNW since browser localStorage only accepts strings
+                if (isNW) { ensureProperties(); properties[name] = value.toString(); storeToFile(); }
+                else { localStorage.setItem(name, value); }
+            },
+            getItem: function(name) {
+                if (isNW) { ensureProperties(); return properties[name]; }
+                else { return localStorage.getItem(name); }
+            },
+            removeItem: function(name) {
+                if (isNW) { ensureProperties(); delete properties[name]; storeToFile(); }
+                else { localStorage.removeItem(name); }
+            },
+            get length() {
+                if (isNW) { ensureProperties(); return Object.keys(properties).length; }
+                else { return localStorage.length; }
+            },
+            key: function(index) {
+                if (isNW) {
+                    ensureProperties();
+                    if (typeof index != "number") return null;
+                    if (index < 0 || index >= this.length) return null;
+                    var count = 0;
+                    for (var prop in properties) {
+                        if (properties.hasOwnProperty(prop)) {
+                            if (count == index) return prop;
+                            count++;
+                        }
+                    }
+                    return null;
+                } else {
+                    return localStorage.key(index);
+                }
+            }
+        };
+    })();
+
+    /* GC console wrapper */
+    window.gc.console = window.gc.console || {
+        _getMsg: function(message, callerArguments, component, tag, filterLevel) {
+        	if (!component || (cookieComponents["all"] && (cookieComponents["all"] >= filterLevel)) ||
+                (cookieComponents[component] && (cookieComponents[component] >= filterLevel))) {
+				return "[" + component + "]"+tag +": " + (typeof message === "function" ? message.apply(window, Array.prototype.slice.call(callerArguments).slice(2)) : message);
+        	}
+        },
+        _trace: function(component, message, callerArguments, style, tag, filterLevel) {
+        	var msg = this._getMsg(message, callerArguments, component, tag, filterLevel);
+        	if (msg) {
+	        	console.groupCollapsed("%c" + msg, style);
+	    		console.trace("%c[" + component + " - callstack", "font-weight: 100;");
+	    		console.groupEnd();
+        	}
+        },
+        log: function(component, message) {
+        	this._trace(component, message, arguments, "font-weight: 100;", ".log",4);
+        },
+        info: function(component, message) {
+        	this._trace(component, message, arguments, "font-weight: 100;",".info",3);
+        },
+        error: function(component, message) {
+        	this._trace(component, message, arguments, "color: #CC0000; font-weight: 100;",".error",1);
+        },
+        warning: function(component, message) {
+        	this._trace(component, message, arguments, "color: #ff8000; font-weight: 100;",".warn",2);
+        },
+        debug: function(component, message) {
+        	this._trace(component, message, arguments, "color: #007DCC; font-weight: 100;",".debug",5);
+        },
+        getCookies: function(){
+            cookieComponents = {};
+            cookies = document.cookie.split(";");
+            var result = "";
+            var keyCount = 0;
+            cookies.forEach(function(cookie) {
+                var keyValue = cookie.split("=");
+                if ((keyValue) && (keyValue.length >= 2)) {
+                    var key = keyValue[0].trim();
+                    var value = keyValue[1].trim();
+                    if (key.indexOf("gclog.") == 0) {
+                        key = key.replace("gclog.", "");
+                        if ((value !== '0') && (!!value)) {
+                            cookieComponents[key] = value;
+                            result += key + "="+value+" ";
+							switch(Number(value)){
+							case 0: result += "(off)";break;
+							case 1: result += "(errors)"; break;
+							case 2: result += "(errors & warnings)";break;
+							case 3: result += "(errors,warnings & info)";break;
+							case 4: result += "(errors,warnings,info & generic logs)";break;
+							case 5: result += "(all logs, including debug)";break;
+							}
+
+                            keyCount++;
+                        }
+                    }
+                }
+            });
+            return "Found "+keyCount + " cookies:"+result;
+        },
+        setCookie: function(moduleName, cookieValue){
+		    val = ""+cookieValue;
+			switch(val.toLowerCase()) {
+			case "errors": val = 1;break;
+			case "warnings": val = 2; break;
+			case "info": val = 3; break;
+			case "logs": val = 4; break;
+			case "debug": val = 5; break;
+			case "off": val = 0; break;
+			default: val = Number(cookieValue);
+			}
+            window.document.cookie="gclog."+moduleName+"="+cookieValue;
+            return this.getCookies();
+        },
+        help: function(){
+            var result = "Help for gc.console:  \n"+
+                "To see logs for a particular module, set a cookie for that module name (e.g. gc.console.setCookie('ti-core-backplane',5) ).\n" +
+                "To see logs for all modules, use a module name of 'all (e.g. gc.console.setCookie('all',5) ).\n" +
+                "To see the location that logged the message, click on the triangle to the left of the message to expand the stack trace.\n" +
+                "Colors: Red: error, Orange: warning, Black: info or a generic log, Blue: debug.\n"+
+                "Commands: the following function calls can be called from the Chrome dev tools console window command line:\n"+
+                "gc.console.setCookie(moduleName,<0-5>)\n"+
+                " - creates a cookie for the specified module name. Use 'all' for all modules.\n"+
+                " - value: 0 = remove the cookie, 1 = only errors, 2 = errors and warnings, 3 = errors,warnings,info, 4 = errors,warnings,info,logs, 5=debug+all others\n"+
+                "gc.console.getCookies()\n"+
+                " - dynamically updates any added or removed cookies and returns a list of all currently active cookies and their values.\n"+
+                "gc.console.log(moduleName,msg)\n"+
+                "- To log messages, use gc.console.log / gc.console.error / gc.console.warning / gc.console.info / gc.console.debug\n";
+
+            return result;
+        }
+
+    };
+    // output instructions to console upon startup
+    console.log(gc.console.help());
+
+    /* update checker */
+    document.addEventListener('WebComponentsReady', function() {
+        if (gc.desktop.isDesktop() && !gc.designer && !gc.desktop.isAppPreview()) {
+            gc.fileCache.readJsonFile("installer/gallery.json").then(function(galleryJson) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                        try {
+                            var response = JSON.parse(xhttp.response);
+                            var os = gc && gc.desktop && gc.desktop.getOS && gc.desktop.getOS();
+                            window.tigalleryutil = undefined;
+                            window.gcapp_update = function(me) {
+                                me.style.display = 'none';
+                                me.nextSibling.style.display = 'inline';
+                                var callupdate = function() {
+                                    tigalleryutil.getupdate(response.dl[os]).then(()=>{console.log('done')})
+                                    .catch((x)=>{
+                                        console.log('fail', x);
+                                        me.style.display = 'inline';
+                                        me.nextSibling.style.display = 'none';
+                                    });
+                                }
+                                if (tigalleryutil === undefined || tigalleryutil.getupdate === undefined) {
+                                    var tag = document.createElement('script');
+                                    tag.src = 'https://dev.ti.com/gallery/assets/scripts/tigalleryutil.min.js';
+                                    tag.onload = callupdate;
+                                    document.body.appendChild(tag);
+                                } else {
+                                    callupdate();
+                                }
+                            };
+                            if (response.url != null && response.dl != null && response.dl[os] != null) {
+                                var statusContainer = document.createElement("ti-widget-status-container");
+                                var statusItem = document.createElement("ti-widget-status-item");
+                                var statusNotification = document.createElement("ti-widget-status-notification");
+
+                                statusContainer.setAttribute("style", "height: 40px");
+                                statusNotification.setAttribute("id", "status-notification");
+                                if (document.querySelector("#viewport") != null) {
+                                    statusNotification.setAttribute("announcement-fit-into", "viewport");
+                                }
+                                statusItem.appendChild(statusNotification);
+                                statusContainer.appendChild(statusItem);
+                                document.body.appendChild(statusContainer);
+
+                                statusNotification.addAnnouncement(
+                                    "Update Checker",
+                                    "New Version Detected",
+                                    "A new version ("+response.version +") of this application is available in the Gallery, click <a style='font-weight: bold;' onclick=nw.Shell.openExternal('" + response.url + "')>here</a> for details. <a style='font-weight: bold;' onclick=window.gcapp_update(this)>Update now</a><div style='display: none;'>Update In Progress  <progress></progress></div>"
+                                );
+                            }
+                        } catch (err) {
+                            gc.console.error("ti-core-assets", err.toString());
+                        }
+                    }
+                }
+                xhttp.open("POST", "https://dev.ti.com/gallery/info");
+                xhttp.setRequestHeader("Content-Type", "application/json");
+                xhttp.send(JSON.stringify(galleryJson));
+            });
+        }
+    });
+
+</script>

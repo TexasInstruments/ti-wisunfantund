@@ -1,0 +1,211 @@
+<!--
+    Copyright (c) 2015, Texas Instruments Incorporated
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    *   Neither the name of Texas Instruments Incorporated nor the names of
+        its contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ti-widget-common-behaviors/ti-widget-common-behaviors.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+
+<link rel="import" href="ti-tile-base.html">
+<link rel="import" href="ti-tile-styles.html">
+<!--
+`ti-tile-title` is used to display a 'banner' across the top of the project view.
+
+Example:
+
+    <ti-tile-title></ti-tile-title>
+
+See demo for a full working example of how to use this component.
+
+@group Instrument Tiles
+@element ti-tile-title
+@extends ti-tile-base
+@homepage ../../../ti-guicomposer-helpindex/demo.html
+-->
+<dom-module id='ti-tile-title'  >
+
+    <template>
+        <style include="ti-tile-styles">
+            :host {
+                width: 150px;
+                height: 40px;
+            }
+            paper-icon-button /deep/ iron-icon {
+                height: 15px;
+                width: 15px;
+            }
+            #titleDiv {
+                display: inline-block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-align: center;
+            }
+            #containerDiv {
+            	padding: 0px;
+                -webkit-tap-highlight-color: rgba(0,0,0,0);
+                -webkit-touch-callout: none;
+            }
+            #editTitleIcon {
+            	padding: 0px;
+            	margin-left: 7px;
+            	margin-right: 7px;
+            	color: white;
+            }
+            #windowButtons {
+                display: inline-block;
+                position:fixed;
+                right:0;
+                top:0;
+            }
+
+        </style>
+        <div id="containerDiv" horizontal layout>
+	        <div id="shadow-bottom" fit class$="paper-material-bottom-z-[[elevation]]"></div>
+	        <div id="shadow-top" fit class$="paper-material-top-z-[[elevation]]"></div>
+	        <content></content>
+            <div id="titleDiv" flex style$="{{_getDecoratedLabelStyle(titleFontSize,titleFontWeight,titleTextDecoration,titleMarginTop)}}">{{titleText}}</div>
+            <template is="dom-if" restamp="true" if="{{_isInDesigner}}">
+                <paper-icon-button id="editTitleIcon" class="pointer" icon="create" on-tap="editProperties" title="edit tile properties"></paper-icon-button>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer ({
+            is: 'ti-tile-title',
+
+
+            hostAttributes: {
+            },
+            behaviors: [TiTileBase],
+            properties: {
+                /**
+                 * The title to display in the banner field
+                 *
+                 * @attribute titleText
+                 * @type string
+                 * @default ''
+                 */
+                titleText: {
+                    notify: true,
+                    type: String,
+                    value: ""
+                },
+				/**
+                 * The font size to use for the string used to display the titleText
+                 *
+                 * @attribute titleFontSize
+                 * @type String
+                 * @default "xx-large"
+                 */
+                titleFontSize: {
+                    notify: true,
+                    type: String,
+                    value: "xx-large"
+                },
+				/**
+                 * The font weight to use for the string used to display the titleText
+                 *
+                 * @attribute titleFontWeight
+                 * @type String
+                 * @default "bold"
+                 */
+                titleFontWeight: {
+                    notify: true,
+                    type: String,
+                    value: "bold"
+                },
+				/**
+                 * The CSS text decoration (e.g. underline) to use for the string used to display the titleText
+                 *
+                 * @attribute titleTextDecoration
+                 * @type String
+                 * @default "none"
+                 */
+                titleTextDecoration: {
+                    notify: true,
+                    type: String,
+                    value: "none"
+                },
+                /**
+                 * The CSS margin-top setting (e.g. 20px) to use to vertically position the titleText
+                 *
+                 * @attribute titleTopMargin
+                 * @type String
+                 * @default ""
+                 */
+                titleMarginTop: {
+                    notify: true,
+                    type: String,
+                    value: "4px"
+                }
+                // titleFontColor: '#444444',
+                // backgroundColor: '#ffffff'
+            },
+            getCategory: function() {
+                return 'Meter';
+            },
+            getComponentName: function() {
+                return 'Multipurpose';
+            },
+            _getDecoratedLabelStyle: function(titleFontSize,titleFontWeight,titleTextDecoration,titleMarginTop){
+                var result = "font-size:"+titleFontSize+";font-weight:"+titleFontWeight+";text-decoration:"+titleTextDecoration+";margin-top:"+titleMarginTop+";";
+                return result;
+            },
+            attached: function() {
+                this.async(function(){
+                    var fileMenuItem = Polymer.dom(this).querySelector('ti-widget-filemenu');
+                    if (fileMenuItem){
+                            var programModel = Polymer.dom(this.parentNode).querySelector('ti-model-program');
+                            var streamingModel = Polymer.dom(this.parentNode).querySelector('ti-model-streaming');
+                            var programLoader = gc.services['ti-service-programloader'];
+
+                            if (!programModel && !streamingModel){
+                                Polymer.dom(fileMenuItem).setAttribute('load-save-disabled',true);
+                            }
+
+                            if (!programLoader && !programModel && !streamingModel){
+                                Polymer.dom(fileMenuItem).setAttribute('hidden',true);
+                            } else {
+                                Polymer.dom(fileMenuItem).removeAttribute('hidden');
+                            }
+                    }
+                    var optionsMenuItem = Polymer.dom(this).querySelector('ti-widget-optionsmenu');
+                    if (optionsMenuItem){
+                        if (!gc.services['ti-service-serialio']){
+                            Polymer.dom(optionsMenuItem).setAttribute('hidden',true);
+                        } else {
+                            Polymer.dom(optionsMenuItem).removeAttribute('hidden');
+                        }
+                    }
+                }.bind(this),1);
+
+            }
+
+        });
+    </script>
+</dom-module>

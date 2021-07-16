@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# Modified by Texas Instruments - 2021
+#
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
@@ -29,10 +31,10 @@ include $(top_srcdir)/pre.am
 DISTCLEANFILES = .deps Makefile
 
 if !ENABLE_FUZZ_TARGETS
-bin_PROGRAMS = wpanctl
+bin_PROGRAMS = wfanctl
 endif
 
-wpanctl_SOURCES = \
+wfanctl_SOURCES = \
 	wpanctl.c \
 	wpanctl-cmds.h \
 	../util/config-file.c \
@@ -118,12 +120,12 @@ wpanctl_SOURCES = \
 	tool-updateprop.h \
 	$(NULL)
 
-wpanctl_LDADD = \
+wfanctl_LDADD = \
 	$(DBUS_LIBS) \
 	$(LIBREADLINE_LIBS) \
 	$(NULL)
 
-wpanctl_CPPFLAGS = \
+wfanctl_CPPFLAGS = \
 	$(AM_CPPFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(LIBREADLINE_CPPFLAGS) \
@@ -133,7 +135,7 @@ wpanctl_CPPFLAGS = \
 SOURCE_VERSION=$(shell git describe --dirty --always --match "[0-9].*" 2> /dev/null)
 BUILT_SOURCES  = $(top_builddir)/$(subdir)/version.c
 CLEANFILES = $(top_builddir)/$(subdir)/version.c
-.INTERMEDIATE: wpanctl-version.$(OBJEXT)
+.INTERMEDIATE: wfanctl-version.$(OBJEXT)
 $(top_builddir)/$(subdir)/version.c: ../version.c.in Makefile
 	sed 's/SOURCE_VERSION/"$(SOURCE_VERSION)"/' < $< > $@
-wpanctl_SOURCES += $(top_builddir)/$(subdir)/version.c
+wfanctl_SOURCES += $(top_builddir)/$(subdir)/version.c

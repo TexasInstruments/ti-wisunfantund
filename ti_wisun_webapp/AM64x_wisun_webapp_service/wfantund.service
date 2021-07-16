@@ -1,0 +1,11 @@
+[Unit]
+Description=TI Wi-SUN FAN wfantund service
+After=remote-fs.target
+After=syslog.target
+
+[Service]
+EnvironmentFile=/etc/wfantund.conf
+ExecStart=/usr/local/sbin/wfantund -o $CONFIG_SOCK $SOCK_PATH -o $CONFIG_TUN $INTF_NAME $EN_WEB
+
+[Install]
+WantedBy=multi-user.target

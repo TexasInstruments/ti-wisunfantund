@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Modified by Texas Instruments - 2021
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -37,7 +39,7 @@
 #ifdef __APPLE__
 char gInterfaceName[32] = "utun2";
 #else
-char gInterfaceName[32] = "wpan0";
+char gInterfaceName[32] = "wfan0";
 #endif
 int gRet = 0;
 
@@ -357,7 +359,7 @@ bail:
 const char *
 parse_node_type(const char *type_str)
 {
-	const char *node_type = kWPANTUNDNodeType_Unknown;
+	const char *node_type = kWPANTUNDNodeType_BorderRouter;
 
 	if (!strcasecmp(type_str, "router")
 		|| !strcasecmp(type_str, "r")

@@ -26,7 +26,7 @@
 #include "string-utils.h"
 #include "tool-cmd-dataset.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "wpan-properties.h"
 
 #include <errno.h>
@@ -146,12 +146,12 @@ int tool_cmd_dataset(int argc, char* argv[])
 			goto bail;
 		}
 
-		snprintf(path, sizeof(path), "%s/%s", WPANTUND_DBUS_PATH, gInterfaceName);
+		snprintf(path, sizeof(path), "%s/%s", WPAN_TUNNEL_DBUS_PATH, gInterfaceName);
 
 		message = dbus_message_new_method_call(
 			interface_dbus_name,
 			path,
-			WPANTUND_DBUS_APIv1_INTERFACE,
+			WPAN_TUNNEL_DBUS_INTERFACE,
 			WPANTUND_IF_CMD_PROP_SET
 		);
 

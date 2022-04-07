@@ -26,8 +26,7 @@
 #include "assert-macros.h"
 #include "string-utils.h"
 #include "wpanctl-utils.h"
-#include "wpan-dbus-v0.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -427,7 +426,7 @@ lookup_dbus_name_from_interface(char* dbus_bus_name, const char* interface_name)
 		    WPAN_TUNNEL_DBUS_NAME,
 		    WPAN_TUNNEL_DBUS_PATH,
 		    WPAN_TUNNEL_DBUS_INTERFACE,
-		    WPAN_TUNNEL_CMD_GET_INTERFACES
+		    WPANTUND_BASE_CMD_GET_INTERFACES
 		    );
 
 		reply = dbus_connection_send_with_reply_and_block(
@@ -698,8 +697,8 @@ create_new_wpan_dbus_message(DBusMessage **message, const char *dbus_command)
 	ret = lookup_dbus_name_from_interface(interface_dbus_name, gInterfaceName);
 	require_quiet(ret == 0, bail);
 
-	snprintf(path, sizeof(path), "%s/%s", WPANTUND_DBUS_PATH, gInterfaceName);
-	*message = dbus_message_new_method_call(interface_dbus_name, path, WPANTUND_DBUS_APIv1_INTERFACE, dbus_command);
+	snprintf(path, sizeof(path), "%s/%s", WPAN_TUNNEL_DBUS_PATH, gInterfaceName);
+	*message = dbus_message_new_method_call(interface_dbus_name, path, WPAN_TUNNEL_DBUS_INTERFACE, dbus_command);
 
 	if (*message == NULL) {
 		ret = ERRORCODE_ALLOC;

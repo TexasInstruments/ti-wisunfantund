@@ -27,7 +27,7 @@
 #include "tool-cmd-commr.h"
 #include "args.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "string-utils.h"
 #include "commissioner-utils.h"
 

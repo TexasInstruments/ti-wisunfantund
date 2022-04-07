@@ -31,6 +31,7 @@
 #include "tool-cmd-add-route.h"
 #include "tool-cmd-remove-route.h"
 #include "tool-cmd-status.h"
+#include "tool-cmd-reset.h"
 
 #include "wpanctl-utils.h"
 
@@ -49,6 +50,11 @@
 		"status", \
 		"Retrieve the status of the interface.", \
 		&tool_cmd_status \
+	}, \
+	{ \
+		"reset", \
+		"Reset the border router", \
+		&tool_cmd_reset \
 	}, \
 	{ \
 		"add", \

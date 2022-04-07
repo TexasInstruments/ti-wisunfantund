@@ -30,7 +30,7 @@
 #include "assert-macros.h"
 #include "args.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 
 #include <errno.h>
 

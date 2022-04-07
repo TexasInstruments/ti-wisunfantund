@@ -1,0 +1,18 @@
+.ncpStatusContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  column-gap: 20px;
+  row-gap: 25px;
+  width: 80%;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.ncpStatusRow {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}

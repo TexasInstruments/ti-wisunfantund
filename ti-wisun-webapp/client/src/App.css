@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
+/* ::-webkit-scrollbar{
+  display: none;
+} */
+
+:root {
+  /* -ms-overflow-style: none;  
+  scrollbar-width: none;   */
+}
+
+body {
+  font: 18px Raleway, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: white;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+img {
+  user-select: none;
+}
+
+.top_vstack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 100px;
+}
+
+.tile_container_full {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tile_container_common {
+  width: 92%;
+}
+
+.tile_header {
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+/* html {
+  --scrollbarBG: #CFD8DC;
+  --thumbBG: #90A4AE;
+} */
+*::-webkit-scrollbar {
+  width: 13px;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumb_bg) var(--scrollbar_bg);
+}
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar_bg);
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--thumb_bg);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--thumb_bg_hover);
+}

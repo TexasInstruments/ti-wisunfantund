@@ -26,7 +26,7 @@
 #include "assert-macros.h"
 #include "args.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v0.h"
+#include "wpan-dbus.h"
 
 const char begin_net_wake_cmd_syntax[] = "[args] <data>";
 
@@ -121,7 +121,7 @@ int tool_cmd_begin_net_wake(int argc, char *argv[])
 		    interface_dbus_name,
 		    path,
 		    WPAN_TUNNEL_DBUS_INTERFACE,
-		    WPAN_IFACE_CMD_BEGIN_NET_WAKE
+		    WPANTUND_IF_CMD_NETWORK_WAKE_BEGIN
 		    );
 
 		dbus_message_append_args(

@@ -23,7 +23,7 @@
 
 #include "tool-cmd-setprop.h"
 #include "tool-updateprop.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 
 int tool_cmd_setprop(int argc, char* argv[])
 {

@@ -49,7 +49,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <syslog.h>
-#include "wpan-dbus-v0.h"
+#include "wpan-dbus.h"
 #include "wpan-properties.h"
 #include "wpan-error.h"
 #include <stdbool.h>
@@ -752,7 +752,7 @@ lowpan_network_connect_using_join(struct connman_network *network)
 	    WPAN_TUNNEL_DBUS_NAME,
 	    dbus_path,
 	    WPAN_TUNNEL_DBUS_INTERFACE,
-	    WPAN_IFACE_CMD_JOIN
+	    WPANTUND_IF_CMD_JOIN
 	    );
 	const char* network_name = network_data->network_info.network_name;
 	dbus_message_append_args(
@@ -1128,7 +1128,7 @@ lowpan_device_leave(struct connman_device *device)
 	    WPAN_TUNNEL_DBUS_NAME,
 	    dbus_path,
 	    WPAN_TUNNEL_DBUS_INTERFACE,
-	    WPAN_IFACE_CMD_LEAVE
+	    WPANTUND_IF_CMD_LEAVE
 	    );
 
 	dbus_connection_send(connection, message, NULL);
@@ -2436,7 +2436,7 @@ lowpan_dbus_init_interfaces(void)
 	    WPAN_TUNNEL_DBUS_NAME,
 	    WPAN_TUNNEL_DBUS_PATH,
 	    WPAN_TUNNEL_DBUS_INTERFACE,
-	    WPAN_TUNNEL_CMD_GET_INTERFACES
+	    WPANTUND_BASE_CMD_GET_INTERFACES
 	    );
 
 	if (!message) {
@@ -2509,7 +2509,7 @@ lowpan_signal_handler(
 	DBusHandlerResult ret = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
 	if (dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE,
-	                           WPAN_TUNNEL_SIGNAL_INTERFACE_ADDED)) {
+	                           WPANTUND_BASE_SIGNAL_INTERFACE_ADDED)) {
 		const char* interface_name = NULL;
 		DBG("%s", dbus_message_get_path(message));
 
@@ -2524,7 +2524,7 @@ lowpan_signal_handler(
 
 		ret = DBUS_HANDLER_RESULT_HANDLED;
 	} else if (dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE,
-	                                  WPAN_TUNNEL_SIGNAL_INTERFACE_REMOVED)) {
+	                                  WPANTUND_BASE_SIGNAL_INTERFACE_REMOVED)) {
 		const char* interface_name = NULL;
 		DBG("%s", dbus_message_get_path(message));
 		dbus_message_get_args(

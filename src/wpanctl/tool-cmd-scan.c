@@ -25,7 +25,7 @@
 #include "wpanctl-utils.h"
 #include "tool-cmd-scan.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "string-utils.h"
 #include "args.h"
 
@@ -74,7 +74,7 @@ dbus_beacon_handler(
 	int ret;
 	struct wpan_network_info_s network_info;
 
-	if (!dbus_message_is_signal(message, WPANTUND_DBUS_APIv1_INTERFACE, WPANTUND_IF_SIGNAL_NET_SCAN_BEACON)) {
+	if (!dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE, WPANTUND_IF_SIGNAL_NET_SCAN_BEACON)) {
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 	}
 
@@ -137,7 +137,7 @@ dbus_energy_scan_handler(
 	int16_t channel;
 	int8_t maxRssi;
 
-	if (!dbus_message_is_signal(message, WPANTUND_DBUS_APIv1_INTERFACE, WPANTUND_IF_SIGNAL_ENERGY_SCAN_RESULT)) {
+	if (!dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE, WPANTUND_IF_SIGNAL_ENERGY_SCAN_RESULT)) {
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 	}
 
@@ -168,7 +168,7 @@ dbus_signal_handler(
 
 static const char gDBusObjectManagerMatchString[] =
 	"type='signal'"
-//	",interface='" WPANTUND_DBUS_APIv1_INTERFACE "'"
+//	",interface='" WPAN_TUNNEL_DBUS_INTERFACE "'"
 	;
 
 
@@ -299,7 +299,7 @@ int tool_cmd_scan(int argc, char *argv[])
 			path,
 			sizeof(path),
 			"%s/%s",
-			WPANTUND_DBUS_PATH,
+			WPAN_TUNNEL_DBUS_PATH,
 			gInterfaceName
 		);
 
@@ -316,7 +316,7 @@ int tool_cmd_scan(int argc, char *argv[])
 		message = dbus_message_new_method_call(
 			interface_dbus_name,
 			path,
-			WPANTUND_DBUS_APIv1_INTERFACE,
+			WPAN_TUNNEL_DBUS_INTERFACE,
 			method_name
 		);
 

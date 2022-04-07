@@ -25,7 +25,7 @@
 #include "wpanctl-utils.h"
 #include "tool-cmd-list.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v0.h"
+#include "wpan-dbus.h"
 #include "args.h"
 
 const char list_cmd_syntax[] = "[args] <duration>]";
@@ -94,7 +94,7 @@ int tool_cmd_list(int argc, char* argv[])
 		    WPAN_TUNNEL_DBUS_NAME,
 		    WPAN_TUNNEL_DBUS_PATH,
 		    WPAN_TUNNEL_DBUS_INTERFACE,
-		    WPAN_TUNNEL_CMD_GET_INTERFACES
+		    WPANTUND_BASE_CMD_GET_INTERFACES
 		    );
 
 		reply = dbus_connection_send_with_reply_and_block(

@@ -42,7 +42,7 @@
 
 #include "assert-macros.h"
 #include "tool-cmd-linkmetrics.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "wpanctl-utils.h"
 
 

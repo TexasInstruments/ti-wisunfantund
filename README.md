@@ -80,12 +80,34 @@ of available configuration parameters, see the [included example][3].
     # Drop root privileges after opening all sockets
     Config:Daemon:PrivDropToUser  "nobody"
 
+### Configuring and monioring wfantund using TI's webserver (Recommended) ###
 
-### Starting wfantund ###
+TI's webserver application has been provided in the `/ti-wisun-webapp` folder. This application allows the user to easily configure the border router, monitor the health of the network, and build other applications on top of it.
+
+**Note: Make sure to follow the installation instructions in the ti-wisun-webapp README.md for the correct npm/node versions**
+
+This application automatically starts wfantund on detecting the border router device.
+
+For more information, go to `/ti-wisun-webapp/README.md`
+
+### Steps to run demo ###
+
+* Start the webserver found in `/ti-wisun-webapp/`
+* Connect one TI CC13x2R7 with TI Wi-SUN BR Image to Linux PC
+* Power on one (or few) Wi-SUN FAN Router devices 
+* Wi-SUN FAN Router devices will start blinking their Green LED to show that they are trying to join network
+* Rate at which they blink will go down as they connect to network
+* Wi-SUN Router devices will stop blinking after they join the network *(Note: It may take around 3-5 min for a node to join)*
+* The webserver application can be visualized using any standard webbrowser to display the Wi-SUN FAN network as a graph
+* The webserver is designed to be a foundation that higher level applications can be developed on top of
+
+### Configuring wfantund using wfanctl (Alternate) ###
+
+To use `wfanctl`, first start wfantund:
+
     sudo /usr/local/sbin/wfantund -o Config:NCP:SocketPath `<Serial Port>`
     example: sudo /usr/local/sbin/wfantund -o Config:NCP:SocketPath /dev/ttyACM0
 
-### Configuring wfantund using wfanctl ###
 When up and running, you can use `wfanctl` to get or set TI Wi-SUN FAN Parameters
 
 To start wfanctl use
@@ -165,50 +187,12 @@ Users can ping devices using linux ping6 application and wfan0 interface
 
 ping6 -I wfan0 `<ip address>`
 
-#### CoAP Application ####
-If TI Wi-SUN FAN CoAP examples are used on router devices using TI CC13x2X7 LPs, then router devices will expose
-their LEDs as CoAP Services.
-The LED lights on LPs can be controlled using any Linux COAP Client.
-
-example:
-Install libcoap-1-0-bin package to get coap-client
-
-Then coap-client can be used to interact with TI CoAP based embedded routers.
-Sample shell scripts are provided under shell_scripts folder to showcase this.
-Refer to README.md under shell_scripts to use `run_coap_get.sh` and `run_coap_put.sh`.
-
-## Webserver Demo ##
-
-A reference webserver application has been provided under *ti_wisun_webapp* folder.
-Recommended to use node.js of version v14.17.6 or higher.
-
-Install all dependent npm packages using:
-npm install package.json 
-
 ## Preparation of TI CC13xx Images: ##
 * Download TI CC13xx_26Xx SDK from https://www.ti.com/tool/download/SIMPLELINK-CC13XX-CC26XX-SDK
 * Compile default project Binaries for 
 	* BR NWP Image on CC13x2R7 (ns_br)
 	* Node CoAP image on CC13x2R7 (ns_node_coap)
 Refer to _*http://dev.ti.com/wisunsla*_ for information on compiling out of box images and flashing to TI Launch Pads
-
-### Steps to run demo ###
-
-* Connect one TI CC13x2R7 with TI Wi-SUN BR Image to Linux PC
-* Start `wfantund` in webserver mode
-sudo /usr/local/sbin/wfantund -o Config:NCP:SocketPath /dev/ttyACM0 --webserver
-* Start `wfanctl` in webserver mode
-sudo /usr/local/bin/wfanctl --webserver
-* Start webserver
-node ti_wisunfan_webserver.js
-* Power on one (or few) Wi-SUN FAN Router devices 
-* Wi-SUN FAN Router devices will start blinking their Green LED to show that they are trying to join network
-* Rate at which they blink will go down as they connect to network
-* Wi-SUN Router devices will stop blinking after they join the network *(Note: It may take around 3-5 min for a node to join)*
-* The webserver can be connected to using any standard webbrowser to display the Wi-SUN FAN network as a graph
-* The webserver is designed to interface with TI Wi-SUN FAN CoAP example (ns_node_coap) based router nodes and toggle their LEDs.
-
-_*User can observer the Topology and Interact with the devices (toggle LEDs)*_
 
 ## Feature and Architecture Summary ##
 

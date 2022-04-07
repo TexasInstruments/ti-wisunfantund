@@ -26,7 +26,7 @@
 #include "assert-macros.h"
 #include "args.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "string-utils.h"
 
 #include <arpa/inet.h>
@@ -154,12 +154,12 @@ int tool_cmd_remove_prefix(int argc, char* argv[])
 	ret = lookup_dbus_name_from_interface(dbus_interface_name, gInterfaceName);
 	require(ret == 0, bail);
 
-	snprintf(dbus_path, sizeof(dbus_path), "%s/%s", WPANTUND_DBUS_PATH, gInterfaceName);
+	snprintf(dbus_path, sizeof(dbus_path), "%s/%s", WPAN_TUNNEL_DBUS_PATH, gInterfaceName);
 
 	message = dbus_message_new_method_call(
 		dbus_interface_name,
 		dbus_path,
-		WPANTUND_DBUS_APIv1_INTERFACE,
+		WPAN_TUNNEL_DBUS_INTERFACE,
 		WPANTUND_IF_CMD_CONFIG_GATEWAY
 	);
 

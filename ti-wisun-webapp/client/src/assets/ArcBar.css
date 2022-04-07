@@ -1,0 +1,56 @@
+.arc_bar_container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 28%;
+}
+
+.arc_bar {
+  position: absolute;
+}
+
+.arc_bar_bg {
+  /* stroke: var(--bg1); */
+}
+.arc_bar_fg {
+  /* stroke: var(--green); */
+  /* --total : 210.487; */
+  /* radius of half circle */
+  /* stroke-dasharray: var(--total); */
+  /* location of first dash */
+  /* --percent : 0.8; */
+  /* stroke-dashoffset:calc(-1*var(--total)*(1 - var(--percent))); */
+}
+
+.arc_bar_label_top {
+  font-size: 150%;
+  font-family: inherit;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-weight: 500;
+}
+
+.arc_bar_label_bottom {
+  font-size: 90%;
+  font-family: inherit;
+  font-weight: 500;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.arc_bar_tick {
+  font-size: 10px;
+  position: absolute;
+  bottom: 0px;
+  margin: 0px;
+}
+
+.arc_bar_tick_left {
+  right: calc(100% + 3px);
+}
+
+.arc_bar_tick_right {
+  left: calc(100% + 3px);
+}

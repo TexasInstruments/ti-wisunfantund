@@ -1,0 +1,12 @@
+{
+  "extends": ["react-app"],
+  "rules": {
+    "camelcase": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts?(x)"],
+      "rules": {}
+    }
+  ]
+}

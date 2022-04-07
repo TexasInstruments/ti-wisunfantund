@@ -25,7 +25,7 @@
 #include "wpanctl-utils.h"
 #include "tool-cmd-status.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "args.h"
 
 #define MFG_MAX_COMMAND_SIZE        1300
@@ -96,14 +96,14 @@ int tool_cmd_mfg(int argc, char *argv[])
 			path,
 			sizeof(path),
 			"%s/%s",
-			WPANTUND_DBUS_PATH,
+			WPAN_TUNNEL_DBUS_PATH,
 			gInterfaceName
 		);
 
 		message = dbus_message_new_method_call(
 			interface_dbus_name,
 			path,
-			WPANTUND_DBUS_NLAPIv1_INTERFACE,
+			WPANTUND_DBUS_NLAPI_INTERFACE,
 			WPANTUND_IF_CMD_MFG
 		);
 

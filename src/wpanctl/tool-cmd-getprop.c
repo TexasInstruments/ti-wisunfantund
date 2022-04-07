@@ -27,7 +27,9 @@
 #include "assert-macros.h"
 #include "args.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
+
+#include <string.h>
 
 const char getprop_cmd_syntax[] = "[args] <property-name>";
 
@@ -37,6 +39,54 @@ static const arg_list_item_t getprop_option_list[] = {
 	{'v', "value-only", NULL, "Print only the value of the property"},
 	{0}
 };
+
+#define MAX_CONNECTED_DEVICES 1000
+#define TMP_CONNECTED_DEVICES_FILENAME "wfanctl_connected_devices_output.txt"
+char* connected_devices[MAX_CONNECTED_DEVICES] = {NULL};
+FILE *connected_devices_fp;
+
+void add_to_connected_devices_array(char* connected_device)
+{
+	int i;
+	for(i=0; i<MAX_CONNECTED_DEVICES; i++) {
+		// If the device is already in the array, return
+		if (connected_devices[i] != NULL && (strcmp(connected_devices[i], connected_device) == 0))
+			return;
+		// If the spot is empty, add this device
+		if (connected_devices[i] == NULL) {
+			connected_devices[i] = strdup(connected_device);
+			return;
+		}
+	}
+}
+
+bool parse_connected_devices_output(void)
+{
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
+	bool find_more_devices = true;
+
+	if (connected_devices_fp != NULL) {
+		rewind(connected_devices_fp);
+		while ((read = getline(&line, &len, connected_devices_fp)) != -1) {
+			// If the line says 'Last IPs' then no need to find more devices
+			char *ret;
+			ret = strstr(line, "Last IPs");
+			if (ret) {
+				find_more_devices = false;
+			}
+
+			const char firstChar = line[0];
+			// If firstChar is a digit, the line being read is an IP address
+			if( firstChar >= '0' && firstChar <= '9' ) {
+				add_to_connected_devices_array(line); // line == connected_device IP
+			}
+		}
+		fclose(connected_devices_fp);
+	}
+	return find_more_devices;
+}
 
 int tool_cmd_getprop(int argc, char *argv[])
 {
@@ -145,13 +195,13 @@ int tool_cmd_getprop(int argc, char *argv[])
 		snprintf(path,
 		         sizeof(path),
 		         "%s/%s",
-		         WPANTUND_DBUS_PATH,
+		         WPAN_TUNNEL_DBUS_PATH,
 		         gInterfaceName);
 
 		message = dbus_message_new_method_call(
 		    interface_dbus_name,
 		    path,
-		    WPANTUND_DBUS_APIv1_INTERFACE,
+		    WPAN_TUNNEL_DBUS_INTERFACE,
 		    WPANTUND_IF_CMD_PROP_GET
 		    );
 
@@ -184,6 +234,7 @@ int tool_cmd_getprop(int argc, char *argv[])
 
 			// Try to see if there is an error explanation we can extract
 			dbus_message_iter_next(&iter);
+
 			if (dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_STRING) {
 				dbus_message_iter_get_basic(&iter, &error_cstr);
 			}
@@ -211,8 +262,35 @@ int tool_cmd_getprop(int argc, char *argv[])
 			}
 		} else {
 			if(!value_only && property_name[0])
-				fprintf(stdout, "%s = ", property_name);
-			dump_info_from_iter(stdout, &iter, 0, false, false);
+			{
+				// Do special parsing for connecteddevices
+				if (strcmp(property_name, "connecteddevices") == 0)
+				{
+					connected_devices_fp = fopen(TMP_CONNECTED_DEVICES_FILENAME, "w+");
+					dump_info_from_iter(connected_devices_fp, &iter, 0, false, false);
+					// Parse returns true if need to poll for more devices;
+					if (parse_connected_devices_output())
+					{
+						// Call same command (get connecteddevices again)
+						ret = tool_cmd_getprop(argc, argv);
+					} else {
+						// Print the connected devices once they've all been found
+						fprintf(stdout, "%s = \"\nList of connected devices currently in routing table:\n\n", property_name);
+						int index = 0;
+						while(index < MAX_CONNECTED_DEVICES && connected_devices[index] != NULL) {
+							fprintf(stdout, "%s", connected_devices[index]);
+							index ++;
+						}
+						fprintf(stdout, "\nNumber of connected devices: %d\n\"\n", index);
+						// Reset the connected_devices_array and remove temp output file since get connecteddevices is complete
+						memset(connected_devices, '\0', MAX_CONNECTED_DEVICES);
+						remove(TMP_CONNECTED_DEVICES_FILENAME);
+					}
+				} else {
+					fprintf(stdout, "%s = ", property_name);
+					dump_info_from_iter(stdout, &iter, 0, false, false);
+				}
+			}			
 		}
 	}
 

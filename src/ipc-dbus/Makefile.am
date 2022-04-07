@@ -46,12 +46,9 @@ endif
 libwpantund_dbus_la_SOURCES = \
 	DBUSIPCServer.cpp \
 	DBUSIPCServer.h \
-	DBusIPCAPI_v1.cpp \
-	DBusIPCAPI_v1.h \
-	wpan-dbus-v1.h \
-	DBusIPCAPI_v0.cpp \
-	DBusIPCAPI_v0.h \
-	wpan-dbus-v0.h \
+	DBusIPCAPI.cpp \
+	DBusIPCAPI.h \
+	wpan-dbus.h \
 	../util/DBUSHelpers.cpp \
 	$(NULL)
 
@@ -62,12 +59,9 @@ libwpantund_dbus_la_CXXFLAGS = $(AM_CXXFLAGS) $(BOOST_CXXFLAGS) $(CODE_COVERAGE_
 libwpantund_dbus_fuzz_la_SOURCES = \
 	DBUSIPCServer.cpp \
 	DBUSIPCServer.h \
-	DBusIPCAPI_v1.cpp \
-	DBusIPCAPI_v1.h \
-	wpan-dbus-v1.h \
-	DBusIPCAPI_v0.cpp \
-	DBusIPCAPI_v0.h \
-	wpan-dbus-v0.h \
+	DBusIPCAPI.cpp \
+	DBusIPCAPI.h \
+	wpan-dbus.h \
 	../util/DBUSHelpers.cpp \
 	$(NULL)
 
@@ -75,4 +69,4 @@ libwpantund_dbus_fuzz_la_LIBADD =  $(DBUS_LIBS)
 libwpantund_dbus_fuzz_la_CPPFLAGS = $(AM_CPPFLAGS) $(DBUS_CFLAGS) $(FUZZ_CPPFLAGS) $(CODE_COVERAGE_CPPFLAGS)
 libwpantund_dbus_fuzz_la_CXXFLAGS = $(AM_CXXFLAGS) $(BOOST_CXXFLAGS) $(FUZZ_CXXFLAGS) $(CODE_COVERAGE_CXXFLAGS)
 
-pkginclude_HEADERS = wpan-dbus-v0.h wpan-dbus-v1.h
+pkginclude_HEADERS = wpan-dbus.h

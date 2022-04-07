@@ -29,7 +29,7 @@
 #include "assert-macros.h"
 #include "args.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "string-utils.h"
 
 const char updateprop_syntax[] = "[args] <property-name> <property-value>";
@@ -169,13 +169,13 @@ int tool_updateprop(const char *dbus_method_name, int argc, char* argv[])
 		snprintf(path,
 		         sizeof(path),
 		         "%s/%s",
-		         WPANTUND_DBUS_PATH,
+		         WPAN_TUNNEL_DBUS_PATH,
 		         gInterfaceName);
 
 		message = dbus_message_new_method_call(
 		    interface_dbus_name,
 		    path,
-		    WPANTUND_DBUS_APIv1_INTERFACE,
+		    WPAN_TUNNEL_DBUS_INTERFACE,
 		    dbus_method_name
 		    );
 

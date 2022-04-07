@@ -29,8 +29,7 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
 
-#include "DBusIPCAPI_v0.h"
-#include "DBusIPCAPI_v1.h"
+#include "DBusIPCAPI.h"
 
 namespace nl {
 namespace wpantund {
@@ -65,8 +64,7 @@ private:
 	DBusConnection *mConnection;
 	std::map<std::string, NCPControlInterface*> mInterfaceMap;
 	std::map<std::string, std::string> mExternalInterfaceMap;
-	DBusIPCAPI_v0 mAPI_v0;
-	DBusIPCAPI_v1 mAPI_v1;
+	DBusIPCAPI mAPI;
 };
 
 };

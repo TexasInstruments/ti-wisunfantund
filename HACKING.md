@@ -55,6 +55,14 @@ The `IPCServer` class exposes the methods from the
 `NCPControlInterface` class via an unspecified IPC mechanism (DBus is
 currently the only sublass implemented).
 
+## Developer Debugging ##
+
+To make wfantund debugging easier, in 
+`<project-root>/ncp-spinel/SpinelNCPInstance-DataPump.cpp` a temporary
+output file can be created to display the hex bytes to be sent over UART
+to the NCP. To utilize this file dump, the MACRO SPINEL_DATA_DUMP_TO_FILE
+needs to be set to 1.
+
 ## Fuzzing ##
 
 Wpantund comes with some fuzz targets which can be enabled with the

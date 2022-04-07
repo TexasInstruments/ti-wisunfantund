@@ -858,62 +858,53 @@ unpack_connected_devices(const uint8_t *data_in, spinel_size_t data_len, boost::
 	if((data_len - 1) == 0){
 		print_str.append("No nodes currently in routing table.\n");
 	}
-	else{
-		uint8_t *entry_ptr = NULL;
-		spinel_size_t entry_len = 0;
-		spinel_ssize_t len = 0;
-		len = spinel_datatype_unpack(data_in, data_len, "D", &entry_ptr, &entry_len);
-		int num_of_devices = (len - 1) / 16;
-		int count = 1;
 
-		for (int x = 0; x < (len - 1); x++){
-			if ((x + 1) % 16 == 0){
-				if (x == 0){
-					char str_to_add[4];
-					sprintf(str_to_add, "%02x", entry_ptr[count]);
-					print_str.append(str_to_add);
-				}
-				else{
-					char str_to_add[4];
-					sprintf(str_to_add, "%02x", entry_ptr[count]);
-					print_str.append(str_to_add);
-					print_str.append("\n");
-				}
+	uint8_t *entry_ptr = NULL;
+	spinel_size_t entry_len = 0;
+	spinel_ssize_t len = 0;
+	len = spinel_datatype_unpack(data_in, data_len, "D", &entry_ptr, &entry_len);
+	int num_of_devices = (len - 1) / 16;
+	int count = 1;
+
+	// Check if the BlockID indicates this is the last packet
+	if ((entry_ptr[0] >> 7) == 1) {
+		print_str.append("\nLast IPs Sent\n");
+	}
+
+	// Loop though bytes after the blockID
+	for (int x = 0; x < len-1; x++){
+
+		if ((x + 1) % 16 == 0){
+			if (x == 0){
+				char str_to_add[4];
+				sprintf(str_to_add, "%02x", entry_ptr[count]);
+				print_str.append(str_to_add);
 			}
 			else{
-				if (x % 2 != 0){
-					// x is odd
-					char str_to_add[4];
-					sprintf(str_to_add, "%02x:", entry_ptr[count]);
-					print_str.append(str_to_add);
-				}
-				else{
-					// x is even
-					char str_to_add[4];
-					sprintf(str_to_add, "%02x", entry_ptr[count]);
-					print_str.append(str_to_add);
-				}
+				char str_to_add[4];
+				sprintf(str_to_add, "%02x", entry_ptr[count]);
+				print_str.append(str_to_add);
+				print_str.append("\n");
 			}
-			count++;
 		}
-		if(WEBSERVER_APP == 1)
-		{
-			mkdir(app_path_main.c_str(), 0777);
-			mkdir(app_path.c_str(), 0777);
-
-			std::ofstream myfile2(all_connecteddevices_filename);
-			myfile2 << (print_str) << ":" << std::endl;
-			myfile2.close();
-
-			print_str.append("Created file and stored connected_devices in it");
-			std::ofstream myfile(connecteddevices_filename);
-			myfile << (num_of_devices) << ":\n" << std::endl;
-			myfile.close();
+		else{
+			if (x % 2 != 0){
+				// x is odd
+				char str_to_add[4];
+				sprintf(str_to_add, "%02x:", entry_ptr[count]);
+				print_str.append(str_to_add);
+			}
+			else{
+				// x is even
+				char str_to_add[4];
+				sprintf(str_to_add, "%02x", entry_ptr[count]);
+				print_str.append(str_to_add);
+			}
 		}
-		print_str.append("\nNumber of connected devices: " + any_to_string(num_of_devices) + "\n");
-
-
+		count++;
 	}
+
+	print_str.append("\nNumber of connected devices: " + any_to_string(num_of_devices) + "\n");
 
 	value = print_str;
 
@@ -6285,7 +6276,8 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 		syslog(LOG_INFO, "[-NCP-]: NetSaved (NCP is commissioned?) \"%s\" ", is_commissioned ? "yes" : "no");
 		mIsCommissioned = is_commissioned;
 		if (mIsCommissioned && (get_ncp_state() == OFFLINE)) {
-			change_ncp_state(COMMISSIONED);
+			// Just keep it offline
+			// change_ncp_state(COMMISSIONED);
 		} else if (!mIsCommissioned && (get_ncp_state() == COMMISSIONED)) {
 			change_ncp_state(OFFLINE);
 			printf("\nchanging states\n");
@@ -6313,7 +6305,10 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 			}
 		} else {
 			if (!ncp_state_is_joining(get_ncp_state())) {
-				change_ncp_state(mIsCommissioned ? COMMISSIONED : OFFLINE);
+				// change_ncp_state(mIsCommissioned ? COMMISSIONED : OFFLINE);
+				// Just set to OFFLINE and mIsCommissioned to false
+				change_ncp_state(OFFLINE);
+				mIsCommissioned = false;
 			}
 		}
 
@@ -6325,7 +6320,10 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 		set_if_up(is_if_up);
 
 		if (ncp_state_is_interface_up(get_ncp_state()) && !is_if_up) {
-			change_ncp_state(mIsCommissioned ? COMMISSIONED : OFFLINE);
+			// change_ncp_state(mIsCommissioned ? COMMISSIONED : OFFLINE);
+			// Just set to OFFLINE and mIsCommissioned to false
+			change_ncp_state(OFFLINE);
+			mIsCommissioned = false;
 		}
 
 	} else if (key == SPINEL_PROP_MESHCOP_COMMISSIONER_STATE) {

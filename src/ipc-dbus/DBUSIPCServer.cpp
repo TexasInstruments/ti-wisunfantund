@@ -44,7 +44,7 @@
 #include <errno.h>
 #include <algorithm>
 #include "any-to.h"
-#include "wpan-dbus-v0.h"
+#include "wpan-dbus.h"
 
 using namespace DBUSHelpers;
 using namespace nl;
@@ -98,8 +98,7 @@ bail:
 
 DBUSIPCServer::DBUSIPCServer():
 	mConnection(get_dbus_connection()),
-	mAPI_v0(mConnection),
-	mAPI_v1(mConnection)
+	mAPI(mConnection)
 {
 	DBusError error;
 
@@ -226,7 +225,7 @@ DBUSIPCServer::interface_added(const std::string& interface_name)
 	signal = dbus_message_new_signal(
 	    WPAN_TUNNEL_DBUS_PATH,
 	    WPAN_TUNNEL_DBUS_INTERFACE,
-	    WPAN_TUNNEL_SIGNAL_INTERFACE_ADDED
+	    WPANTUND_BASE_SIGNAL_INTERFACE_ADDED
 	    );
 	dbus_message_append_args(
 	    signal,
@@ -268,8 +267,7 @@ DBUSIPCServer::add_interface(NCPControlInterface* instance)
 
 	mInterfaceMap[name] = instance;
 
-	mAPI_v0.add_interface(instance);
-	mAPI_v1.add_interface(instance);
+	mAPI.add_interface(instance);
 
 	interface_added(name);
 
@@ -285,7 +283,7 @@ DBUSIPCServer::message_handler(
 	DBusHandlerResult ret = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
 	if (dbus_message_is_method_call(message, WPAN_TUNNEL_DBUS_INTERFACE,
-	                                WPAN_TUNNEL_CMD_GET_INTERFACES)) {
+	                                WPANTUND_BASE_CMD_GET_INTERFACES)) {
 		DBusMessage *reply = dbus_message_new_method_return(message);
 		DBusMessageIter iter, array_iter;
 		dbus_message_iter_init_append(reply, &iter);
@@ -347,7 +345,7 @@ DBUSIPCServer::message_handler(
 		dbus_message_unref(reply);
 
 		ret = DBUS_HANDLER_RESULT_HANDLED;
-	} else if (dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE, WPAN_TUNNEL_SIGNAL_INTERFACE_ADDED)) {
+	} else if (dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE, WPANTUND_BASE_SIGNAL_INTERFACE_ADDED)) {
 		ret = DBUS_HANDLER_RESULT_HANDLED;
 		if (!strequal(dbus_message_get_sender(message), dbus_bus_get_unique_name(connection))) {
 			const char* interface_name = NULL;
@@ -360,7 +358,7 @@ DBUSIPCServer::message_handler(
 				mExternalInterfaceMap[interface_name] = dbus_message_get_sender(message);
 			}
 		}
-	} else if (dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE, WPAN_TUNNEL_SIGNAL_INTERFACE_REMOVED)) {
+	} else if (dbus_message_is_signal(message, WPAN_TUNNEL_DBUS_INTERFACE, WPANTUND_BASE_SIGNAL_INTERFACE_REMOVED)) {
 		ret = DBUS_HANDLER_RESULT_HANDLED;
 		if (!strequal(dbus_message_get_sender(message), dbus_bus_get_unique_name(connection))) {
 			const char* interface_name = NULL;
@@ -378,7 +376,7 @@ DBUSIPCServer::message_handler(
 			}
 		}
 	} else if (dbus_message_is_method_call(message, WPAN_TUNNEL_DBUS_INTERFACE,
-	                                WPAN_TUNNEL_CMD_GET_VERSION)) {
+	                                WPANTUND_IF_GET_VERSION)) {
 		DBusMessage *reply = dbus_message_new_method_return(message);
 		uint32_t version = WPAN_TUNNEL_DBUS_VERSION;
 		dbus_message_append_args(

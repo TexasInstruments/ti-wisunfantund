@@ -1,0 +1,14 @@
+.macfilterList {
+  font-family: 'Roboto Mono', monospace;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.macfilterFlex {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  align-content: center;
+  margin-top: 4px;
+}

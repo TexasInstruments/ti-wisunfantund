@@ -31,6 +31,30 @@
 #include <sys/file.h>
 #include "SuperSocket.h"
 
+/*
+* Do to the complex flows incorporated into the wfantund flow, it can be helpful
+* to visualize the hex bytes sent to the NCP over UART. These bytes can be compared to
+* SPINEL protocol documentation to verify the intended commands are being sent to the
+* ncp, and to see what other commands might be accompanying the desired commands.
+* (e.g. when sending a reset, there is a lot of built-in logic in addition to the reset)
+* 
+* For debugging, a temporary file in the directory of execution is created, called
+* "DriverToNCPDump.txt". To use this, set SPINEL_DATA_DUMP_TO_FILE to 1. The first
+* debug section prints the hex bytes to be sent before framing, and the second section
+* prints the hex bytes that compose the entire SPINEL frame.
+* 
+* To see the SPINEL frames before framing from NCP to Driver, the "NCPToDriverDump.txt"
+* file shows the data coming in
+*/
+#define SPINEL_DATA_DUMP_TO_FILE 0
+
+#if SPINEL_DATA_DUMP_TO_FILE == 1
+	#include <iostream>
+	#include <fstream>
+	std::ofstream DriverToNCPDump ("DriverToNCPDump.txt");
+	std::ofstream NCPToDriverDump ("NCPToDriverDump.txt");
+#endif
+
 #if OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER
 #include "spinel_encrypter.hpp"
 #endif // OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER
@@ -330,6 +354,17 @@ SpinelNCPInstance::ncp_to_driver_pump()
 
 			log_spinel_frame(kNCPToDriver, mInboundFrame, mInboundFrameSize);
 
+			#if SPINEL_DATA_DUMP_TO_FILE == 1
+				// Print each hex byte to be sent out
+				int bufferIndex;
+				for(bufferIndex = 0; bufferIndex < mInboundFrameSize; bufferIndex++) {
+					NCPToDriverDump << std::hex << mInboundFrame[bufferIndex] / 16;
+					NCPToDriverDump << std::hex << mInboundFrame[bufferIndex] % 16;
+					NCPToDriverDump << " ";
+				}
+				NCPToDriverDump << std::endl;
+			#endif
+
 			handle_ncp_spinel_callback(command_value, mInboundFrame, mInboundFrameSize);
 		}
 	} // while (!ncp_state_is_detached_from_ncp(get_ncp_state()))
@@ -481,6 +516,17 @@ SpinelNCPInstance::driver_to_ncp_pump()
 		mOutboundBufferSent += pt->byte_count;
 #else
 
+		#if SPINEL_DATA_DUMP_TO_FILE == 1
+			// Print each hex byte to be sent out
+			int bufferIndex;
+			for(bufferIndex = 0; bufferIndex < mOutboundBufferLen; bufferIndex++) {
+				DriverToNCPDump << std::hex << mOutboundBuffer[bufferIndex] / 16;
+				DriverToNCPDump << std::hex << mOutboundBuffer[bufferIndex] % 16;
+				DriverToNCPDump << " ";
+			}
+			DriverToNCPDump << std::endl;
+		#endif
+
 		mOutboundBufferEscapedLen = 1;
 		mOutboundBufferEscaped[0] = HDLC_BYTE_FLAG;
 		{
@@ -527,6 +573,17 @@ SpinelNCPInstance::driver_to_ncp_pump()
 		}
 
 		mOutboundBufferSent = 0;
+
+		#if SPINEL_DATA_DUMP_TO_FILE == 1
+			// Print each hex byte that is getting sent
+			for(bufferIndex = 0; bufferIndex < mOutboundBufferEscapedLen; bufferIndex++) {
+				DriverToNCPDump << std::hex << mOutboundBufferEscaped[bufferIndex] / 16;
+				DriverToNCPDump << std::hex << mOutboundBufferEscaped[bufferIndex] % 16;
+				DriverToNCPDump << " ";
+			}
+			DriverToNCPDump << std::endl << std::endl;
+			DriverToNCPDump.close();
+		#endif
 
 		// Go ahead send
 		NLPT_ASYNC_WRITE_STREAM(

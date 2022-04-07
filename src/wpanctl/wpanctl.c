@@ -65,7 +65,7 @@
 #include "string-utils.h"
 #include "wpanctl-utils.h"
 #include "webserver-config.h"
-#include "wpan-dbus-v0.h"
+#include "wpan-dbus.h"
 
 static bool istty = true;
 int WEBSERVER_APP = 0;
@@ -385,7 +385,7 @@ wpan_dbus_version_check(DBusConnection* connection)
 	    getenv("WPANCTL_DBUS_NAME"),
 	    WPAN_TUNNEL_DBUS_PATH,
 	    WPAN_TUNNEL_DBUS_INTERFACE,
-	    WPAN_TUNNEL_CMD_GET_VERSION
+	    WPANTUND_IF_GET_VERSION
 	    );
 
 	if (!message) {

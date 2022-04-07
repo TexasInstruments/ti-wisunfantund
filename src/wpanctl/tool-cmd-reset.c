@@ -25,7 +25,7 @@
 #include "wpanctl-utils.h"
 #include "tool-cmd-scan.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "args.h"
 
 const char reset_cmd_syntax[] = "[args]";
@@ -107,14 +107,14 @@ int tool_cmd_reset(int argc, char *argv[])
 		snprintf(path,
 		         sizeof(path),
 		         "%s/%s",
-		         WPANTUND_DBUS_PATH,
+		         WPAN_TUNNEL_DBUS_PATH,
 		         gInterfaceName);
 
 		message = dbus_message_new_method_call(
 		    interface_dbus_name,
 		    path,
-		    WPANTUND_DBUS_APIv1_INTERFACE,
-		    WPANTUND_IF_CMD_RESET
+		    WPAN_TUNNEL_DBUS_INTERFACE,
+		    WPAN_CMD_RESET_NCP
 		    );
 
 		fprintf(stderr, "Resetting NCP. . .\n");

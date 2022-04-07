@@ -1,0 +1,43 @@
+#InvalidFG {
+  opacity: 0;
+}
+#OfflineFG {
+  opacity: 0;
+}
+#AssociatedFG {
+  opacity: 0;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.Loading .BG {
+  animation-name: pulse;
+  animation-duration: 2s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+#InvalidBG {
+  animation-delay: -0.66s;
+}
+#ConnectorLeft {
+  animation-delay: -0.5s;
+}
+#OfflineBG {
+  animation-delay: -0.33s;
+}
+#ConnectorRight {
+  animation-delay: -0.15s;
+}
+#AssociatedBG {
+  animation-delay: -0s;
+}

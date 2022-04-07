@@ -118,6 +118,10 @@ public:
 		CallbackWithStatus cb
 	);
 
+	virtual void reset_NCP(
+		CallbackWithStatus cb
+	);
+
 	virtual void property_insert_value(
 		const std::string& key,
 		const boost::any& value,

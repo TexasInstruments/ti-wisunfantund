@@ -25,7 +25,7 @@
 #include "wpanctl-utils.h"
 #include "tool-cmd-permit-join.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v0.h"
+#include "wpan-dbus.h"
 #include "args.h"
 
 const char permit_join_cmd_syntax[] = "[args] <duration> [commissioning-port]";
@@ -154,7 +154,7 @@ int tool_cmd_permit_join(int argc, char* argv[])
 		    interface_dbus_name,
 		    path,
 		    WPAN_TUNNEL_DBUS_INTERFACE,
-		    WPAN_IFACE_CMD_PERMIT_JOIN
+		    WPANTUND_IF_CMD_PERMIT_JOIN
 		    );
 
 		dbus_message_append_args(

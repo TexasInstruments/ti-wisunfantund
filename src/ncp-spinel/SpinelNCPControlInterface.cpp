@@ -1168,6 +1168,18 @@ SpinelNCPControlInterface::property_set_value(
 }
 
 void
+SpinelNCPControlInterface::reset_NCP(
+	CallbackWithStatus cb
+) {
+	// Send a Spinel CMD_RESET
+	mNCPInstance->start_new_task(SpinelNCPTaskSendCommand::Factory(mNCPInstance)
+		.set_callback(CallbackWithStatus(boost::bind(cb,kWPANTUNDStatus_Ok)))
+		.add_command(SpinelPackData(SPINEL_FRAME_PACK_CMD_RESET))
+		.finish()
+	);
+}
+
+void
 SpinelNCPControlInterface::property_insert_value(
 	const std::string& key,
 	const boost::any& value,

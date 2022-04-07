@@ -1,0 +1,13 @@
+.themed_button {
+  font-family: inherit;
+  font-weight: 500;
+  width: 128px;
+  height: 36px;
+  font-size: 18px;
+  text-align: center;
+  border: 0px;
+  border-radius: 14px;
+  color: white;
+  user-select: none;
+  cursor: pointer;
+}

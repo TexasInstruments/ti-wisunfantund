@@ -25,7 +25,7 @@
 #include "wpanctl-utils.h"
 #include "tool-cmd-peek.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "args.h"
 
 #include <ctype.h>
@@ -184,13 +184,13 @@ int tool_cmd_peek(int argc, char* argv[])
 		snprintf(path,
 				 sizeof(path),
 				 "%s/%s",
-				 WPANTUND_DBUS_PATH,
+				 WPAN_TUNNEL_DBUS_PATH,
 				 gInterfaceName);
 
 		message = dbus_message_new_method_call(
 			interface_dbus_name,
 			path,
-			WPANTUND_DBUS_APIv1_INTERFACE,
+			WPAN_TUNNEL_DBUS_INTERFACE,
 			WPANTUND_IF_CMD_PEEK
 		);
 

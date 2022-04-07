@@ -39,6 +39,8 @@
 
 #include "SpinelNCPVendorCustom.h"
 
+#define AUTO_RESUME 0
+
 WPANTUND_DECLARE_NCPINSTANCE_PLUGIN(spinel, SpinelNCPInstance);
 
 #define EVENT_NCP_MARKER         0xAB000000

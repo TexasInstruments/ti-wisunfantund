@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+    {
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "command": "npm run watch",
+      "problemMatcher": [],
+      "label": "React Watcher",
+      "options": {
+        "cwd": "${workspaceFolder}/client"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}

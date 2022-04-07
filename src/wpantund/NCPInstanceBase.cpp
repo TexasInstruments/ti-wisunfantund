@@ -2101,7 +2101,19 @@ void custom_revstr(char *str1)
 
 void 
 NCPInstanceBase::convert_to_filter_list(std::string value){
-	// step 1 add or remove?
+	// Store MAC address (16 digit hex) into two ints (32bit each)
+	int first_input_int;
+	int second_input_int;
+	if (value.substr(0,3) == "add" || value.substr(0,3) == "rem"){
+			std::string string_to_insert = value.substr(3, 8);
+			char * p1;
+			first_input_int = strtol(string_to_insert.c_str(), & p1, 16);
+
+			string_to_insert = value.substr(11, 8);
+			char * p2;
+			second_input_int = strtol(string_to_insert.c_str(), & p2, 16);
+	}
+
 	if (value.substr(0,3) == "add"){
 		// perform add
 		// step 1 : check if table is full
@@ -2118,14 +2130,8 @@ NCPInstanceBase::convert_to_filter_list(std::string value){
 		}
 		if (num_empty != 0){
 			// row left to fill
-			std::string string_to_insert = value.substr(3, 8);
-			char * p1;
-			int int_to_insert = strtol(string_to_insert.c_str(), & p1, 16);
-			mMacFilterList[first_empty * 2] = int_to_insert;
-			string_to_insert = value.substr(11, 8);
-			char * p2;
-			int_to_insert = strtol(string_to_insert.c_str(), & p2, 16);
-			mMacFilterList[first_empty * 2 + 1] = int_to_insert;
+			mMacFilterList[first_empty * 2] = first_input_int;
+			mMacFilterList[first_empty * 2 + 1] = second_input_int;
 		}
 	}
 	else if (value.substr(0,3) == "rem"){
@@ -2133,7 +2139,7 @@ NCPInstanceBase::convert_to_filter_list(std::string value){
 		// step 1 : find row to remove
 		int row_remove = 10;
 		for (int x = 0; x < MAC_FILTER_LIST_SIZE; x++){
-			if (mMacFilterListString[x] == value.substr(3, 16)){
+			if ((mMacFilterList[x*2] == first_input_int) && (mMacFilterList[x*2+1] == second_input_int)){
 				row_remove = x;
 			}
 		}
@@ -2159,4 +2165,5 @@ NCPInstanceBase::convert_to_filter_list(std::string value){
 		mMacFilterListString[string_count] = ret_string;
 		string_count ++;
 	}
+
 }

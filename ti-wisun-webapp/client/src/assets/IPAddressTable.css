@@ -1,0 +1,7 @@
+.ip-address-table-ip-address {
+  white-space: nowrap;
+  overflow: hidden;
+  /* text-overflow: ellipsis; */
+  text-align: center;
+  vertical-align: middle;
+}

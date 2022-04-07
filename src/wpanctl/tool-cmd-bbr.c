@@ -39,7 +39,7 @@
 
 #include "assert-macros.h"
 #include "tool-cmd-bbr.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "wpanctl-utils.h"
 
 #define MAX_COMMAND_LEN     7

@@ -1,1 +1,0 @@
-ACTION=="remove", KERNEL=="ttyACM0", SUBSYSTEM=="tty", TAG+="systemd", RUN+="/bin/systemctl --no-block start ti_wisunfan_app_stop.service"

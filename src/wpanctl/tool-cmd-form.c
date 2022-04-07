@@ -25,7 +25,7 @@
 #include "wpanctl-utils.h"
 #include "tool-cmd-form.h"
 #include "assert-macros.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 #include "args.h"
 #include "string-utils.h"
 

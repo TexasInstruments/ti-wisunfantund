@@ -1,0 +1,15 @@
+.checkbox_bg {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox_fg {
+  width: 13px;
+  height: 13px;
+  border-radius: 1px;
+}

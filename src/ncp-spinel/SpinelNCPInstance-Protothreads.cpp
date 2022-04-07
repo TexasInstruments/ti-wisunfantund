@@ -628,8 +628,10 @@ SpinelNCPInstance::vprocess_event(int event, va_list args)
 	if (mAutoResume && mEnabled && mIsCommissioned
 	    && !ncp_state_is_joining_or_joined(get_ncp_state()) && !ncp_state_is_initializing(get_ncp_state())
 	) {
-		syslog(LOG_NOTICE, "AutoResume is enabled. Trying to resume.");
-		EH_SPAWN(&mSubPT, vprocess_resume(event, args));
+		#if AUTO_RESUME == 1
+			syslog(LOG_NOTICE, "AutoResume is enabled. Trying to resume.");
+			EH_SPAWN(&mSubPT, vprocess_resume(event, args));
+		#endif
 	}
 
 	while (1) {

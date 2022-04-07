@@ -23,7 +23,7 @@
 
 #include "tool-cmd-removeprop.h"
 #include "tool-updateprop.h"
-#include "wpan-dbus-v1.h"
+#include "wpan-dbus.h"
 
 int tool_cmd_removeprop(int argc, char* argv[])
 {

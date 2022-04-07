@@ -1,0 +1,18 @@
+{
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "extends": ["prettier"],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": ["error"],
+    "camelcase": "warn",
+    "no-use-before-define": "warn",
+    "no-undef": "error",
+    "eqeqeq": "warn"
+  }
+}

@@ -1,0 +1,32 @@
+.flex_table_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex_table_datum {
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-basis: 0;
+  font-weight: 500;
+}
+
+.flex_table.gruvbox {
+  scrollbar-width: thin;
+  --flex_table_scrollbar_bg: var(--bg2);
+  --flex_table_thumb_bg: var(--bg1);
+  --flex_table_thumb_bg_hover: var(--bg0);
+  scrollbar-color: var(--flex_table_thumb_bg) var(--flex_table_scrollbar_bg);
+}
+.flex_table.gruvbox::-webkit-scrollbar-track {
+  background: var(--flex_table_scrollbar_bg);
+}
+.flex_table.gruvbox::-webkit-scrollbar-thumb {
+  background-color: var(--flex_table_thumb_bg);
+}
+
+.flex_table.gruvbox::-webkit-scrollbar-thumb:hover {
+  background-color: var(--flex_table_thumb_bg_hover);
+}

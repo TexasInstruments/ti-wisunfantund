@@ -1,0 +1,14 @@
+.themed_input {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+  border: 0px;
+  border-radius: 5px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.themed_input:focus {
+  outline: 0px;
+}

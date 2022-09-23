@@ -26,7 +26,6 @@ fs_used=$(eval "$command4")
 echo $fs_used
 echo "Final state of LED is: "
 coap-client -m get coap://[$1]/led -o c.bin
-hexdump -c c.bin
 count=0
 first_val=0
 second_val=0

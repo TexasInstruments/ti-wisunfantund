@@ -13,7 +13,6 @@ rm c.bin
 echo "Starting the COAP Process with IP Address $1"
 coap-client -m get coap://[$1]/led -o c.bin
 echo coap-client -m get coap://[$1]/led -o c.bin
-hexdump -c c.bin
 count=0
 first_val=0
 second_val=0

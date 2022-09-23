@@ -24,6 +24,7 @@ This document describes the process of building and installing
 
 ## Preparation of AM64x SD Card Image:
 
+- Perform steps in ti-wisun-webapp/README.md to install updated npm/node versions
 - Download lib-coap from https://github.com/obgm/libcoap/tree/release-4.3.0  
   (Note: This is needed for AM64x. AM64x native SDK does not provide support to lib coap today.)
 - Setup the AutoConf dependencies

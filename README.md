@@ -77,9 +77,6 @@ of available configuration parameters, see the [included example][3].
     # plugin must support the NCP you are trying to use.
     Config:NCP:DriverName         "spinel"
 
-    # Drop root privileges after opening all sockets
-    Config:Daemon:PrivDropToUser  "nobody"
-
 ### Configuring and monioring wfantund using TI's webserver (Recommended) ###
 
 TI's webserver application has been provided in the `/ti-wisun-webapp` folder. This application allows the user to easily configure the border router, monitor the health of the network, and build other applications on top of it.

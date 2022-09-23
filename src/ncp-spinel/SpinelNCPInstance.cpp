@@ -5643,6 +5643,7 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 	const uint8_t *original_value_data_ptr = value_data_ptr;
 	spinel_size_t original_value_data_len = value_data_len;
 
+	syslog(LOG_INFO, "KEY ID: %u", key);
 	if (key == SPINEL_PROP_LAST_STATUS) {
 		spinel_status_t status = SPINEL_STATUS_OK;
 		spinel_datatype_unpack(value_data_ptr, value_data_len, "i", &status);
@@ -5785,7 +5786,6 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 		spinel_ssize_t len = 0;
 
 		len = spinel_datatype_unpack(value_data_ptr, value_data_len, "E", &entry_ptr);
-
 		std::string ret_string [MAC_FILTER_LIST_SIZE];
 
 		for (int x = 0; x < MAC_FILTER_LIST_SIZE; x++){
@@ -5794,15 +5794,25 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 		int ret_int [MAC_FILTER_LIST_SIZE * 2];
 		int string_count = 0;
 
-		for (int x = 0; x < (MAC_FILTER_LIST_SIZE * 2); x += 2){
+		for (int x = 0; x < (MAC_FILTER_LIST_SIZE * 2); x += 2) {
 			char str_to_add[17];
-			sprintf(str_to_add, "%08x", entry_ptr[x]);
-			ret_string[string_count] = str_to_add;
-			ret_int[x] = entry_ptr[x];
-			sprintf(str_to_add, "%08x", entry_ptr[x + 1]);
-			ret_string[string_count].append(str_to_add);
-			ret_int[x + 1] = entry_ptr[x + 1];
-			string_count ++;
+			if (x > len) {
+				sprintf(str_to_add, "00000000");
+				ret_string[string_count] = str_to_add;
+				ret_string[string_count].append(str_to_add);
+				ret_int[x] = 0;
+				ret_int[x + 1] = 0;
+				string_count++;
+			}
+			else {
+				sprintf(str_to_add, "%08x", entry_ptr[x]);
+				ret_string[string_count] = str_to_add;
+				ret_int[x] = entry_ptr[x];
+				sprintf(str_to_add, "%08x", entry_ptr[x + 1]);
+				ret_string[string_count].append(str_to_add);
+				ret_int[x + 1] = entry_ptr[x + 1];
+				string_count++;
+			}
 		}
 		set_mac_filter_list(ret_int);
 		for (int x = 0; x < MAC_FILTER_LIST_SIZE * 2; x++){

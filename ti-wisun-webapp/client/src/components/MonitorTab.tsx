@@ -10,6 +10,7 @@ import {AutoPingburst, CytoscapeGraph, IPAddressInfo, Pingburst, PingRecord} fro
 import {PaneContainer} from './PaneContainer';
 import {TileColumns} from './TileColumns';
 import LEDConfig from './LEDConfig';
+import MulticastPing from './MulticastPing';
 
 interface MonitorTabProps {
   ipSelectionHandler: (ip: string, newVal: boolean) => void;
@@ -63,6 +64,13 @@ export default function MonitorTab(props: MonitorTabProps) {
             ipAddressInfoArray={props.ipAddressInfoArray}
             pingbursts={props.pingbursts}
             autoPing={props.autoPing}
+          />
+        </Tile>
+        <Tile title="Multicast Ping">
+          <MulticastPing
+              ipAddressInfoArray={props.ipAddressInfoArray}
+              pingbursts={props.pingbursts}
+              autoPing={props.autoPing}
           />
         </Tile>
         <Tile title="LED Config">

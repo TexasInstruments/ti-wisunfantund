@@ -30,6 +30,9 @@ Open up a terminal and perform the following commands:
 	# Install build-dependent packages (libreadline-dev is optional)
 	sudo apt-get install gcc g++ libdbus-1-dev libboost-dev libreadline-dev
 
+    # To use coap-client based scripts in coap-client-scripts folder, install libcoap2-bin
+    sudo apt-get install libcoap2-bin
+
 ### 2. Configure and build the project ###
 
 If the `configure` script is not already present in the root directory
@@ -68,16 +71,42 @@ the number of processor cores you have on your machine. This greatly
 improves the speed of builds.
 
 Also, if additional debugging information is required or helpful from
-`wpantund`, add the argument `--enable-debug` to the `./configure`
+`wfantund`, add the argument `--enable-debug` to the `./configure`
 line above.
 
-### 3. Install `wpantund` ###
+### 3. Install `wfantund` ###
 
 Once the build above is complete, execute the following command:
 
     sudo make install
 
 This will install `wfantund` onto your computer.
+
+
+Additional Instructions for BeaglePlay Setup
+--------------------------------------------
+
+If you are installing wfantund on the [BeaglePlay][2] device, complete
+installation with the following instructions:
+
+1. The BeaglePlay onboard CC1352P7 device has to be flashed with the Wi-SUN
+border router firmware (CC1352P7 ns_br or ns_br_src SDK projects). This can
+be done through the external TagConnect JTAG connector or the bootloader
+script that comes packaged with Zephyr.
+2. You will need to prevent loading of the default IEEE 802.15.4 interface
+kernel module. This step is documented in the [BeaglePlay Zephyr documentation][3],
+repeated below:
+
+        # Ensure the bcfserial driver isn’t blocking the serial port:
+
+        echo "    fdtoverlays /overlays/k3-am625-beagleplay-bcfserial-no-firmware.dtbo" | sudo tee -a /boot/firmware/extlinux/extlinux.conf
+
+        sudo shutdown -r now
+
+This allows access to /dev/ttyS4, the UART interface connected to the CC1352P7.
+
+[2]: https://www.beagleboard.org/boards/beagleplay
+[3]: https://docs.beagleboard.org/latest/boards/beagleplay/demos-and-tutorials/zephyr-cc1352-development.html#steps
 
 Configuring and Using `wfantund`
 -------------------------------
@@ -91,7 +120,7 @@ followed the directions above) should now be at `/etc/wpantund.conf`.
 
 This file is, by default, filled only with comments—which describe
 all of the important configuration options that you might need to set
-in order to make wpantund usable. Read them over and then uncomment
+in order to make wfantund usable. Read them over and then uncomment
 and update the appropriate configuration properties.
 
 Alternatively, you can specify any needed properties on the command

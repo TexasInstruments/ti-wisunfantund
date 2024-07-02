@@ -1,0 +1,30 @@
+services:
+
+  # These services are designed to be run on ARM devices, such as the BeaglePlay!  
+  freeradius:
+    build: 
+      context: ./freeradius_arm
+      args:
+        # Base image for the container. FreeRADIUS unfortunately doesn't provide an 
+        # official ARM image, so we use Ubuntu 22.04 as the base image and then install
+        # FreeRADIUS on top of it.
+        DOCKER_BASE_IMAGE: ${FREERADIUS_BASE_IMAGE_OVERRIDE:-arm64v8/ubuntu:22.04}
+    privileged: true
+    environment:
+      - TERM=xterm-256color
+    ports:
+      - "1812:1812"
+      - "1813:1813"
+    network_mode: host
+
+  dnsmasq:
+    build:
+      context: ./dnsmasq_arm
+      args:
+        # Base image for the container. As dnsmasq doesn't provide an official image, 
+        # we use Ubuntu 22.04 as the base image and then install dnsmasq on top of it.
+        DOCKER_BASE_IMAGE: ${DNSMASQ_BASE_IMAGE_OVERRIDE:-arm64v8/ubuntu:22.04}
+    privileged: true
+    environment:
+      - TERM=xterm-256color
+    network_mode: host

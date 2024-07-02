@@ -69,7 +69,9 @@
 #define IFEF_NOAUTOIPV6LL   0x2000  /* Interface IPv6 LinkLocal address not provided by kernel */
 #endif
 
+#ifndef HAVE_STRLCPY
 #include "missing/strlcpy/strlcpy.h"
+#endif
 
 #ifndef SIOCSIFLLADDR
 #define SIOCSIFLLADDR SIOCSIFHWADDR
@@ -304,7 +306,7 @@ netif_mgmt_add_ipv6_address(int reqfd, const char* if_name, const uint8_t addr[1
 	require_string(ret >= 0, bail, strerror(errno));
 
 	ifr6.ifr6_ifindex = ret;
-	ifr6.ifr6_prefixlen = 64;
+	ifr6.ifr6_prefixlen = prefixlen;
 
 	ret = ioctl(reqfd, SIOCSIFADDR, &ifr6);
 

@@ -76,10 +76,7 @@ export function BorderRouterInfoProperties(props: BorderRouterInfoPropertiesProp
   }
   let nodeType = null;
   if (props.ncpProperties['Network:NodeType'] !== null) {
-    const found = props.ncpProperties['Network:NodeType'].match(/: (.*)/);
-    if (found !== null && found.length >= 2) {
-      nodeType = found[1];
-    }
+    nodeType = props.ncpProperties['Network:NodeType'];
   }
   let networkProtocol = props.ncpProperties['NCP:InterfaceType'] === 4 ? 'WiSUN FAN' : null;
   let phyRegion = null;

@@ -127,7 +127,7 @@ NCPInstanceBase::NCPInstanceBase(const Settings& settings):
 
 			} else if (strcaseequal(iter->first.c_str(), kWPANTUNDProperty_ConfigNCPSocketPath)) {
 				mRawSerialAdapter = SuperSocket::create(iter->second);
-
+				
 			} else if (strcaseequal(iter->first.c_str(), kWPANTUNDProperty_ConfigTUNInterfaceName)) {
 				wpan_interface_name = iter->second;
 
@@ -142,7 +142,11 @@ NCPInstanceBase::NCPInstanceBase(const Settings& settings):
 
 			} else if (strcaseequal(iter->first.c_str(), kWPANTUNDProperty_ConfigDaemonNetworkRetainCommand)) {
 				mNetworkRetain.set_network_retain_command(iter->second);
+
+			} else if (strcaseequal(iter->first.c_str(), kWPANTUNDProperty_IPv6WfantundGlobalAddress)) {
+			mDefaultGlobalAddress = any_to_ipv6(boost::any(iter->second));
 			}
+
 		}
 	}
 
@@ -164,6 +168,8 @@ NCPInstanceBase::NCPInstanceBase(const Settings& settings):
 	mPrimaryInterface->mMulticastAddressWasLeft.connect(boost::bind(&NCPInstanceBase::multicast_address_was_left, this, kOriginPrimaryInterface, _1, NilReturn()));
 
 	mPrimaryInterface->mLinkStateChanged.connect(boost::bind(&NCPInstanceBase::link_state_changed, this, _1, _2));
+
+	mPrimaryInterface->set_default_interface_address(&mDefaultGlobalAddress);
 
 	set_ncp_power(true);
 

@@ -61,6 +61,9 @@ public:
 
 	const struct in6_addr& get_realm_local_address()const;
 
+	bool is_global_address_set(void);
+	void set_default_interface_address(const struct in6_addr *addr);
+
 	bool add_address(const struct in6_addr *addr, int prefixlen = 64);
 	bool remove_address(const struct in6_addr *addr, int prefixlen = 64);
 
@@ -107,6 +110,7 @@ private:
 	int mNetlinkFD;
 	int mNetifMgmtFD;
 	int mMLDMonitorFD;
+	in6_addr mInterfaceAddr;
 
 	bool mIsRunning;
 	bool mIsUp;

@@ -509,6 +509,7 @@ protected:
 	// ========================================================================
 	// MARK: Protected Data
 
+	in6_addr mDefaultGlobalAddress;
 	boost::shared_ptr<TunnelIPv6Interface> mPrimaryInterface;
 
 	boost::shared_ptr<SocketWrapper> mRawSerialAdapter;

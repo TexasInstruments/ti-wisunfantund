@@ -261,6 +261,17 @@ SpinelNCPInstance::vprocess_offline(int event, va_list args)
 
 	EH_BEGIN_SUB(&mSubPT);
 
+	while (!ncp_state_is_interface_up(get_ncp_state())) {
+		EH_SLEEP_FOR(5);
+		CONTROL_REQUIRE_PREP_TO_SEND_COMMAND_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
+			GetInstance(this)->mOutboundBufferLen = spinel_cmd_prop_value_get(
+			GetInstance(this)->mOutboundBuffer, sizeof(GetInstance(this)->mOutboundBuffer),
+			SPINEL_PROP_NET_STACK_UP);
+		CONTROL_REQUIRE_OUTBOUND_BUFFER_FLUSHED_WITHIN(NCP_DEFAULT_COMMAND_SEND_TIMEOUT, on_error);
+on_error:
+		syslog(LOG_INFO, "Querying stack status.");
+	}
+
 	// Wait for auto deep sleep to be turned on, or if there is an exit condition.
 	EH_WAIT_UNTIL(should_exit || mAutoDeepSleep);
 

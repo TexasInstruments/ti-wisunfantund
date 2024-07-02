@@ -8,7 +8,7 @@ const path = require('path');
 const {sendDBusMessage} = require('./dbusCommands.js');
 const {CONSTANTS} = require('./AppConstants');
 const {SerialPort} = require('serialport');
-const {postLEDStates} = require('./coapCommands.js');
+const {postLEDStates, getOADFirmwareVersion, startOAD} = require('./coapCommands.js');
 
 /**
  * This function sets up all of the webserver endpoints
@@ -215,6 +215,29 @@ function initializeRoutes(app, pingExecutor, borderRouterManager) {
     } else {
       res.json({wasSuccess: false, message: 'Border Router Not Connected'});
     }
+  });
+
+
+  /** 
+   * Webserver endpoint for gathering OAD Firmware Versions
+  */
+  
+  app.post('/OADFirmwareVersion', async (req, res) => {
+    const {ipAddresses} = req.body;
+    for(const ipAddr of ipAddresses) {
+      getOADFirmwareVersion(ipAddr);
+    }
+    
+    res.json("success");
+  });
+
+  app.post('/OADStart', async (req, res) => {
+    const {ipAddresses, payload, filePath} = req.body;
+    for (const ipAddr of ipAddresses) {
+      startOAD(ipAddr, payload, filePath);
+    }
+
+    res.json({wasSuccess: true});
   });
 }
 

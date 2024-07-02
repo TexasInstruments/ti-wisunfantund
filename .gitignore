@@ -70,3 +70,5 @@ src/wpantund/.libs/wpantund
 Android.mk
 /etc/android
 ti_wisun_webapp/node_modules
+.vscode/
+aminclude_static.am

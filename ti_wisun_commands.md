@@ -350,6 +350,44 @@ Number of connected devices: 2
 ]</pre>
 <br /><br />
 
+---
+<br /><br />
+
+ - <pre>get ExternalDHCPServerEnabled</pre><br />
+
+    *Description:* <br /> Returns whether or not the border router will send DHCP traffic to an external server to assign IPv6 addresses to a joining node.
+
+    *Expected Result*:<br /> <pre>ExternalDHCPServerEnabled = true</pre><br /><br />
+<br /><br />
+
+---
+<br /><br />
+
+ - <pre>get ExternalDHCPServerAddr</pre>
+
+    *Description:* <br /> Provides the IPv6 address of the DHCP server or relay that DHCP traffic will be sent to.
+
+    *Expected Result*:<br /> <pre>ExternalDHCPServerAddr = "2020:abcd::"</pre><br /><br />
+
+---
+<br /><br />
+
+ - <pre>get ExternalAuthServerEnabled</pre><br />
+
+    *Description:* <br /> Returns whether or not the border router will send RADIUS traffic to an external server to authenticate a joining node.
+
+    *Expected Result*:<br /> <pre>ExternalAuthServerEnabled = true</pre><br /><br />
+<br /><br />
+
+---
+<br /><br />
+
+ - <pre>get ExternalAuthServerAddr</pre>
+
+    *Description:* <br /> Provides the IPv6 address of the authentication server RADIUS traffic will be sent to.
+
+    *Expected Result*:<br /> <pre>ExternalAuthServerAddr = "2020:abcd::"</pre><br /><br />
+
 
 # List of SET Commands to SET NCP Properties
 
@@ -504,18 +542,6 @@ Number of connected devices: 2
     zero indicates down. (Equivalent of Start/Init)
 
     *Expected Result*:<br /> <pre>Interface:Up = true</pre> or <pre>Interface:Up = false</pre> <br />if interface has not yet been started.
-
-    More details on this command are listed below.<br /><br />
-
----
-<br /><br />
-
- - <pre>set Stack:Up true</pre>
-
-    *Description:* <br /> Wi-SUN stack operational status. Non-zero (set to 1) indicates up,
-    zero indicates down
-
-    *Expected Result*:<br /> <pre>Stack:Up = true</pre> or <pre>Stack:Up = false</pre> if stack has not yet been started.
 
     More details on this command are listed below.<br /><br />
 

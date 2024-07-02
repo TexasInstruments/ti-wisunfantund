@@ -153,7 +153,7 @@ TunnelIPv6Interface::on_link_state_changed(bool isUp, bool isRunning)
 					continue;
 				}
 
-				syslog(LOG_INFO, "Adding address \"%s/%d\" to interface \"%s\"",
+				syslog(LOG_INFO, "on_link_state_changed: Adding address \"%s/%d\" to interface \"%s\"",
 				       in6_addr_to_string(iter->first).c_str(), iter->second.mPrefixLen,
 				       mInterfaceName.c_str());
 
@@ -547,6 +547,12 @@ TunnelIPv6Interface::is_running(void)
 }
 
 bool
+TunnelIPv6Interface::is_global_address_set(void)
+{
+	return !IN6_IS_ADDR_UNSPECIFIED(&mInterfaceAddr);
+}
+
+bool
 TunnelIPv6Interface::is_online(void)
 {
 	static const int online_flags = IFF_UP | IFF_RUNNING;
@@ -604,7 +610,13 @@ bail:
 int
 TunnelIPv6Interface::set_online(bool online)
 {
-	return set_running(online);
+	int status = set_running(online);
+	if (status == 0 && !IN6_IS_ADDR_UNSPECIFIED(&mInterfaceAddr))
+	{
+		syslog(LOG_INFO, "Trying to add default Global IP address %s to %s. . .", in6_addr_to_string(mInterfaceAddr).c_str(), mInterfaceName.c_str());
+		add_address(&mInterfaceAddr, 64);
+	}
+	return status;
 }
 
 void
@@ -614,6 +626,12 @@ TunnelIPv6Interface::reset(void)
 	set_online(false);
 }
 
+
+void
+TunnelIPv6Interface::set_default_interface_address(const struct in6_addr *addr)
+{
+	mInterfaceAddr = *addr;
+}
 
 bool
 TunnelIPv6Interface::add_address(const struct in6_addr *addr, int prefixlen)
@@ -628,7 +646,7 @@ TunnelIPv6Interface::add_address(const struct in6_addr *addr, int prefixlen)
 	}
 
 	if (is_online()) {
-		syslog(LOG_INFO, "Adding address \"%s/%d\" to interface \"%s\"",
+		syslog(LOG_INFO, "add_address: Adding address \"%s/%d\" to interface \"%s\"",
 		       in6_addr_to_string(*addr).c_str(), prefixlen, mInterfaceName.c_str());
 
 		require_noerr_action(

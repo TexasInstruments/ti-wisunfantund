@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {ColorScheme, THEME, ThemeContext} from '../ColorScheme';
 import cytoscape from 'cytoscape';
 import CytoscapeComponent from 'react-cytoscapejs';
@@ -112,6 +112,9 @@ interface TopologyState {
   rssiOut: string | null;
   greenLEDState: boolean | null;
   redLEDState: boolean | null;
+  OADFWVer: string | null;
+  OADImgId: string | null;
+  OADPlatform: string | null;
 }
 
 const defaultTopologyState: TopologyState = {
@@ -119,6 +122,9 @@ const defaultTopologyState: TopologyState = {
   rssiOut: null,
   greenLEDState: null,
   redLEDState: null,
+  OADFWVer: null,
+  OADImgId: null,
+  OADPlatform: null,
 };
 
 export default class Topology extends React.Component<TopologyProps, TopologyState> {
@@ -138,10 +144,12 @@ export default class Topology extends React.Component<TopologyProps, TopologySta
     this.cy.on('select', 'node', e => {
       const node = e.target;
       this.props.ipSelectionHandler(node.id(), true);
+      this.forceRender();
     });
     this.cy.on('unselect', 'node', e => {
       const node = e.target;
       this.props.ipSelectionHandler(node.id(), false);
+      this.forceRender();
     });
     this.cy.on('add', 'node', _evt => {
       if (this.cy === null) {
@@ -162,6 +170,7 @@ export default class Topology extends React.Component<TopologyProps, TopologySta
           ...prevState,
           greenLEDState: node.data('greenLEDState'),
           redLEDState: node.data('redLEDState'),
+          OADFWVer: node.data('OADFWVer'),
         };
       });
     });
@@ -227,6 +236,12 @@ export default class Topology extends React.Component<TopologyProps, TopologySta
       rssiOutString = `RSSI out: ${this.state.rssiOut}/255`;
     }
 
+    let OADFWString, displayOADFW;
+    if(this.state.OADFWVer) {
+      displayOADFW = true;
+      OADFWString = `${this.state.OADFWVer}`;
+    }      
+
     const layout = {
       name: 'dagre',
       boundingBox: {x1: 0, y1: 0, x2: nodes.length * 18 + 180, y2: nodes.length * 10 + 100},
@@ -253,17 +268,23 @@ export default class Topology extends React.Component<TopologyProps, TopologySta
                 additionalDescriptions={[rssiInString, rssiOutString]}
               />
             )}
-            {displayLEDStates && (
-              <InfoMessageTooltipCard name={'LED States'}>
-                <div style={{display: 'flex', flexDirection: 'row'}}>
-                  <LEDObject theme={this.context} ledState={this.state.redLEDState} color={'red'} />
-                  <LEDObject
-                    theme={this.context}
-                    ledState={this.state.greenLEDState}
-                    color={'green'}
-                  />
-                </div>
-              </InfoMessageTooltipCard>
+            {displayLEDStates && displayOADFW /**&& OADFWString*/ && (
+              <div>
+                <InfoMessageTooltipCard name={'LED States'} key={"LED"}>
+                  <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <LEDObject theme={this.context} ledState={this.state.redLEDState} color={'red'} />
+                    <LEDObject
+                      theme={this.context}
+                      ledState={this.state.greenLEDState}
+                      color={'green'}
+                    />  
+                  </div>  
+                </InfoMessageTooltipCard>
+                {/* <InfoMessageTooltipCard name={'Firmware Version'} key={"FWVer"}
+                  additionalDescriptions={[OADFWString]}
+                /> */}
+                
+            </div>
             )}
           </div>
         )}

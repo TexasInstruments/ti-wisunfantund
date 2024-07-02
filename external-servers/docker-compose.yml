@@ -1,0 +1,29 @@
+services:
+  
+  freeradius: #https://hub.docker.com/r/freeradius/freeradius-server/
+    build: 
+      context: ./freeradius
+      args:
+        # Base image for the container. We use the official FreeRADIUS image as 
+        # the base image, and the Dockerfile in the freeradius directory assumes
+        # that the base image will be an official FreeRADIUS image.
+        DOCKER_BASE_IMAGE: ${FREERADIUS_BASE_IMAGE_OVERRIDE:-freeradius/freeradius-server:3.2.3}
+    privileged: true
+    environment:
+      - TERM=xterm-256color
+    ports:
+      - "1812:1812"
+      - "1813:1813"
+    network_mode: host
+
+  dnsmasq:
+    build:
+      context: ./dnsmasq
+      args:
+        # Base image for the container. As dnsmasq doesn't provide an official image, 
+        # we use Ubuntu 22.04 as the base image and then install dnsmasq on top of it.
+        DOCKER_BASE_IMAGE: ${DNSMASQ_BASE_IMAGE_OVERRIDE:-ubuntu:22.04}
+    privileged: true
+    environment:
+      - TERM=xterm-256color
+    network_mode: host

@@ -284,6 +284,10 @@ private:
 	void get_prop_DaemonTickleOnHostDidWake(CallbackWithStatusArg1 cb);
 	void get_prop_POSIXAppRCPVersionCached(CallbackWithStatusArg1 cb);
 	void get_prop_MACFilterFixedRssi(CallbackWithStatusArg1 cb);
+	void get_prop_ExternalDHCPServerEnabled(CallbackWithStatusArg1 cb);
+	void get_prop_ExternalDHCPServerAddress(CallbackWithStatusArg1 cb);
+	void get_prop_ExternalAuthServerEnabled(CallbackWithStatusArg1 cb);
+	void get_prop_ExternalAuthServerAddress(CallbackWithStatusArg1 cb);
 
 private:
 	typedef boost::function<int(const boost::any&, boost::any&)> ValueConverter;

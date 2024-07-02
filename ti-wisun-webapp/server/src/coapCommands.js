@@ -1,6 +1,8 @@
 const coap = require('coap');
 const {getTopology} = require('./ClientState');
 const {canonicalIPtoExpandedIP} = require('./parsing');
+const fs = require('fs');
+const { observe } = require('fast-json-patch');
 
 /**
  * Get the LED states for the node with ipAddr: targetIP
@@ -175,4 +177,210 @@ function getRSSIValues(targetIP) {
   getRequest.end();
 }
 
-module.exports = {getLEDStates, postLEDStates, getRSSIValues};
+function getOADFirmwareVersion(targetIP) {
+  const reqOptions = {
+    observe: false,
+    host: targetIP,
+    pathname: 'oad/fwv',
+    method: 'get',
+    confirmable: true,
+    retrySend: true,
+    options: {},
+  };
+  const nodes = getTopology().graph.nodes;
+  const node = nodes.find(node => node.data.id === targetIP);
+  if (node) {
+    node.data.OADImgId = -1;
+    node.data.OADPlatform = -1;
+    node.data.OADFWVer = -1;
+    const date = new Date();
+    const getRequest = coap.request(reqOptions);
+    getRequest.on('response', getResponse => {
+      if(getResponse.payload.length > 0) {
+        const payload = getResponse.payload;
+          if (!node.data.time || date.getTime() > node.data.time) {
+            node.data.time = date.getTime();
+            node.data.OADImgId = payload.readUInt8(0);
+            node.data.OADPlatform = payload.readUInt8(1);
+            let FWString = payload.readUInt8(2);
+            FWString += ".";
+            FWString += payload.readUInt8(3);
+            FWString += ".";
+            FWString += payload.readUInt8(4) + (payload.readUInt8(5) << 1);
+            FWString += ".";
+            FWString += payload.readUInt8(6) 
+                    + (payload.readUInt8(7) << 1)
+                    + (payload.readUInt8(8) << 2)
+                    + (payload.readUInt8(9) << 3);
+            node.data.OADFWVer = FWString;
+            // console.log("Firmware Version: " + node.data.OADFWVer);
+            // console.log("Image ID: " + node.data.OADImgId);
+            // console.log("Platform: " + node.data.OADPlatform);
+          }
+        }
+      }
+    );
+    // BOTH OF THESE ARE REQUIRED -> COAP ERRORS OUT OTHERWISE
+    getRequest.on('timeout', e => {});
+    getRequest.on('error', e => {});
+    getRequest.end();
+  }
+}
+
+function startOAD(targetIP, payload, filePath) {
+  const reqOptions = {
+    observe: false,
+    host: targetIP,
+    pathname: 'oad/ntf',
+    method: 'post',
+    confirmable: 'true',
+    retrySend: 'true',
+    options: {},
+  };
+//  /home/lpc-test/v1_0_3.bin
+  /**
+   * Open file and read image length and version number
+   */
+
+  const nodes = getTopology().graph.nodes;
+  const node = nodes.find(node => node.data.id === targetIP);
+
+  if(node) {
+    node.data.OADCompletion = 0.0;
+
+    fs.readFile(filePath, (err,inputD)=>{
+      if(err) {
+        node.data.OADCompletion = -2;
+        return;
+      }
+
+      const imageLength = inputD.length
+      payload.push((imageLength >> 0) & 0xFF);
+      payload.push((imageLength >> 8) & 0xFF);
+      payload.push((imageLength >> 16) & 0xFF);
+      payload.push((imageLength >> 24) & 0xFF);
+
+      //version number read
+      payload.push(inputD[20]);
+      payload.push(inputD[21]);
+      payload.push(inputD[22]);
+      payload.push(inputD[23]);
+      payload.push(inputD[24]);
+      payload.push(inputD[25]);
+      payload.push(inputD[26]);
+      payload.push(inputD[27]);
+
+      const postRequest = coap.request(reqOptions);
+      postRequest.on('response', postResponse => {
+        const serverOps = {
+          type: 'udp6',
+          observe: true
+        }
+        const response = postResponse.payload;
+        
+        if(response.length > 1 && response.readUInt8(0) == 123 && response.readUInt8(1) == 1) {        
+          let blockSize = (payload[3] << 8) + payload[2];
+          const numBlocks = imageLength/blockSize;
+          let sentBlocks = Array(numBlocks).fill(0);
+          let totalBlocksSent = 0;
+
+          //OAD Update Start
+          console.log("Update Approved. Beginning Update");
+          
+          //create server to recieve block requests
+          const server = coap.createServer(serverOps);
+
+          //create function to handle block requests
+          server.on('request', (req, res) => {
+            const request = req.payload;          
+
+            //check for OAD Aborting
+            if(request.length == 0) {
+              console.log("OAD Aborting...");
+              node.data.OADCompletion = -1;
+              res.on('timeout', e => {});
+              res.on('error', e => {});
+              res.end();
+              server.close();
+              return;
+            }
+
+            //parse the input
+            var inputBuffer = [];
+            for (i = 0; i < request.length; i++) {
+              inputBuffer.push(request.readUInt8(i));
+            }
+            // console.log(inputBuffer);
+
+            const OADImgId = inputBuffer[0];
+            const blockNum = (inputBuffer[2] << 8) + inputBuffer[1];
+            const totalBlocks = (inputBuffer[4] << 8) + inputBuffer[3];
+
+            if(blockNum == 0xFFFF) {
+              console.log("OAD Complete");
+              node.data.OADCompletion = 100;
+              res.on('timeout', e => {});
+              res.on('error', e => {});
+              res.end();
+              server.close();
+              return;
+            }
+
+            // console.log("OADImgID: " + OADImgId);
+            // console.log("blockNum: " + blockNum);
+            // console.log("totalBlocks: " + totalBlocks);
+            // console.log("blockSize: " + blockSize);
+
+            //Update front end
+            if(sentBlocks[blockNum] == 0) {
+              sentBlocks[blockNum] = 1;
+              totalBlocksSent++;
+              node.data.OADCompletion = totalBlocksSent*100.0/totalBlocks;
+            }
+
+            //Calculate block information
+            oadBlockStart = blockNum * blockSize;
+            oadBlockEnd = oadBlockStart + blockSize;
+            if(oadBlockEnd > imageLength) {
+              oadBlockEnd = imageLength;
+            }
+            blockSize = oadBlockEnd - oadBlockStart;
+            console.log("Sending block " + (blockNum + 1) + "/" + totalBlocks);
+
+            //Create payload
+            let oadPayload = [OADImgId, inputBuffer[1], inputBuffer[2]];
+            for(i = oadBlockStart; i < oadBlockEnd; i++) {
+              oadPayload.push(inputD[i]);
+            }
+
+          // console.log("Block " + (blockNum + 1) + ": " + oadPayload);
+
+            //Send response
+            res.write(Buffer.from(oadPayload));
+            // BOTH OF THESE ARE REQUIRED -> COAP ERRORS OUT OTHERWISE
+            res.on('timeout', e => {});
+            res.on('error', e => {});
+            res.end();
+
+            //block requests may not be sequential 
+            //final message is OAD Complete, no response required
+          });
+        
+          server.listen();
+        }
+        else {
+          console.log("Update Rejected.");
+          node.data.OADCompletion = -3;
+        }      
+      });
+      // BOTH OF THESE ARE REQUIRED -> COAP ERRORS OUT OTHERWISE
+      postRequest.on('timeout', e => {node.data.OADCompletion = -4;});
+      postRequest.on('error', e => {});
+      // Write the new states to the coap payload
+      postRequest.write(Buffer.from(payload));
+      postRequest.end();
+    });
+  }
+}
+
+module.exports = {getLEDStates, postLEDStates, getRSSIValues, getOADFirmwareVersion, startOAD};

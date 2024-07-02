@@ -111,6 +111,11 @@ To start wfanctl use
 ```
    $ sudo /usr/local/bin/wfanctl 
 ```
+You can also pass in the specific interface name using the -I option when connecting
+to an interface with a non-default name
+```
+   $ sudo /usr/local/bin/wfanctl -I wfan0
+```
 To get/set properties use the get/set command.
 
 example:
@@ -119,15 +124,14 @@ example:
    0xABCD
 ```
 
-The status of TI Wi-SUN Border Router along with some other related information can be obtained using the `status` command
-
+The status of TI Wi-SUN Border Router along with some other related information like the daemon version can be obtained using the `status` command
 ```
 wfanctl:wfan0> status
 wfan0 => [
 	"NCP:State" => "offline"
 	"Daemon:Enabled" => true
-	"NCP:Version" => "TIWISUNFAN/1.0.1; RELEASE; Oct 28 2021 14:02:58"
-	"Daemon:Version" => "0.08.00d (0.07.01-380-ge8fc63f-dirty; Nov  2 2021 20:16:55)"
+	"NCP:Version" => "TIWISUNFAN/1.0.2; RELEASE; Dec 19 2024 21:44:28"
+	"Daemon:Version" => "1.00.07 (0.07.01-397-g1f99dae-dirty; Dec 30 2024 19:47:08)"
 	"Config:NCP:DriverName" => "spinel"
 	"NCP:HardwareAddress" => [00124B0014F7D160]
 	"Network:NodeType" => "0 : Border Router"
@@ -136,11 +140,11 @@ wfan0 => [
 ```
 _For detailed list of all supported TI Wi-SUN FAN Command, please refer to `ti_wisun_commands.md`_
 
-The interface and stack can be started using the following commands
+The interface and stack can be started using the following command:
 ```
-   $ sudo wfanctl set interface:up true
-   $ sudo wfanctl set stack:up true
+wfanctl:wfan0> set interface:up true
 ```
+This brings up the stack interface and starts the NCP network stack.
 
 Status of Interface can be checked by using the status command.
 ```
@@ -149,14 +153,72 @@ wfan0 => [
 	"NCP:State" => "associated"
 	"Daemon:Enabled" => true
 	"NCP:Version" => "TIWISUNFAN/1.0.1; RELEASE; Oct 28 2021 14:02:58"
-	"Daemon:Version" => "0.08.00d (0.07.01-380-ge8fc63f-dirty; Nov  2 2021 20:16:55)"
+	"Daemon:Version" => "1.00.07 (0.07.01-397-g1f99dae-dirty; Dec 30 2024 19:47:08)"
 	"Config:NCP:DriverName" => "spinel"
 	"NCP:HardwareAddress" => [00124B0014F7D160]
 	"Network:NodeType" => "0 : Border Router"
 	"Network:PANID" => 0xABCD
 ]
 ```
-Note: `associated` in TI WI-SUN FAN Contest implies that the TI Wi-SUN FAN Border Router has started.
+Note: `associated` in TI WI-SUN FAN Context implies that the TI Wi-SUN FAN Border Router has started.
+
+### Checking wfantund daemon version ###
+To check the version of wfantund currently installed, run `wfantund --version`.
+```
+> wfantund --version
+wfantund 1.00.07 (0.07.01-397-g1f99dae-dirty; Dec 30 2024 19:47:08)
+```
+
+When wfantund is already running, you can also check the daemon version in wfanctl using the `status` command.
+
+### Enabling host to embedded device IP communication
+
+By default, wfantund will assign the created interface the same IP address as the device it
+is connected to. This means that traffic from the host destined to this address will be routed
+to the loopback interface instead of physically going out to the device. Wfantund can instead
+be configured to use its own unique IP address for the interface, allowing traffic to go freely to 
+and from the embedded device. To enable this option, uncomment the `IPv6:WfantundGlobalAddress` option 
+from wpandtund.conf or pass in the option on the command line when starting wfantund. 
+
+The default `IPv6:WfantundGlobalAddress` is `2020:ABCD::/64`, which will create a route for any packets 
+destined to an address prefixed with `2020:ABCD:0000:0000` out via the wfantund interface. When using default 
+settings on the internal DHCP server on the border router or the external DHCP server detailed below, addresses 
+given out will match this pattern. If you change away from this default prefix, keep in mind you may need to either 
+update the addresses given out to nodes in the Wi-SUN network to use your new prefix, or manually create routes out 
+through the interface. Prefix sizes other than `/64` are not currently supported.
+
+### Using external Authentication and/or DHCPv6 Servers ###
+
+The embedded border router project can be configured to route authentication and DHCP traffic up through wfantund.
+To actually handle this traffic, two example servers are provided via Docker under the `external-servers`folder. 
+Refer to the readme there to see how to configure and start the containers.
+
+### Using iperf with border router and router node TUN interfaces ###
+
+The iperf bandwidth measurement tool can be used to calculate network throughput via the TUN interfaces created
+by wfantund. It is recommended to use two separate Linux instances to host the border router and router node
+interfaces to prevent loopback issues and ensure packets are routed through to the embedded devices.
+
+For data rates higher than 50kbps, it is recommended to increase the embedded NCP buffer sizes and UART baud rates
+to support higher traffic through the spinel interface. The following adjustments should be made on src builds of
+embedded router and border router devices (from TI CC13XX_CC26XX SimpleLink SDK):
+* In wisun_ncp/src/ncp_config.h: Increase CONFIG_NCP_TX_BUFFER_SIZE to 2048
+* In wisun_ncp/src/ncp_config.h: Increase CONFIG_NCP_UART_TX_CHUNK_SIZE to 2048
+* In wisun_ncp/src/ncp_config.h: Increase CONFIG_NCP_UART_RX_BUFFER_SIZE to 2048
+* In wisun_ncp/platform/uart.c:  In the function otPlatUartEnable, increase params.baudRate to 460800
+
+The following adjustment should be made to wfantund builds:
+* In src/util/socket-utils: Increase gSocketWrapperBaud value to 460800;
+
+### Using wfantund and wfanctl with Wi-SUN router node ###
+
+While the Linux webserver can only be used with Wi-SUN border routers, wfantund and wfanctl can also be used
+with Wi-SUN router nodes. Coap nodes cannot be used, only border routers and router nodes, as they are NCP-enabled
+examples while coap node examples are embedded-only.
+
+The steps to using wfantund and wfanctl for router nodes are the same. The only difference is, once the interface
+is brought up using `set interface:up true`, the device will remain in the offline state, only transistioning
+to the associated state once the device has joined the network.
 
 ### Checking if tun Interface is up. ###
 When the stack is up, the TUN interface will be enabled. It can be verified by checking

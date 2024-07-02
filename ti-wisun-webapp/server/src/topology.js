@@ -4,7 +4,7 @@ const {parseConnectedDevices, parseDodagRoute, canonicalIPtoExpandedIP} = requir
 const {getNetworkIPInfo, getTopology} = require('./ClientState.js');
 const {getPingExecutor} = require('./PingExecutor.js');
 const fetch = require('node-fetch');
-const {getLEDStates, getRSSIValues} = require('./coapCommands.js');
+const {getLEDStates, getRSSIValues, getOADFirmwareVersion} = require('./coapCommands.js');
 
 /**
  * This function takes an array of array of IP addresses and

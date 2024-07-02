@@ -71,3 +71,13 @@ img {
 *::-webkit-scrollbar-thumb:hover {
   background-color: var(--thumb_bg_hover);
 }
+
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  border: 1px solid black;
+  display: inline-block;
+  padding: 6px 12px
+}

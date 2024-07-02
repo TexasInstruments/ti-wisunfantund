@@ -1,5 +1,6 @@
 import {ReactElement} from 'react';
 import {Color} from './ColorScheme';
+import { StringLiteral } from 'typescript';
 
 export interface FlexTableColumnFormat {
   headerValue: string | ReactElement;
@@ -29,6 +30,10 @@ export interface IPAddressInfo {
 export interface CytoscapeNode {
   data: {
     id: string;
+    OADFWVer: string;
+    OADImgId: string;
+    OADPlatform: number;
+    OADCompletion: number; 
   };
   selected?: boolean;
 }

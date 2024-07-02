@@ -56,6 +56,10 @@
 #define kWPANTUNDProperty_BCChFunction                          "BCChFunction"
 #define kWPANTUNDProperty_MacFilterList                         "MacFilterList"
 #define kWPANTUNDProperty_MacFilterMode                         "MacFilterMode"
+#define kWPANTUNDProperty_ExternalDHCPServerEnabled             "ExternalDHCPServerEnabled"
+#define kWPANTUNDProperty_ExternalDHCPServerAddr                "ExternalDHCPServerAddr"
+#define kWPANTUNDProperty_ExternalAuthServerEnabled             "ExternalAuthServerEnabled"
+#define kWPANTUNDProperty_ExternalAuthServerAddr                "ExternalAuthServerAddr"
 
 
 /* NET */
@@ -132,6 +136,7 @@
 #define kWPANTUNDProperty_NetworkPSKc                           "Network:PSKc"
 #define kWPANTUNDProperty_NetworkPartitionId                    "Network:PartitionId"
 
+#define kWPANTUNDProperty_IPv6WfantundGlobalAddress             "IPv6:WfantundGlobalAddress"
 #define kWPANTUNDProperty_IPv6LinkLocalAddress                  "IPv6:LinkLocalAddress"
 #define kWPANTUNDProperty_IPv6MeshLocalAddress                  "IPv6:MeshLocalAddress"
 #define kWPANTUNDProperty_IPv6MeshLocalPrefix                   "IPv6:MeshLocalPrefix"

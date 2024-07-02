@@ -115,4 +115,31 @@ export class APIService {
     };
     return await APIService.fetchJSON(`/setLEDStates`, requestOpts);
   }
+
+  //**Get OAD Firmware Versions */
+  static async getOADFWVer(ipAddresses: string[]) {
+    const requestOpts = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      mode: 'cors',
+      body: JSON.stringify({ipAddresses: ipAddresses}),
+    };
+    return await APIService.fetchJSON(`/OADFirmwareVersion`, requestOpts);
+  }
+
+  static async startOAD(ipAddresses: string[], payload: number[], filePath: string) {        
+    const requestOpts = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      mode: 'cors',
+      body: JSON.stringify({ipAddresses: ipAddresses, payload: payload, filePath: filePath}),
+    };
+    return await APIService.fetchJSON('/OADStart', requestOpts);
+  }
 }

@@ -833,20 +833,18 @@ unpack_num_connected(const uint8_t *data_in, spinel_size_t data_len, boost::any&
 
 	int connected_devices = 0;
 	spinel_datatype_unpack(data_in, data_len, "S", &connected_devices);
-	value = connected_devices;
-
 	int ret = kWPANTUNDStatus_Ok;
-	std::string print_str = "\nNum Connected Devices:\n\n";
 
 	if(WEBSERVER_APP == 1)
 	{
+		std::string print_str = "\nNum Connected Devices:\n\n";
 		print_str.append("Created file and num_connected_devices is in it.");
 		print_str.append(any_to_string(connected_devices) + "\n");		
 		std::ofstream myfile(numconnected_filename);
 		myfile << (connected_devices) << ":" << std::endl;
 		myfile.close();
 	}
-	value = print_str;
+	value = connected_devices;
 	return ret;
 }
 
@@ -3246,6 +3244,18 @@ SpinelNCPInstance::regsiter_all_get_handlers(void)
 		kWPANTUNDProperty_IPv6LinkLocalAddress,
 		boost::bind(&SpinelNCPInstance::get_prop_IPv6LinkLocalAddress, this, _1));
 	register_get_handler(
+		kWPANTUNDProperty_ExternalDHCPServerEnabled,
+		boost::bind(&SpinelNCPInstance::get_prop_ExternalDHCPServerEnabled, this, _1));
+	register_get_handler(
+		kWPANTUNDProperty_ExternalDHCPServerAddr,
+		boost::bind(&SpinelNCPInstance::get_prop_ExternalDHCPServerAddress, this, _1));
+	register_get_handler(
+		kWPANTUNDProperty_ExternalAuthServerEnabled,
+		boost::bind(&SpinelNCPInstance::get_prop_ExternalAuthServerEnabled, this, _1));
+	register_get_handler(
+		kWPANTUNDProperty_ExternalAuthServerAddr,
+		boost::bind(&SpinelNCPInstance::get_prop_ExternalAuthServerAddress, this, _1));
+	register_get_handler(
 		kWPANTUNDProperty_ThreadChildTable,
 		boost::bind(&SpinelNCPInstance::get_prop_ThreadChildTable, this, _1));
 	register_get_handler(
@@ -3464,6 +3474,30 @@ SpinelNCPInstance::get_prop_IPv6LinkLocalAddress(CallbackWithStatusArg1 cb)
 	} else {
 		cb(kWPANTUNDStatus_Ok, boost::any(in6_addr_to_string(mNCPLinkLocalAddress)));
 	}
+}
+
+void
+SpinelNCPInstance::get_prop_ExternalDHCPServerEnabled(CallbackWithStatusArg1 cb)
+{
+	get_spinel_prop(cb, SPINEL_PROP_EXTERNAL_DHCP_SERVER_ENABLED, SPINEL_DATATYPE_BOOL_S);
+}
+
+void
+SpinelNCPInstance::get_prop_ExternalDHCPServerAddress(CallbackWithStatusArg1 cb)
+{
+	get_spinel_prop(cb, SPINEL_PROP_EXTERNAL_DHCP_SERVER_ADDRESS, SPINEL_DATATYPE_IPv6ADDR_S);
+}
+
+void
+SpinelNCPInstance::get_prop_ExternalAuthServerEnabled(CallbackWithStatusArg1 cb)
+{
+	get_spinel_prop(cb, SPINEL_PROP_EXTERNAL_AUTH_SERVER_ENABLED, SPINEL_DATATYPE_BOOL_S);
+}
+
+void
+SpinelNCPInstance::get_prop_ExternalAuthServerAddress(CallbackWithStatusArg1 cb)
+{
+	get_spinel_prop(cb, SPINEL_PROP_EXTERNAL_AUTH_SERVER_ADDRESS, SPINEL_DATATYPE_IPv6ADDR_S);
 }
 
 void
@@ -5771,6 +5805,12 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 		spinel_datatype_unpack(value_data_ptr, value_data_len, "C", &filter_mode);
 		set_mac_filter_mode(filter_mode);
 
+	} else if (key == SPINEL_PROP_EXTERNAL_DHCP_SERVER_ENABLED) {
+		unsigned int external_dhcp_server = 0;
+		spinel_datatype_unpack(value_data_ptr, value_data_len, "C", &external_dhcp_server);
+	} else if (key == SPINEL_PROP_EXTERNAL_AUTH_SERVER_ENABLED) {
+		unsigned int external_auth_server = 0;
+		spinel_datatype_unpack(value_data_ptr, value_data_len, "C", &external_auth_server);
 	} else if (key == SPINEL_PROP_PHY_CHO_CENTER_FREQ) {
 		int ch0_mhz = 0;
 		int ch0_khz = 0;
@@ -6845,6 +6885,9 @@ void
 SpinelNCPInstance::handle_ncp_spinel_value_inserted(spinel_prop_key_t key, const uint8_t* value_data_ptr, spinel_size_t value_data_len)
 {
 	if (key == SPINEL_PROP_IPV6_ADDRESS_TABLE) {
+		//Add addresses from the embedded device only if we don't already have a global IP address set for the interface
+		if (!mPrimaryInterface->is_global_address_set())
+		{
 			struct in6_addr *addr = NULL;
 			uint8_t prefix_len = 0;
 			uint32_t valid_lifetime = 0xFFFFFFFF;
@@ -6857,6 +6900,7 @@ SpinelNCPInstance::handle_ncp_spinel_value_inserted(spinel_prop_key_t key, const
 					unicast_address_was_added(kOriginThreadNCP, *addr, prefix_len, valid_lifetime, preferred_lifetime);
 				}
 			}
+		}
 
 	} else if (key == SPINEL_PROP_MAC_MAC_FILTER_LIST) {
 		unsigned int *entry_ptr = NULL;

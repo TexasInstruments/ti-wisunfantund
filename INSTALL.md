@@ -162,9 +162,17 @@ To change interface name:
 ```
 can be used (Default InterfaceName is set to wfan0)
 
-The interface and stack can be started using the following commands
+The interface and stack can be started using the following command in
+the wfanctl CLI:
 ```
-   sudo wfanctl set interface:up true
-   sudo wfanctl set stack:up true
+    wfanctl:wfan0> set interface:up true
 ```
-
+You can query the connected state of the device with the status command:
+```
+    wfanctl:wfan0> status
+```
+For Border Router devices, the device will quickly start up, entering the
+associated state. For Router devices, the device will remain in the
+offline state until it joins a Wi-SUN network and enters the
+associated state. After entering associated state, the tunnel interface
+will be established.

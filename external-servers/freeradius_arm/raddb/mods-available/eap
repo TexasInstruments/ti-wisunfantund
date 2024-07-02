@@ -1,0 +1,29 @@
+eap {
+    default_eap_type = tls
+    # Bump up the default timer to allow for slow network speeds
+    timer_expire = 3600
+
+    tls-config tls-common {
+        # These are the default certificates that come from the SDK examples,
+        # Update them as needed.
+        private_key_file = ${certdir}/ti_br_key.pem
+        certificate_file = ${certdir}/ti_br_cert.pem
+        ca_file = ${certdir}/ti_ca_cert.pem
+
+        # By default, OpenSSL will automatically create certificate chains
+        # The problem is that it sometimes gets the chains right from a
+        # certificate signature view, but wrong from the clients view.
+        auto_chain = no
+
+        # Radius packet should fit into a 15.4 frame
+        fragment_size = 1024
+
+        # Wi-SUN specification enforces these algorithms
+        cipher_list = "ECDHE-ECDSA-AES128-CCM8"
+        ecdh_curve = "prime256v1"
+    }
+
+    tls {
+        tls = tls-common
+    }
+}

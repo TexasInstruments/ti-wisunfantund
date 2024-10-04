@@ -600,11 +600,20 @@ bail:
 	return ret;
 }
 
+in6_addr test_addr = {0};
 
 int
 TunnelIPv6Interface::set_online(bool online)
 {
-	return set_running(online);
+	int status = set_running(online);
+	if (status == 0)
+	{
+		// kWPANTUNDProperty_IPv6WfantundGlobalAddress;
+		syslog(LOG_INFO, "Trying to add default Global IP address to %s. . .", mInterfaceName.c_str());
+		test_addr = {0x20,0x20,0xAB,0xCD, 0,0,0,0, 0,0,0,0, 0,0,0,0};
+		add_address(&test_addr, 64);
+	}
+	return status;
 }
 
 void

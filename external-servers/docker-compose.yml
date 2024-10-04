@@ -1,0 +1,9 @@
+services:
+  dnsmasq:
+    build: ./dnsmasq
+    privileged: true
+    environment:
+      - TERM=xterm-256color
+    volumes:
+      - ./test_packets:/test_packets
+    network_mode: host

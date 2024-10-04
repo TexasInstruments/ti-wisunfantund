@@ -158,6 +158,12 @@ wfan0 => [
 ```
 Note: `associated` in TI WI-SUN FAN Contest implies that the TI Wi-SUN FAN Border Router has started.
 
+### Using an external DHCPv6 Server ###
+
+The embedded border router project can be configured to route DHCP traffic up through wfantund.
+To actually handle this traffic, an example server is provided via Docker under the `external-servers` folder. 
+Refer to the readme there to see how to configure and start the containers.
+
 ### Checking if tun Interface is up. ###
 When the stack is up, the TUN interface will be enabled. It can be verified by checking
 

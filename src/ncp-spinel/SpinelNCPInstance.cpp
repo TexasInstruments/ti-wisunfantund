@@ -6844,21 +6844,7 @@ bail:
 void
 SpinelNCPInstance::handle_ncp_spinel_value_inserted(spinel_prop_key_t key, const uint8_t* value_data_ptr, spinel_size_t value_data_len)
 {
-	if (key == SPINEL_PROP_IPV6_ADDRESS_TABLE) {
-			struct in6_addr *addr = NULL;
-			uint8_t prefix_len = 0;
-			uint32_t valid_lifetime = 0xFFFFFFFF;
-			uint32_t preferred_lifetime = 0xFFFFFFFF;
-
-			spinel_datatype_unpack(value_data_ptr, value_data_len, "6CLL", &addr, &prefix_len, &valid_lifetime, &preferred_lifetime);
-
-			if (addr != NULL) {
-				if (!should_filter_address(*addr, prefix_len)) {
-					unicast_address_was_added(kOriginThreadNCP, *addr, prefix_len, valid_lifetime, preferred_lifetime);
-				}
-			}
-
-	} else if (key == SPINEL_PROP_MAC_MAC_FILTER_LIST) {
+	if (key == SPINEL_PROP_MAC_MAC_FILTER_LIST) {
 		unsigned int *entry_ptr = NULL;
 		spinel_size_t entry_len = 0;
 		spinel_ssize_t len = 0;

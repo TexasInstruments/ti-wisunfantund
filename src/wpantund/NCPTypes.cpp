@@ -304,10 +304,10 @@ nl::wpantund::ncp_region_to_string(uint8_t region)
 		ret = "2 : Japan";
 		break;
 	case 3:
-		ret = "1 : Europe";
+		ret = "3 : Europe";
 		break;
 	case 7:
-		ret = "1 : Brazil";
+		ret = "7 : Brazil";
 		break;
 	default:
 		ret.append(std::to_string(region));

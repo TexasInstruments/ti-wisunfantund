@@ -1,0 +1,56 @@
+services:
+
+  linux_host:
+    build:
+      context: ./linux-host/
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BASE_IMAGE: ${LINUX_HOST_BASE_IMAGE_OVERRIDE:-ubuntu:22.04}
+    
+    volumes:
+      - ./linux-host:/linux-host
+      # Update this volume mount to match wherever you've installed the SDK
+      - <SDK_PATH_ON_HOST_HERE>:/linux-host/src/lprf-dallas-wisunfan
+
+    # For USB Access
+    privileged: true
+    
+    # Experimental support for connecting to Linux Host container from Host OS. With this enabled, you can connect to the Linux Host from wfantund running directly on the host using "-o Config:NCP:SocketPath tcp:localhost:4902".
+    # Note that all testing was done using the wfantund service below running in a container, not using this method!
+    # ports:
+    #   - 4902:4902
+
+    working_dir: /linux-host
+
+    container_name: linux_host
+
+    networks:
+      - wisunfan_network
+
+  wfantund:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BASE_IMAGE: ${WFANTUND_BASE_IMAGE_OVERRIDE:-ubuntu:22.04}
+
+    privileged: true
+    environment:
+      - TERM=xterm-256color
+
+    volumes:
+      - ./:/wfantund
+
+    working_dir: /wfantund
+    
+    container_name: wfantund
+
+    networks:
+      - wisunfan_network
+
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+networks:
+  wisunfan_network:
+    enable_ipv6: true
+    name: wisunfan_network

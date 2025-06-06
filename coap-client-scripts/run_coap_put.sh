@@ -1,4 +1,6 @@
+#!/bin/bash
 #set -x
+
 rm c.bin
 echo "Starting the COAP Process with IP Address $1 $2 $3"
 

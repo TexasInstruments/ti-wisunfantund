@@ -1,0 +1,33 @@
+# CMake build directory
+build/
+
+# Ninja generated files
+build.ninja
+.ninja_deps
+.ninja_log
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+bin/
+*.exe
+*.out
+
+# Libraries
+*.a
+*.lib
+
+# Default NV simulation file
+nv-simulation.bin
+
+# Miscellaneous
+*.log
+*.swp

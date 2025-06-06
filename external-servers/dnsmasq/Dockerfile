@@ -1,9 +1,9 @@
 ARG DOCKER_BASE_IMAGE
 FROM ${DOCKER_BASE_IMAGE}
 # Install some utilities 
-RUN sudo apt update && sudo apt install -y nano iproute2 curl systemctl
+RUN apt update && apt install -y nano iproute2 curl systemctl
 # Install dnsmasq
-RUN sudo apt update && sudo apt install -y dnsmasq=2.86-1.1
+RUN apt update && apt install -y dnsmasq=2.86-1.1
 # Enable DHCP server with our options
 COPY etc/dnsmasq.conf /etc/dnsmasq.conf
 # Start dnsmasq and don't use dns, only DHCP

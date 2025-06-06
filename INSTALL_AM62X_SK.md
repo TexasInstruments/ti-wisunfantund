@@ -1,43 +1,43 @@
-# `wfantund` Installation Guide on TI AM64x
+# `wfantund` Installation Guide on TI AM62x
 
 `wfantund` is derived from `wpantund` and modified to meet the needs of TI Wi-SUN FAN Solution.
 
 This document describes the process of building and installing
-`wfantund` on TI AM64x SK (https://www.ti.com/tool/SK-AM64).
+`wfantund` on the TI AM62x EVM (https://www.ti.com/tool/SK-AM62B-P1). Note that this guide assumes you'll be running everything directly on your host OS, not through Docker. 
 
-## AM64x Linux Development Environment Setup
+## AM62x Linux Development Environment Setup
 
-- Install Processor SDK Linux for AM64x. Recommended Version: 08.00.00.21  
-  (https://software-dl.ti.com/processor-sdk-linux/esd/AM64X/08_00_00_21/exports/ti-processor-sdk-linux-am64xx-evm-08.00.00.21-Linux-x86-Install.bin)
+- Install Processor SDK Linux for AM62x EVM. Recommended Version: 11.01.05.03  
+  (https://dr-download.ti.com/software-development/software-development-kit-sdk/MD-PvdSyIiioq/11.01.05.03/ti-processor-sdk-linux-am62xx-evm-11.01.05.03-Linux-x86-Install.bin)
 - **Preferred Method:** Setup all tools and set custom boot & rootfile systems as follows:
 
 ```
 	mkdir <SDK_PATH>/targetNFS
 	cd 	<SDK_PATH>/targetNFS
-	tar -xvf  <SDK_PATH>/filesystem/tisdk-default-image-am64xx-evm.tar.xz
+	tar -xvf  <SDK_PATH>/filesystem/am62xx-evm/tisdk-default-image-am62xx-evm.rootfs.tar.xz
 ```
 
-- **Alternate Method:** Run `./setup.sh`
+- **Alternate Method:** Run `./setup.sh` in the AM62x SDK
 
   - **Important:** _Default targetNFS uses the tisdk-docker image. It is recommend to use the tisdk-default image_
   - Set up root filesystem at default location `<SDK_PATH>/targetNFS`
 
-## Preparation of AM64x SD Card Image:
+## Preparation of AM62x SD Card Image:
 
 - Perform steps in ti-wisun-webapp/README.md to install updated npm/node versions
 - Download lib-coap from https://github.com/obgm/libcoap/tree/release-4.3.0  
-  (Note: This is needed for AM64x. AM64x native SDK does not provide support to lib coap today.)
+  (Note: This is needed for AM62x. AM62x native SDK does not provide support to lib coap today.)
 - Setup the AutoConf dependencies
   sudo apt-get install autoconf autoconf-archive
-- run `setup_AM64x_fileSystem.sh <AM64_SDK_PATH> <LIB_COAP DOWNLOAD PATH>`
+- run `setup_AM62x_fileSystem.sh <AM64_SDK_PATH> <LIB_COAP DOWNLOAD PATH>`
   - The Script performs the following
-    - Cross compiles to AM64x platform
+    - Cross compiles to AM62x platform
     - Sets up the webserver components and service start scripts
-    - Sets the root file system for AM64x under <SDK_PATH>/targetNFS
-- Insert SD Card into PC & Call bin/create-sdcard.sh script provided in AM64x SDK with root privileges
-  - Script will automatically partition the SD Card and prepare it for AM64x (select atleast 2 partitions)
+    - Sets the root file system for AM62x under <SDK_PATH>/targetNFS
+- Insert SD Card into PC & Call bin/create-sdcard.sh script provided in AM62x SDK with root privileges
+  - Script will automatically partition the SD Card and prepare it for AM62x (select atleast 2 partitions)
   - Script will ask for boot folder, Linux Kernel images and root files ystem
-    - Boot: recommend to provide pre-built boot: <SDK_PATH>/board-support/prebuilt-images
+    - Boot: recommend to provide pre-built boot: <SDK_PATH>/board-support/prebuilt-images/am62xx-evm
     - Linux Kernel: Use the option that allows Kernel images to be used from the root filesystem
     - RootFileSystem: Specify the path to prepared root file system (<SDK_PATH>/targetNFS)
 
@@ -51,10 +51,10 @@ This document describes the process of building and installing
 
 ## TI Wi-SUN FAN OOB Demo:
 
-- Insert SD card in AM64x SK, connect BR NWP to its USB Port & Power On
-- AM64x will boot and automatically start the BR and ti-wisun-webapp
+- Insert SD card in AM62x SK, connect BR NWP to its USB Port & Power On
+- AM62x will boot and automatically start the BR and ti-wisun-webapp
   _*(Note: This may take up to 2 minutes)*_
-- Use Mobile Phone or PC to search for WiFi Access Point TI AM64xsk_AP
+- Use Mobile Phone or PC to search for WiFi Access Point TI AM62xsk_AP
 - Connect to WiFi using default password (tiwilink8)
 - Power on the two (or more) TI CC13x2R7 Launchpads with OOB node CoAP examples 
   (Green LED will blink fast to indicate it is trying to join the network)
@@ -68,7 +68,7 @@ _*User can configure and monitor the network*_
 
 ### Trouble Shooting OOB Demo
 
-The `setup_AM64x_fileSystem.sh` sets up the run configuration directories with an init script for running the
+The `setup_AM62x_fileSystem.sh` sets up the run configuration directories with an init script for running the
 ti-wisun-webapp on boot.
 
 If the nodes do not join as expected after _~5-7 minutes_ one can
@@ -79,9 +79,9 @@ restart wfantund as follows:
   - It will trigger restart wfantund execution from the webapp
   - Remember to restart the nodes as the Border Router will be re-started
 
-## Cross Compiling for AM64x
+## Cross Compiling for AM62x
 
-The setup_AM64x_fileSystem.sh script performs the following cross compilation steps for wfantund and lib-coap. The steps are provided here for reference.
+The setup_AM62x_fileSystem.sh script performs the following cross compilation steps for wfantund and lib-coap. The steps are provided here for reference.
 
 ### Wfantund compiling & setup instructions
 
@@ -89,7 +89,7 @@ From `wfantund` base folder:
 
 ```
 #Set the toolchain & other cross-compile environment by using SDK environment setup
-source <SDK_PATH>/linux-devkit/environment-setup-aarch64-linux
+source <SDK_PATH>/linux-devkit/environment-setup-aarch64-oe-linux
 
 #run the bootstap.sh
 sudo ./bootstrap.sh
@@ -116,13 +116,13 @@ Download libcoap package from https://github.com/obgm/libcoap/tree/release-4.3.0
 sudo ./autogen.sh --clean
 
 # Set the toolchain & other cross-compile environment by using SDK environment setup
-source <SDK_PATH>/linux-devkit/environment-setup-aarch64-linux
+source <SDK_PATH>/linux-devkit/environment-setup-aarch64-oe-linux
 
 # Run autogen
 sudo ./autogen.sh
 
 # Configure for aarch64
-./configure --host=aarch64-linux  --target=aarch64-linux --prefix=/home/sdwk01/ti/ti-processor-sdk-linux-am64xx-evm-08.00.00.21/targetNFS -disable-doxygen --disable-manpages
+./configure --host=aarch64-linux  --target=aarch64-linux --prefix=<SDK_PATH>/targetNFS -disable-doxygen --disable-manpages
 
 # compile the software for target
 make

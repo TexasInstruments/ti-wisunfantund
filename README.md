@@ -1,6 +1,7 @@
 wfantund, Userspace Wireless Field Area Network (WFAN) Network Daemon
 ======================================================================
 
+
 `wfantund` is derived from `wpantund` which was written and developed by
 Nest Labs to make supporting [Thread](http://threadgroup.org)
 connectivity on Unix-like operating systems more straightforward.
@@ -46,6 +47,11 @@ limitations under the License.
 [1]: http://www.apache.org/licenses/LICENSE-2.0
 [2]: ./LICENSE
 
+## Linux Host + Embedded RCP EA Release
+
+Please refer to the readme in the `linux-host` folder for instructions on using the new Linux Host functionality for increased network sizes! Otherwise continue along with this readme for more info on wfantund and steps for the previous version of wfantund, which still works like before.
+
+##
 
 ## Compilation and Installation ##
 

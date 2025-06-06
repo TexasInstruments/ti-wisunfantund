@@ -204,7 +204,7 @@ TunnelIPv6Interface::on_multicast_address_joined(const struct in6_addr &address)
 	syslog(LOG_INFO, "TunnelIPv6Interface: \"%s\" was added to \"%s\"", in6_addr_to_string(address).c_str(),
 	       get_interface_name().c_str());
 
-	mMulticastAddressWasJoined(address);
+	// mMulticastAddressWasJoined(address);
 }
 
 void

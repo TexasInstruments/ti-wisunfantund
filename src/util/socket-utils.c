@@ -297,6 +297,7 @@ lookup_sockaddr_from_host_and_port(
 
 	hint.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED | AI_ALL;
 	hint.ai_family = AF_INET6;
+	hint.ai_socktype = SOCK_STREAM; // TCP socket
 
 	struct addrinfo *results = NULL;
 	struct addrinfo *iter = NULL;
@@ -318,15 +319,6 @@ lookup_sockaddr_from_host_and_port(
 		outaddr->sin6_family = AF_INET6;
 		outaddr->sin6_addr.s6_addr[15] = 1;
 		outaddr->sin6_port = htons(atoi(port));
-	} else if (isdigit(port[0]) && inet_addr(host) != 0) {
-		in_addr_t v4addr = inet_addr(host);
-		memset(outaddr, 0, sizeof(struct sockaddr_in6));
-		outaddr->sin6_family = AF_INET6;
-		outaddr->sin6_addr.s6_addr[10] = 0xFF;
-		outaddr->sin6_addr.s6_addr[11] = 0xFF;
-		outaddr->sin6_port = htons(atoi(port));
-		memcpy(outaddr->sin6_addr.s6_addr + 12, &v4addr, sizeof(v4addr));
-		outaddr->sin6_port = htons(atoi(port));
 	} else {
 		int error = getaddrinfo(host, port, &hint, &results);
 
@@ -337,9 +329,13 @@ lookup_sockaddr_from_host_and_port(
 		    gai_strerror(error)
 		    );
 
-		for (iter = results;
-		     iter && (iter->ai_family != AF_INET6);
-		     iter = iter->ai_next) ;
+		// Get the first valid address entry that is a TCP socket
+		for (iter = results; iter != NULL; iter = iter->ai_next) {
+			if ((iter->ai_family == AF_INET6) && (iter->ai_socktype == SOCK_STREAM) && (iter->ai_protocol == IPPROTO_TCP))
+			{
+				break;
+			}
+		}
 
 		require_action(NULL != iter, bail, ret = -1);
 
@@ -473,7 +469,7 @@ open_system_socket_forkpty(const char* command)
 			close(i);
 		}
 
-		syslog(LOG_NOTICE,"About to exec \"%s\"",command);
+		syslog(LOG_NOTICE,"fork: About to exec \"%s\"",command);
 
 		execl(getenv("SHELL"),getenv("SHELL"),"-c",command,NULL);
 
@@ -591,7 +587,7 @@ open_system_socket_unix_domain(const char* command)
 		// Set the shell environment variable if it isn't set already.
 		setenv("SHELL","/bin/sh",0);
 
-		syslog(LOG_NOTICE, "About to exec \"%s\"", command);
+		syslog(LOG_NOTICE, "unix socket: About to exec \"%s\"", command);
 
 		execl(getenv("SHELL"), getenv("SHELL"),"-c", command, NULL);
 
@@ -741,6 +737,7 @@ open_super_socket(const char* socket_name)
 	char* filename = strchr(socket_name, ':');
 	bool socket_name_is_well_formed = true; // True if socket has type name and options
 	int socket_type = get_super_socket_type_from_path(socket_name);
+	syslog(LOG_INFO, "Socket Type: (%d)", socket_type);
 
 	// Move past the colon, if there was one.
 	if (NULL != filename && socket_name[0] != '[') {

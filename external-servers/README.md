@@ -24,6 +24,7 @@ FreeRADIUS is an open-source authentication server we can use to authenticate no
         - `sudo chmod o+w freeradius/raddb/certs/ti_br_cert.pem` adds write permissions
         - `sudo chmod o-w freeradius/raddb/certs/ti_br_cert.pem` removes write permissions
 2. Run the server in debug mode with `docker compose run --rm freeradius -X`
+    - If running on ARM, need to start with `docker compose -f docker-compose-arm.yml run --rm freeradius freeradius -X`. This is because we need to explicitly pass the freeradius command to the container. 
     - Can use `docker compose run --rm freeradius bash` to hop into the shell inside the container instead, too
     - Call `freeradius -X` inside the shell to run manually
 3. FreeRADIUS Authentication Server should now be running on the host network!

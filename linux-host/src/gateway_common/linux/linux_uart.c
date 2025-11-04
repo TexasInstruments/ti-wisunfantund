@@ -72,6 +72,9 @@
 #include <sys/signal.h>
 #include <stdbool.h>
 
+#include "ns_trace.h"
+
+#define TRACE_GROUP "uart"
 /*!
  * \def UF_isSet()
  * @brief test if a uart flag is set or not
@@ -83,6 +86,8 @@
  * @var [private] test variable to determine if stream is a uart or not
  */
 static const int  uart_test = 'U';
+
+int uart_raw_debug = 0;
 
 #define LUTS_birth 0 /*! Linux Uart Thread State, not started yet */
 #define LUTS_alive 1 /*! Linux Uart Thread State, running */
@@ -263,12 +268,25 @@ static int _uart_wrBytes(struct io_stream *pIO,
 
 #ifdef NPI_USE_NLI
     //-- Add NLI Data
-    uint8_t *nliBuffer, *encodedBuffer;
+    uint8_t *nliBuffer = NULL, *encodedBuffer = NULL;
     uint16_t nliBufferLen, encodedBufferLen;
 	/* Add NLI byte to base MT Message buffer */
     nliBuffer = add_NLI_byte(databytes, nbytes, 1, &nliBufferLen);
 	/* Encode base MT Message buffer using HDLC */
-    encodedBuffer = hdlc_encode(true, nliBuffer, nliBufferLen, &encodedBufferLen);
+    if (nliBuffer)
+    {
+        encodedBuffer = hdlc_encode(true, nliBuffer, nliBufferLen, &encodedBufferLen);
+        if (encodedBuffer == NULL)
+        {
+            tr_error("Unix-WR out of byffer (encode buffer): nbytes (Len=%d) ", nbytes);
+            free(nliBuffer);
+            return nbytes;
+        }
+    }
+    else{
+        tr_error("Unix-WR out of byffer (nliBuffer): nbytes (Len=%d) NLI-Len(%d)", nbytes , nliBufferLen);
+        return nbytes;
+    }
 #endif
 
     /* setup common IO routine */
@@ -293,6 +311,8 @@ static int _uart_wrBytes(struct io_stream *pIO,
     /* use the common code */
     r = UNIX_fdRw(&rw);
 
+    if (uart_raw_debug)
+        tr_debug("Unix-WR (Len=%d) %s", rw.n_todo , trace_array(rw.c_bytes, rw.n_todo ));
     uart_disconnect_check(pLU, &rw);
 #ifdef NPI_USE_NLI
     /* Free HDLC buffers */
@@ -301,9 +321,9 @@ static int _uart_wrBytes(struct io_stream *pIO,
         free(nliBuffer);
     }
 
-    if (encodedBuffer) 
+    if (encodedBuffer)
     {
-        free(encodedBuffer);	
+        free(encodedBuffer);
     }
 
     if (r == encodedBufferLen)
@@ -336,7 +356,7 @@ static int _uart_rdBytes(struct io_stream *pIO,
     int r = 0;
 #ifndef NPI_USE_NLI
     struct unix_fdrw rw;
-#endif	
+#endif
     struct linux_uart *pLU;
 
     pLU = uart_pio_to_plu(pIO);
@@ -373,12 +393,29 @@ static int _uart_rdBytes(struct io_stream *pIO,
             // Strip off NLI
             r-=1;
             memcpy(databytes, decodedBytes + 1, r);
-
+#ifdef HDLC_DEBUG
+            tr_debug("RD HDLC (Len=%d) %s", r, trace_array(databytes, r));
+#endif
             free(decodedBytes);
         }
+        else
+        {
+            tr_error("Unix-RD pull_hdlc buf=NULL ");
+            return 0;
+        }
     }
-#endif	
-    return (r);	
+    else{
+#ifdef HDLC_DEBUG
+        tr_debug("HDLC-Read: nByte(%d) RX not available",nbytes);
+#endif
+    }
+#endif
+    if (r)
+    {   // only dump the RX data when data is not empty
+        if (uart_raw_debug)
+            tr_debug("Unix-RD (Len=%d) %s", r, trace_array(databytes, r));
+    }
+    return (r);
 }
 
 /*!
@@ -725,13 +762,14 @@ intptr_t STREAM_createUart(const struct uart_cfg *pCFG)
     f = O_RDWR | O_NOCTTY;
 #ifdef NPI_USE_NLI
     f |= O_CLOEXEC;
-#endif 
+#endif
 
+#ifndef NPI_USE_NLI
     if(!UF_isSet(pLU, rd_thread))
     {
         f |= O_NONBLOCK;
     }
-
+#endif
     /* get our device. */
     //LOG_printf(LOG_DBG_UART, "open(%s) begin\n", pLU->cfg.devname);
     pLU->h = open(pLU->cfg.devname, f);

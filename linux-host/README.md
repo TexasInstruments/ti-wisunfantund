@@ -1,6 +1,6 @@
 Linux Host Overview
 -------------------------------
-The Linux Host is a port of the upper layers of the Wi-SUN MAC and the Application layer for the Border Router. It is designed to connect to a TI device running the RCP LMAC Firmware. To support this new functionality, wfantund has also been updated to connect to a TCP socket instead of only a serial port. The Linux Host application will listen on port 4902 for incoming connections which wfantund can use to communicate with the application. 
+The Linux Host is a port of the upper layers of the Wi-SUN MAC and the Application layer for the Border Router and Router Node. It is designed to connect to a TI device running the RCP LMAC Firmware. To support this new functionality, wfantund has also been updated to connect to a TCP socket instead of only a serial port. The Linux Host application will listen on port 4902 for incoming connections which wfantund can use to communicate with the application. 
 
 This new architecture allows the stack to take advantage of the increased resources available on the Linux Host, enabling support for 1000+ node networks. 
 
@@ -20,17 +20,17 @@ Linux Host Steps
 ------------------
 
 **Configuration**
-By default, the Linux Host will print logs to stdout. To build with most prints disabled, update `linux-host/apps/border_router_nanostack_tirf/defines/router.opts` to include `-DEXCLUDE_TRACE`. 
+By default, the Linux Host will print logs to stdout. To build with most prints disabled, update `linux-host/apps/border_router_nanostack_tirf/defines/router.opts` for Border router or `linux-host/apps/router_node_nanostack_tirf/defines/router.opts` for Router Node to include `-DEXCLUDE_TRACE`. 
 
 0. Configure, build, and flash the `rcp_lmac` example from the F2 SDK to your embedded device. Right now, PHY related settings like region and data rate must match in both the RCP LMAC example and the Linux Host example. For more details on settings / configuration, refer to the RCP LMAC Readme in the SDK.
-1. Make any desired configuration changes to the host by changing either `ti_wisunfan_config.h` or `ti_wisunfan_features.h` in `linux-host/apps/border_router_nanostack_tirf`. The entire linux-host folder is volume mounted into the `linux_host` container, so you can make changes at will in this folder without needing to rebuild/restart the container. The container is also running with privileges, so it has access to all USB ports on the Host OS. 
+1. Make any desired configuration changes to the host by changing either `ti_wisunfan_config.h` or `ti_wisunfan_features.h` in `linux-host/apps/border_router_nanostack_tirf` or `linux-host/apps/router_node_nanostack_tirf`. The entire linux-host folder is volume mounted into the `linux_host` container, so you can make changes at will in this folder without needing to rebuild/restart the container. The container is also running with privileges, so it has access to all USB ports on the Host OS. 
 2. Open a shell into the `linux_host` container with `docker compose exec -it linux_host bash`.
 3. Within this shell, generate the build files by calling `cmake -G Ninja .`.
 4. Build the project by calling `ninja`. If you make any changes to the configuration, you can rebuild by calling `ninja` again.
-5. Run the project by calling `./bin/wisun-rcp-host apps/border_router_nanostack_tirf/border_router_host.cfg`. The second parameter provides runtime configuration for the application, including the serial port and baud rate for the device running the `rcp_lmac` firmare. Update this file as needed to point at the correct serial port.
+5. If running the Border Router project, call `./bin/wisun-rcp-host-br apps/border_router_nanostack_tirf/border_router_host.cfg`. If running the Router Node project, call `./bin/wisun-rcp-host-rn apps/router_node_nanostack_tirf/router_node_host.cfg` The second parameter provides runtime configuration for the application, including the serial port and baud rate for the device running the `rcp_lmac` firmare. Update this file as needed to point at the correct serial port.
 6. The Linux Host is now running! It'll print logs to the terminal as it runs.
 
-During runtime, the Linux Host will write to NV periodically to save network information. To clear the NV between runs, simply delete the `nv-simulation.bin` file that gets generated. A new one will be created on startup.
+During runtime, the Linux Host will write to NV periodically to save network information. To clear the NV between runs, simply delete the `nv-simulation-<br/rn>.bin` file that gets generated. A new one will be created on startup.
 
 Wfantund Steps
 -----------------
@@ -39,9 +39,11 @@ For using the Linux Host, it's assumed that Wfantund will be running in it's own
 
 1. Open a shell into the `wfantund` container with `docker compose exec -it wfantund bash`.
 2. Build and install `wfantund` by running `./bootstrap.sh && ./configure --sysconfdir=/etc && make install`. Next, make sure that dbus is started by running `service dbus start`. Once these steps are done, there's no need to rebuild it again or restart dbus unless you restart the container.
-3. Start wfantund by running `wfantund -o Config:NCP:SocketPath tcp:linux_host:4902 -o IPv6:WfantundGlobalAddress 2020:ABCD::/64`. This will create the wfan0 interface, assign it address 2020:ABCD::, and create a TCP connection to the `linux_host` container. 
+3. If running border router, start wfantund by running `wfantund -o Config:NCP:SocketPath tcp:linux_host:4902 -o IPv6:WfantundGlobalAddress 2020:ABCD::/64`. This will create the wfan0 interface, assign it address 2020:ABCD::, and create a TCP connection to the `linux_host` container. If running router node, start wfantund by running `wfantund -o Config:NCP:SocketPath tcp:linux_host:4903`, similarly creating the wfan0 interface and TCP linux_host container connection.
 4. Start another shell session with `docker compose exec -it wfantund bash` and start wfanctl by running `wfanctl`. From here you can interact with the interface as normal; start the stack by running `set interface:up true` in wfanctl.
 5. When using external servers, start a shell session for each of them with `docker compose exec -it wfantund bash`. To start FreeRADIUS in the foreground, run `freeradius -X`. To start dnsmasq in the foreground, run `dnsmasq -d -i wfan0 --dhcp-range 2020:abcd::1,2020:abcd::ffff,64,336h`.
+6. If you do want to use the external servers with the border router example, you can enable them in `linux-host/apps/border_router_nanostack_tirf/border_router_host.cfg` with the external-server-enabled flag under dhcp-cfg or radius-cfg sections.
+
 
 Once Everything is Started
 --------------------------
@@ -60,4 +62,3 @@ Untested Features
 
 The webserver has not been tested with the Linux Host, but should work the same as long as it also runs in the wfantund container. 
 
-The internal authentication and dhcp servers have not been extensively tested; we recommend using the provided external server configuration. If you do want to use the internal servers, you can disable them in `linux-host/apps/border_router_nanostack_tirf/ti_wisunfan_features.h` by setting `FEATURE_EXTERNAL_DHCP_SERVER_ENABLE` or `FEATURE_EXTERNAL_RADIUS_SERVER_ENABLE` to false. 

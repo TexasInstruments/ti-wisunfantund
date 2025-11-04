@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 #include "ncp_socket.hpp"
+#include <signal.h>
 #include <vector>
 
 extern "C" {
@@ -124,6 +125,21 @@ NcpSocket::NcpSocket(Instance *aInstance, int serverPort, bool useIpv6):
     , mServerPort(serverPort)
     , mUseIpv6(useIpv6) 
 {
+    // Initialize socket settings
+    mSocketBufferSize = 1024;
+    mClientConnected = false;
+
+    // Ignore any SIGPIPE signals
+    struct sigaction sa;
+    sa.sa_handler = SIG_IGN; // Set handler to ignore
+    sigemptyset(&sa.sa_mask); // Clear the signal mask
+    sa.sa_flags = 0; // No special flags
+
+    if(sigaction(SIGPIPE, &sa, NULL) == -1) {
+        tr_err("failed to ignore SIGPIPE");
+        exit(1);
+    }
+
     // add frame added callback handler, used for sending out frames to wfantund
     mTxFrameBuffer.SetFrameAddedCallback(HandleFrameAddedToNcpBuffer, this);
 
@@ -131,8 +147,7 @@ NcpSocket::NcpSocket(Instance *aInstance, int serverPort, bool useIpv6):
     mTcpSocketServerFd = socket(AF_INET6, SOCK_STREAM, 0);
     if (mTcpSocketServerFd < 0) {
         tr_err("Failed to create socket!!");
-        // Handle error
-        return;
+        exit(1);
     }
 
     // Set up the server address
@@ -147,7 +162,7 @@ NcpSocket::NcpSocket(Instance *aInstance, int serverPort, bool useIpv6):
         tr_err("Failed to bind!!");
         // Handle error
         close(mTcpSocketServerFd);
-        return;
+        exit(1);
     }
 
     // Listen for incoming connections
@@ -155,7 +170,7 @@ NcpSocket::NcpSocket(Instance *aInstance, int serverPort, bool useIpv6):
         tr_err("Failed to listen!!");
         // Handle error
         close(mTcpSocketServerFd);
-        return;
+        exit(1);
     }
 
     // Create the thread
@@ -212,34 +227,32 @@ void* NcpSocket::thread_func(void *arg)
 {
     struct sockaddr_in6 server_addr, client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
-    bool client_connected = false;
+    mClientConnected = false;
 
     while (true) 
     {
-        tr_info("Waiting for wfantund client connection");
+        tr_info("Waiting for ncpSocket client connection on port %d", mServerPort);
         mClientFd = accept(mTcpSocketServerFd, (struct sockaddr *)&client_addr, &client_addr_len);
         if (mClientFd < 0) {
-            perror("accept failed");
-            close(mTcpSocketServerFd);
-            exit(1);
+            tr_err("ncpSocket accept failed, err = %s", strerror(errno));
         }
         else
         {
-            client_connected = true;
-            tr_info("wfantund connected");
+            mClientConnected = true;
+            tr_info("ncpSocket client connected");
         }
 
         // Loop on receiving data while the client is connected
-        uint8_t buffer[1024];
-        while(client_connected)
+        uint8_t buffer[mSocketBufferSize];
+        while(mClientConnected)
         {
             int bytes_received = recv(mClientFd, buffer, sizeof(buffer), 0);
             if (bytes_received < 0) {
-                perror("recv failed");
+                tr_err("recv failed, err = %s", strerror(errno));
                 break;
             } else if (bytes_received == 0) {
-                tr_info("wfantund closed the connection");
-                client_connected = false;
+                tr_info("ncpSocket client closed the connection");
+                mClientConnected = false;
                 break;
             }
     
@@ -301,6 +314,11 @@ void NcpSocket::HandleError(otError aError, uint8_t *aBuf, uint16_t aBufLength)
 
 int NcpSocket::SendData() {
 
+    if (mClientConnected == false) {
+        tr_err("Tried to send data over ncpSocket when client was not connected! Returning immediately without processing the frame.");
+        return -1;
+    }
+
     uint16_t len;
     bool     prevHostPowerState;
 #if OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER
@@ -353,19 +371,21 @@ exit:
 
     if (len > 0)
     {
+        int bytesSent = 0;
         std::string hex_string = uint8BufferToHex(mSocketBuffer.GetFrame(), len);
-        tr_debug("Sending %d bytes to wfantund: %s", len, hex_string.c_str());
+        tr_debug("Sending %d bytes to ncpSocket client: %s", len, hex_string.c_str());
 
-        int bytesSent = send(mClientFd, mSocketBuffer.GetFrame(), len, 0);
+        bytesSent = send(mClientFd, mSocketBuffer.GetFrame(), len, MSG_NOSIGNAL);
         if (bytesSent != len)
         {
-            tr_error("Sent %i bytes over the socket, expected %i!", bytesSent, len);
+            tr_err("Sent %i bytes over the ncpSocket, expected %i!", bytesSent, len);
+            tr_err("Err: %s", strerror(errno));
         }
 
         // Increment debug counter
         tcp_msgs_sent++;
 
-        //clear socket buffer and post event to Ncp tasklet TODO: Make thread safe? Need to check if it is necessary to do so, tx frame buffer should only be referenced by single thread tho
+        //clear socket buffer and post event to Ncp tasklet
         mSocketBuffer.Clear();
         platformNcpSendRspSignal();
 
@@ -375,11 +395,6 @@ exit:
     {
         return 0;
     }
-}
-
-int NcpSocket::ReceiveData(uint8_t *data, int length) {
-    // Receive data from the TCP socket
-    return recv(mTcpSocketServerFd, data, length, 0);
 }
 
 } // namespace Ncp

@@ -249,7 +249,7 @@ void wisun_rf_init()
 
     mac_description_storage_size_t storage_sizes;
     //storage_sizes.device_decription_table_size = 32;
-    storage_sizes.device_decription_table_size = 4;
+    storage_sizes.device_decription_table_size = NANOSTACK_DEVICE_TABLE_ENTRIES_BR;
     storage_sizes.key_description_table_size = 4;
     storage_sizes.key_lookup_size = 1;
     storage_sizes.key_usage_size = 1;
@@ -347,6 +347,12 @@ static int wisun_interface_up(void)
             return -1;
         }
     }
+    ret = ws_management_channel_mask_set(ws_br_handler.ws_interface_id, cfg_props.uc_channel_list, cfg_props.bc_channel_list);
+    if (ret != 0) {
+        tr_error("Channel mask configuration failed %"PRIi32"", ret);
+        return -1;
+    }
+
 
 #ifdef MBED_CONF_APP_CERTIFICATE_HEADER
     /** Add Trusted Root Certificate/s ***/
@@ -824,7 +830,7 @@ void fetch_neighbor_details()
 {
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get(IF_6LoWPAN);
-    if(!cur || !cur->mac_parameters || !cur->mac_parameters->mac_neighbor_table)
+    if(!cur || !cur->ws_info || !cur->mac_parameters || !cur->mac_parameters->mac_neighbor_table)
     {
         tr_debug("fetch_neighbor_details: NULL pointer");
         return;

@@ -39,7 +39,8 @@
 #define VT100_COLOR_DEMO  "\x1b[39m"
 #define VT100_RESET_TERM  "\x1b[0m\n\r"
 
-#define DEFAULT_TRACE_TMP_LINE_LEN  128
+// in Linux side, we can dump the whole raw data packet
+#define DEFAULT_TRACE_TMP_LINE_LEN  8192
 
 typedef enum
 {
@@ -89,7 +90,7 @@ typedef enum
 char tmpStr[DEFAULT_TRACE_TMP_LINE_LEN];
 
 static sem_t ns_trace_mutex_handle;
-char ns_buf[256];
+char ns_buf[DEFAULT_TRACE_TMP_LINE_LEN]; // 8K big enough to hold raw data
 
 void ns_trace_init(void)
 {

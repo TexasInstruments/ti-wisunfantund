@@ -1,6 +1,6 @@
 # `wisun-rcp-host` Installation Guide on TI AM62x
 
-This document describes the process of cross-compiling and running the `wisun-rcp-host` application for the TI AM62x EVM (https://www.ti.com/tool/SK-AM62B-P1). Note that this guide assumes you'll be running everything directly on your host OS, not through Docker. 
+This document describes the process of cross-compiling and running the `wisun-rcp-host` applications for the TI AM62x EVM (https://www.ti.com/tool/SK-AM62B-P1). Note that this guide assumes you'll be running everything directly on your host OS, not through Docker. 
 
 ## AM62x Linux Development Environment Setup
 
@@ -13,11 +13,8 @@ This document describes the process of cross-compiling and running the `wisun-rc
 From `linux-host` base folder:
 
 ```
-# Create a symbolic link for the F2 SDK
-sudo ln -s <F2_SDK_INSTALL_PATH> src/lprf-dallas-wisunfan
-
-# Set the toolchain & other cross-compile environment by using AM62x SDK environment setup
-source <AM62X_SDK_PATH>/linux-devkit/environment-setup-aarch64-oe-linux
+# Set the toolchain & other cross-compile environment by using SDK environment setup
+source <SDK_PATH>/linux-devkit/environment-setup-aarch64-oe-linux
 
 # Remove existing CMake files if you've previously built the application for AMD64 (note that sudo may be necessary depending on if CMake was run in a container as root user or not)
 rm -f CMakeCache.txt && rm -rf CMakeFiles/
@@ -29,8 +26,8 @@ cmake -G Ninja .
 ninja
 ```
 
-After building, the binary `wisun-rcp-host` can be found in the `bin/` folder. This application can then be moved to the AM62x EVM and run natively there. Be sure to also copy over `apps/border_router_nanostack_tirf/border_router_host.cfg` to set the appropriate runtime configurations when running the application. 
+After building, the `wisun-rcp-host-br` and `wisun-rcp-host-rn` binaries can be found in the `bin/` folder. The applications can then be moved to the AM62x EVM and run natively there. Be sure to also copy over `apps/border_router_nanostack_tirf/border_router_host.cfg` and/or `apps/router_node_nanostack_tirf/router_node_host.cfg` to set the appropriate runtime configurations when running a given application. 
 
 ### External DHCPv6 / RADIUS Server Support
 
-`wisun-rcp-host` can be configured to run with external DHCPv6 or RADIUS server support, and comes this way out of the box. We provide example configurations for dnsmasq and FreeRADIUS in the `external-servers` folder of the wfantund repo.
+`wisun-rcp-host-br` can be configured to run with external DHCPv6 or RADIUS server support by modifying the `border_router_host.cfg` file. We provide example configurations for dnsmasq and FreeRADIUS in the `external-servers` folder of the wfantund repo.

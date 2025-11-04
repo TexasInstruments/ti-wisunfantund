@@ -32,8 +32,11 @@
 #define MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE                              WISUN_ROOT_CERTIFICATE
 
 #ifdef LINUX_NANOSTACK
+#ifdef NANOSTACK_HEAP_SIZE
 #define MBED_CONF_MBED_MESH_API_HEAP_SIZE                                     NANOSTACK_HEAP_SIZE
-
+#else
+#define MBED_CONF_MBED_MESH_API_HEAP_SIZE                                     500000
+#endif
 #else
 #ifdef FREERTOS_SUPPORT
 /* configuration for MBED mesh stack */

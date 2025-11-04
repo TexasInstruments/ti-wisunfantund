@@ -20,7 +20,16 @@
 
 
 #define MBED_CONF_NANOSTACK_CONFIGURATION                                     ti_ws_router
-#define MBED_CONF_MBED_MESH_API_HEAP_SIZE                                     42000
+#ifdef LINUX_NANOSTACK
+#ifdef NANOSTACK_HEAP_SIZE
+#define MBED_CONF_MBED_MESH_API_HEAP_SIZE                                     NANOSTACK_HEAP_SIZE
+#else
+#define MBED_CONF_MBED_MESH_API_HEAP_SIZE                                     500000
+#endif
+#else
+#define MBED_CONF_MBED_MESH_API_HEAP_SIZE                                     52000
+#endif // LINUX_NANOSTACK
+
 #define MBED_CONF_MBED_MESH_API_HEAP_STAT_INFO                                NULL
 #define MBED_CONF_MBED_MESH_API_USE_MALLOC_FOR_HEAP                           0
 
@@ -37,13 +46,13 @@
 
 #define MEM_ALLOC                                                             malloc
 #define MEM_FREE                                                              free
-// #define MBED_CONF_MBED_MESH_APP_WISUN_NETWORK_SIZE                            1
+#define MBED_CONF_MBED_MESH_APP_WISUN_NETWORK_SIZE                            1
 // Macros
 #define MBEDTLS_CIPHER_MODE_CTR                                                                                                                                                // defined by library:SecureStore
 #define MBEDTLS_CMAC_C                                                                                                                                                         // defined by library:SecureStore
 #define MBEDTLS_PSA_HAS_ITS_IO                                                                                                                                                 // defined by library:mbed-crypto
 #define MBEDTLS_USER_CONFIG_FILE                                              "mbedtls_wisun_config.h"                                                                         // defined by application
-#define DEVICE_TRNG                                                           1
+// #define DEVICE_TRNG                                                           1
 #define NSAPI_PPP_AVAILABLE                                                   (MBED_CONF_PPP_ENABLED || MBED_CONF_LWIP_PPP_ENABLED)                                            // defined by library:ppp
 //#define NS_USE_EXTERNAL_MBED_TLS                                                                                                                                               // defined by library:nanostack
 #define UNITY_INCLUDE_CONFIG_H                                                                                                                                                 // defined by library:utest

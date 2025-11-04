@@ -2185,25 +2185,29 @@ enum
 
     SPINEL_PROP_PHY_ASYNC_CHANNEL_LIST = SPINEL_PROP_THREAD__BEGIN + 4, // < [D]
 
+    SPINEL_PROP_PHY_REGULATORY_CHANNEL_LIST = SPINEL_PROP_THREAD__BEGIN + 5, // < [D]
+    SPINEL_PROP_PHY_OPERATING_CLASS = SPINEL_PROP_THREAD__BEGIN + 6, // < [C]
+    SPINEL_PROP_PHY_TOTAL_NUMBER_CHANNEL = SPINEL_PROP_THREAD__BEGIN + 7, // < [C]
+
     /// Thread Local Leader Weight
     /** Format `C` - Read only
      *
      * The leader weight of this node.
      *
      */
-    SPINEL_PROP_THREAD_LOCAL_LEADER_WEIGHT = SPINEL_PROP_THREAD__BEGIN + 5,
+    // SPINEL_PROP_THREAD_LOCAL_LEADER_WEIGHT = SPINEL_PROP_THREAD__BEGIN + 5,
 
     /// Thread Local Network Data
     /** Format `D` - Read only
      *
      */
-    SPINEL_PROP_THREAD_NETWORK_DATA = SPINEL_PROP_THREAD__BEGIN + 6,
+    // SPINEL_PROP_THREAD_NETWORK_DATA = SPINEL_PROP_THREAD__BEGIN + 6,
 
     /// Thread Local Network Data Version
     /** Format `C` - Read only
      *
      */
-    SPINEL_PROP_THREAD_NETWORK_DATA_VERSION = SPINEL_PROP_THREAD__BEGIN + 7,
+    // SPINEL_PROP_THREAD_NETWORK_DATA_VERSION = SPINEL_PROP_THREAD__BEGIN + 7,
 
     /// Thread Local Stable Network Data
     /** Format `D` - Read only

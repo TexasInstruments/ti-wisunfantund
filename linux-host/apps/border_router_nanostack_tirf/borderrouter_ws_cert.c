@@ -22,7 +22,8 @@
 #include "sw_mac.h"
 #include "nwk_stats_api.h"
 #include "randLIB.h"
-#include "NanostackTiRfPhy.h"
+// #include "NanostackTiRfPhy.h"
+#include "saddr.h"
 #include "borderrouter_tasklet.h"
 #include "mesh_system.h"
 #include "mbed-mesh-api/mesh_interface_types.h"
@@ -31,6 +32,7 @@
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "6LoWPAN/ws/ws_common.h"
+#include "wisun_tasklet.h"
 
 #include "net_rpl.h"
 #include "RPL/rpl_protocol.h"
@@ -43,9 +45,6 @@
 
 #include "application.h"
 #include "mbed_config_app.h"
-
-#include "ti_drivers_config.h"
-#include <ti/drivers/GPIO.h>
 
 #ifdef WISUN_NCP_ENABLE
 #include "openthread/error.h"
@@ -111,13 +110,12 @@ static int8_t br_tasklet_id = -1;
 /* Network statistics */
 static nwk_stats_t nwk_stats;
 
-/* variable to control fixed GTK Keys for debug */
-bool fix_gtk_keys = false;
-
 /* variables to help fetch rssi of neighbor nodes */
 uint8_t cur_num_nbrs;
 uint8_t nbr_idx = 0;
 nbr_node_metrics_t nbr_nodes_metrics[SIZE_OF_NEIGH_LIST];
+
+extern ti_wisun_config_t ti_wisun_config;
 
 /* Function forward declarations */
 
@@ -162,7 +160,7 @@ static void mesh_network_up()
     int8_t wisun_if_id = ws_br_handler.ws_interface_id;
 
 #ifdef FIXED_GTK_KEYS
-    fix_gtk_keys = true;
+    ti_wisun_config.use_fixed_gtk_keys = true;
 #endif
 
     status = arm_nwk_interface_configure_6lowpan_bootstrap_set(
@@ -242,6 +240,8 @@ void load_config(void)
     ws_conf.bc_fixed_channel = cfg_props.bc_fixed_channel;
 }
 
+extern void NanostackTiRfPhy_init();
+extern int8_t NanostackTiRfPhy_rf_register();
 
 void wisun_rf_init()
 {
@@ -249,7 +249,7 @@ void wisun_rf_init()
 
     mac_description_storage_size_t storage_sizes;
     //storage_sizes.device_decription_table_size = 32;
-    storage_sizes.device_decription_table_size = 4;
+    storage_sizes.device_decription_table_size = NANOSTACK_DEVICE_TABLE_ENTRIES_BR;
     storage_sizes.key_description_table_size = 4;
     storage_sizes.key_lookup_size = 1;
     storage_sizes.key_usage_size = 1;
@@ -260,12 +260,10 @@ void wisun_rf_init()
     nanostack_lock();
 #endif
 
-#ifndef FEATURE_TIMAC_SUPPORT
-    NanostackTiRfPhy_init();
+    // NanostackTiRfPhy_init(); // this is never defined anywhere
     rf_driver_id = NanostackTiRfPhy_rf_register();
-#else
     timacExtaddressRegister();
-#endif
+// #endif
 
     if(rf_driver_id >= 0)
     {
@@ -349,6 +347,12 @@ static int wisun_interface_up(void)
             return -1;
         }
     }
+    ret = ws_management_channel_mask_set(ws_br_handler.ws_interface_id, cfg_props.uc_channel_list, cfg_props.bc_channel_list);
+    if (ret != 0) {
+        tr_error("Channel mask configuration failed %"PRIi32"", ret);
+        return -1;
+    }
+
 
 #ifdef MBED_CONF_APP_CERTIFICATE_HEADER
     /** Add Trusted Root Certificate/s ***/
@@ -568,7 +572,6 @@ static void borderrouter_tasklet(arm_event_s *event)
             br_tasklet_id = event->receiver;
             //eth_network_data_init();
             //backhaul_driver_init(borderrouter_backhaul_phy_status_cb);
-            GPIO_write(CONFIG_GPIO_RLED, 0);
             mesh_network_up();
             eventOS_event_timer_request(9, ARM_LIB_SYSTEM_TIMER_EVENT, br_tasklet_id, 20000);
             break;
@@ -853,6 +856,8 @@ uint8_t get_current_net_state(void)
         case ER_BOOTSRAP_DONE:
             curNetState = 5;
             break;
+        default:
+            break;
     }
 
     return(curNetState);
@@ -866,7 +871,7 @@ void fetch_neighbor_details()
 {
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get(IF_6LoWPAN);
-    if(!cur)
+    if(!cur || !cur->ws_info || !cur->mac_parameters || !cur->mac_parameters->mac_neighbor_table)
     {
         tr_debug("fetch_neighbor_details: NULL pointer");
         return;
@@ -885,9 +890,9 @@ void fetch_neighbor_details()
             //copy mac address
             memcpy(nbr_nodes_metrics[nbr_idx].mac_eui, cur->mac_parameters->mac_neighbor_table->neighbor_entry_buffer[i].mac64, sizeof(sAddrExt_t));
 
-            //fetch and copy rssi_in rssi_out
-            nbr_nodes_metrics[nbr_idx].rssi_in = cur->ws_info->neighbor_storage.neigh_info_list[i].rsl_in;
-            nbr_nodes_metrics[nbr_idx].rssi_out = cur->ws_info->neighbor_storage.neigh_info_list[i].rsl_out;
+            //fetch and copy rssi_in rssi_out (Shift back the WS_RSL_SCALING amount)
+            nbr_nodes_metrics[nbr_idx].rssi_in = cur->ws_info->neighbor_storage.neigh_info_list[i].rsl_in >> WS_RSL_SCALING;
+            nbr_nodes_metrics[nbr_idx].rssi_out = cur->ws_info->neighbor_storage.neigh_info_list[i].rsl_out >> WS_RSL_SCALING;
 
             nbr_idx++;
 
@@ -1096,6 +1101,17 @@ int revoke_gtk_hwaddr(uint8_t *eui64)
 
     return 0;
 }
+
+uint16_t get_network_panid(void)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    if (!cur || !cur->ws_info) {
+        return 0xFFFF;
+    }
+    return cur->ws_info->network_pan_id;
+}
+
 
 #endif //WISUN_NCP_ENABLE
 

@@ -297,6 +297,12 @@ NCPInstanceBase::set_ncp_version_string(const std::string& version_string)
 	return status;
 }
 
+void NCPInstanceBase::set_ncp_op_class(uint8_t op_class){
+	mOperatingClass = op_class;
+}
+void NCPInstanceBase::set_ncp_num_channels(uint8_t num_channels){
+	mNumChannels = num_channels;
+}
 void NCPInstanceBase::set_ncp_region(uint8_t region){
 	mNCPRegion = region;
 }
@@ -384,6 +390,15 @@ void NCPInstanceBase::set_async_array(int async_array[]){
 		mAsyncBytes[x] = async_array[x];
 	}
 }
+void NCPInstanceBase::set_regulation_channel_list(std::string regulation_channel_list){
+	mRegulationChList = regulation_channel_list;
+}
+void NCPInstanceBase::set_regulation_array(int regulation_array[]){
+	for (int x = 0; x < CHANNEL_LIST_SIZE; x++){
+		mRegulationBytes[x] = regulation_array[x];
+	}
+}
+
 void NCPInstanceBase::set_dodag_route_string(std::string dodag_route_dest_string){
 	mDodagRouteDest = dodag_route_dest_string;
 }
@@ -403,10 +418,14 @@ NCPInstanceBase::get_supported_property_keys(void) const
 	properties.insert(kWPANTUNDProperty_NCPHardwareAddress);
 	properties.insert(kWPANTUNDProperty_NCPCCAThreshold);
 	properties.insert(kWPANTUNDProperty_NCPTXPower);
+	properties.insert(kWPANTUNDProperty_OperatingClass);
+	properties.insert(kWPANTUNDProperty_NumChannels);
 	properties.insert(kWPANTUNDProperty_NCPPhyRegion);
+	properties.insert(kWPANTUNDProperty_NCPModeID);
 	properties.insert(kWPANTUNDProperty_UnicastChList);
 	properties.insert(kWPANTUNDProperty_BroadcastChList);
 	properties.insert(kWPANTUNDProperty_AsyncChList);
+	properties.insert(kWPANTUNDProperty_RegulationChList);
 	properties.insert(kWPANTUNDProperty_ChSpacing);
 	properties.insert(kWPANTUNDProperty_Ch0CenterFreq);
 	properties.insert(kWPANTUNDProperty_NetworkPANID);
@@ -462,6 +481,8 @@ NCPInstanceBase::regsiter_all_get_handlers(void)
 	register_prop_get_handler("", boost::bind(&NCPInstanceBase::get_prop_empty, this, _1));
 
 	REGISTER_GET_HANDLER(DodagRouteDest);
+	REGISTER_GET_HANDLER(OperatingClass);
+	REGISTER_GET_HANDLER(NumChannels);
 	REGISTER_GET_HANDLER(NCPPhyRegion);
 	REGISTER_GET_HANDLER(NCPModeID);
 	REGISTER_GET_HANDLER(NCPProtocolVersion);
@@ -487,6 +508,7 @@ NCPInstanceBase::regsiter_all_get_handlers(void)
 	REGISTER_GET_HANDLER(UnicastChList);
 	REGISTER_GET_HANDLER(BroadcastChList);
 	REGISTER_GET_HANDLER(AsyncChList);
+	REGISTER_GET_HANDLER(RegulationChList);
 	REGISTER_GET_HANDLER(ConfigTUNInterfaceName);
 	REGISTER_GET_HANDLER(DaemonEnabled);
 	REGISTER_GET_HANDLER(InterfaceUp);
@@ -554,6 +576,16 @@ void
 NCPInstanceBase::get_prop_DodagRouteDest(CallbackWithStatusArg1 cb)
 {
 	cb(kWPANTUNDStatus_Ok, boost::any(mDodagRouteDest));
+}
+void
+NCPInstanceBase::get_prop_OperatingClass(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mOperatingClass));
+}
+void
+NCPInstanceBase::get_prop_NumChannels(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mNumChannels));
 }
 void
 NCPInstanceBase::get_prop_NCPPhyRegion(CallbackWithStatusArg1 cb)
@@ -697,6 +729,12 @@ void
 NCPInstanceBase::get_prop_AsyncChList(CallbackWithStatusArg1 cb)
 {
 	cb(kWPANTUNDStatus_Ok, boost::any(mAsyncChList));
+}
+
+void
+NCPInstanceBase::get_prop_RegulationChList(CallbackWithStatusArg1 cb)
+{
+	cb(kWPANTUNDStatus_Ok, boost::any(mRegulationChList));
 }
 
 void
@@ -1092,6 +1130,13 @@ NCPInstanceBase::regsiter_all_set_handlers(void)
 	REGISTER_SET_HANDLER(UnicastChList);
 	REGISTER_SET_HANDLER(BroadcastChList);
 	REGISTER_SET_HANDLER(AsyncChList);
+	REGISTER_SET_HANDLER(RegulationChList);
+	REGISTER_SET_HANDLER(OperatingClass);
+	REGISTER_SET_HANDLER(NumChannels);
+	REGISTER_SET_HANDLER(NCPPhyRegion);
+	REGISTER_SET_HANDLER(NCPModeID);
+	REGISTER_SET_HANDLER(Ch0CenterFreq);
+	REGISTER_SET_HANDLER(ChSpacing);
 	REGISTER_SET_HANDLER(DaemonAutoAssociateAfterReset);
 	REGISTER_SET_HANDLER(NestLabs_NetworkPassthruPort);
 	REGISTER_SET_HANDLER(DaemonAutoFirmwareUpdate);
@@ -1218,12 +1263,12 @@ void NCPInstanceBase::set_prop_BCChFunction(const boost::any &value, CallbackWit
 }
 void NCPInstanceBase::set_prop_UnicastChList(const boost::any &value, CallbackWithStatus cb){
 	// reset bit mask
-	for (int x = 0; x < 129; x++){
+	for (int x = 0; x < MAX_NUM_CHANNELS; x++){
 		mUnicastArray[x] = 0;
 	}
 
 	// convert input string to new bitmask
-	convert_to_bitmask_unicast(any_to_string(value));
+	convert_to_bitmask(any_to_string(value), mUnicastArray, mUnicastBytes);
 
 	std::string ret = "";
 	for (int x = 0; x < 16; x++){
@@ -1240,12 +1285,12 @@ void NCPInstanceBase::set_prop_UnicastChList(const boost::any &value, CallbackWi
 }
 void NCPInstanceBase::set_prop_BroadcastChList(const boost::any &value, CallbackWithStatus cb){
 	// reset bit mask
-	for (int x = 0; x < 129; x++){
+	for (int x = 0; x < MAX_NUM_CHANNELS; x++){
 		mBroadcastArray[x] = 0;
 	}
 
 	// convert input string to new bitmask
-	convert_to_bitmask_broadcast(any_to_string(value));
+	convert_to_bitmask(any_to_string(value), mBroadcastArray, mBroadcastBytes);
 
 	std::string ret = "";
 	for (int x = 0; x < 16; x++){
@@ -1262,12 +1307,12 @@ void NCPInstanceBase::set_prop_BroadcastChList(const boost::any &value, Callback
 }
 void NCPInstanceBase::set_prop_AsyncChList(const boost::any &value, CallbackWithStatus cb){
 	// reset bit mask
-	for (int x = 0; x < 129; x++){
+	for (int x = 0; x < MAX_NUM_CHANNELS; x++){
 		mAsyncArray[x] = 0;
 	}
 
 	// convert input string to new bitmask
-	convert_to_bitmask_async(any_to_string(value));
+	convert_to_bitmask(any_to_string(value), mAsyncArray, mAsyncBytes);
 
 	std::string ret = "";
 	for (int x = 0; x < 16; x++){
@@ -1280,6 +1325,60 @@ void NCPInstanceBase::set_prop_AsyncChList(const boost::any &value, CallbackWith
 	ret.append(final_str_to_add);
 	mAsyncChList = ret;
 
+	cb(kWPANTUNDStatus_Ok);
+}
+
+void NCPInstanceBase::set_prop_RegulationChList(const boost::any &value, CallbackWithStatus cb){
+	// reset bit mask
+	for (int x = 0; x < MAX_NUM_CHANNELS; x++){
+		mRegulationArray[x] = 0;
+	}
+
+	// convert input string to new bitmask
+	convert_to_bitmask(any_to_string(value), mRegulationArray, mRegulationBytes);
+
+	std::string ret = "";
+	for (int x = 0; x < 16; x++){
+		char str_to_add[4];
+		sprintf(str_to_add, "%02x:", mRegulationBytes[x]);
+		ret.append(str_to_add);
+	}
+	char final_str_to_add[4];
+	sprintf(final_str_to_add, "%02x", mRegulationBytes[16]);
+	ret.append(final_str_to_add);
+	mRegulationChList = ret;
+
+	cb(kWPANTUNDStatus_Ok);
+}
+
+void NCPInstanceBase::set_prop_OperatingClass(const boost::any &value, CallbackWithStatus cb){
+	mOperatingClass = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+
+void NCPInstanceBase::set_prop_NumChannels(const boost::any &value, CallbackWithStatus cb){
+	mNumChannels = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+
+void NCPInstanceBase::set_prop_NCPPhyRegion(const boost::any &value, CallbackWithStatus cb){
+	mNCPRegion = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+
+void NCPInstanceBase::set_prop_NCPModeID(const boost::any &value, CallbackWithStatus cb){
+	mNCPModeID = any_to_int(value);
+	cb(kWPANTUNDStatus_Ok);
+}
+
+void NCPInstanceBase::set_prop_Ch0CenterFreq(const boost::any &value, CallbackWithStatus cb){
+	mCh0mhz = any_to_int(value) / 1000;
+	mCh0khz = any_to_int(value) % 1000;
+	cb(kWPANTUNDStatus_Ok);
+}
+
+void NCPInstanceBase::set_prop_ChSpacing(const boost::any &value, CallbackWithStatus cb){
+	mChSpacing = any_to_int(value);
 	cb(kWPANTUNDStatus_Ok);
 }
 
@@ -1917,7 +2016,7 @@ NCPInstanceBase::can_upgrade_firmware(void)
 }
 
 void 
-NCPInstanceBase::convert_to_bitmask_unicast(std::string value){
+NCPInstanceBase::convert_to_bitmask(std::string value, unsigned char chArray[], int chBytesArray[]) {
 	// step 1 : split input string
 	std::vector<std::string> values;
 	int start = 0;
@@ -1946,7 +2045,7 @@ NCPInstanceBase::convert_to_bitmask_unicast(std::string value){
 		}
 
 		for (int y = 0; y <= (end_channel - start_channel); y++){
-			mUnicastArray[start_channel + y] = 1;
+			chArray[start_channel + y] = 1;
 		}
 	}
 
@@ -1955,131 +2054,19 @@ NCPInstanceBase::convert_to_bitmask_unicast(std::string value){
 	int channel_mask_byte = 0;
 	int count = 0;
 	int value_to_store = 0;
-	for (int x = 0; x < 129; x++){
+	for (int x = 0; x < MAX_NUM_CHANNELS; x++){
 		if (x < eight_multiple){
-			value_to_store += (mUnicastArray[x] << count);
+			value_to_store += (chArray[x] << count);
 			count++;
 		}
 		else{
-			mUnicastBytes[eight_multiple/8 - 1] = value_to_store;
+			chBytesArray[eight_multiple/8 - 1] = value_to_store;
 			eight_multiple += 8;
 			count = 0;
 			value_to_store = 0;
 
 			// need to account for first bit in each byte
-			value_to_store += (mUnicastArray[x] << count);
-			count++;
-		}
-	}
-}
-void 
-NCPInstanceBase::convert_to_bitmask_broadcast(std::string value){
-	// step 1 : split input string
-	std::vector<std::string> values;
-	int start = 0;
-	int end = value.find(':');
-	while(end != -1){
-		values.push_back(value.substr(start, end - start));
-		start = end + 1;
-		end = value.find(':', start);
-	}
-	values.push_back(value.substr(start, end - start));
-
-	// step 2 : get channel values
-	for (int x = 0; x < values.size(); x++){
-		int start_channel = 0;
-		int end_channel = 0;
-		end = values.at(x).find('-');
-		if (end == -1){
-			// just a single channel
-			start_channel = any_to_int(values.at(x));
-			end_channel = start_channel;
-		}
-		else{
-			// multiple channels
-			start_channel = any_to_int(values.at(x).substr(0, end));
-			end_channel = any_to_int(values.at(x).substr(end + 1, (values.at(x).length() - 1 - end)));
-		}
-
-		for (int y = 0; y <= (end_channel - start_channel); y++){
-			mBroadcastArray[start_channel + y] = 1;
-		}
-	}
-
-	// step 3 : convert list of channel value bits to 17 bytes
-	int eight_multiple = 8;
-	int channel_mask_byte = 0;
-	int count = 0;
-	int value_to_store = 0;
-	for (int x = 0; x < 129; x++){
-		if (x < eight_multiple){
-			value_to_store += (mBroadcastArray[x] << count);
-			count++;
-		}
-		else{
-			mBroadcastBytes[eight_multiple/8 - 1] = value_to_store;
-			eight_multiple += 8;
-			count = 0;
-			value_to_store = 0;
-
-			// need to account for first bit in each byte
-			value_to_store += (mBroadcastArray[x] << count);
-			count++;
-		}
-	}
-}
-void 
-NCPInstanceBase::convert_to_bitmask_async(std::string value){
-	// step 1 : split input string
-	std::vector<std::string> values;
-	int start = 0;
-	int end = value.find(':');
-	while(end != -1){
-		values.push_back(value.substr(start, end - start));
-		start = end + 1;
-		end = value.find(':', start);
-	}
-	values.push_back(value.substr(start, end - start));
-
-	// step 2 : get channel values
-	for (int x = 0; x < values.size(); x++){
-		int start_channel = 0;
-		int end_channel = 0;
-		end = values.at(x).find('-');
-		if (end == -1){
-			// just a single channel
-			start_channel = any_to_int(values.at(x));
-			end_channel = start_channel;
-		}
-		else{
-			// multiple channels
-			start_channel = any_to_int(values.at(x).substr(0, end));
-			end_channel = any_to_int(values.at(x).substr(end + 1, (values.at(x).length() - 1 - end)));
-		}
-
-		for (int y = 0; y <= (end_channel - start_channel); y++){
-			mAsyncArray[start_channel + y] = 1;
-		}
-	}
-
-	// step 3 : convert list of channel value bits to 17 bytes
-	int eight_multiple = 8;
-	int channel_mask_byte = 0;
-	int count = 0;
-	int value_to_store = 0;
-	for (int x = 0; x < 129; x++){
-		if (x < eight_multiple){
-			value_to_store += (mAsyncArray[x] << count);
-			count++;
-		}
-		else{
-			mAsyncBytes[eight_multiple/8 - 1] = value_to_store;
-			eight_multiple += 8;
-			count = 0;
-			value_to_store = 0;
-
-			// need to account for first bit in each byte
-			value_to_store += (mAsyncArray[x] << count);
+			value_to_store += (chArray[x] << count);
 			count++;
 		}
 	}

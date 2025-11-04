@@ -61,7 +61,6 @@ public:
 
     int SendData(const uint8_t *data, int length);
     int SendData();
-    int ReceiveData(uint8_t *data, int length);
     void DecodeMessage(uint8_t *buffer, uint16_t bytes_received);
 
     /**
@@ -90,6 +89,8 @@ private:
     int mServerPort;
     bool mUseIpv6;
     pthread_t mThread;
+    bool mClientConnected;
+    uint16_t mSocketBufferSize;
 
     Hdlc::Encoder                        mFrameEncoder;
     Hdlc::Decoder                        mFrameDecoder;

@@ -42,8 +42,11 @@
 #define kWPANTUNDProperty_UnicastChList                         "UnicastChList"
 #define kWPANTUNDProperty_BroadcastChList                       "BroadcastChList"
 #define kWPANTUNDProperty_AsyncChList                           "AsyncChList"
+#define kWPANTUNDProperty_RegulationChList                      "RegulationChList"
 #define kWPANTUNDProperty_ChSpacing                             "ChSpacing"
 #define kWPANTUNDProperty_Ch0CenterFreq                         "Ch0CenterFreq"
+#define kWPANTUNDProperty_OperatingClass                        "OperatingClass"
+#define kWPANTUNDProperty_NumChannels                           "NumChannels"
 
 /* mac */
 #define kWPANTUNDProperty_NetworkPANID                          "Network:PANID"

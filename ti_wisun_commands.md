@@ -388,6 +388,31 @@ Number of connected devices: 2
 
     *Expected Result*:<br /> <pre>ExternalAuthServerAddr = "2020:abcd::"</pre><br /><br />
 
+<br /><br />
+
+ - <pre>get regulationchlist</pre>
+
+     *Description:* <br /> Channel list allowed by region selection.
+
+     *Expected Result*:<br /> <pre>regulationchlist = "ff:ff:ff:ff:ff:ff:ff:ff:ff:ff:ff:ff:ff:ff:ff:ff:01"</pre><br /><br />
+
+---
+<br /><br />
+
+ - <pre>get operatingclass</pre>
+
+     *Description:* <br /> Wi-SUN Operating class.
+
+     *Expected Result*:<br /> <pre>operatingclass = 1</pre><br /><br />
+
+---
+<br /><br />
+
+ - <pre>get numchannels</pre>
+
+     *Description:* <br /> Number of channels in current region/PHY specification, starting from ch0.
+
+     *Expected Result*:<br /> <pre>numchannels = 129</pre><br /><br />
 
 # List of SET Commands to SET NCP Properties
 
@@ -565,6 +590,54 @@ Number of connected devices: 2
 
     *Sample Output*:<br /> <pre>dodagroutedest = "2020:abcd:0000:0000:0212:4b00:14f8:2b18"</pre><br /><br />
 
+---
+<br /><br />
+
+ - <pre>set NCP:Region 7 </pre>
+
+     *Description:* <br /> Region ID to use for network. See Wi-SUN PHY specification for list of available Wi-SUN regions.
+
+---
+<br /><br />
+
+ - <pre>set NCP:ModeID 2</pre>
+
+     *Description:* <br /> PHY Mode ID to use, range 1-7. Must be modified manually when changing OOB region.
+
+---
+<br /><br />
+
+ - <pre>set regulationchlist 0-10</pre>
+
+     *Description:* <br /> Channel list allowed by region selection. Must be modified manually when changing OOB region.
+
+---
+<br /><br />
+
+ - <pre>set chspacing 100</pre>
+
+     *Description:* <br /> Channel spacing in Khz. Must be modified manually when changing OOB region.
+
+---
+<br /><br />
+
+ - <pre>set ch0centerfreq 920900</pre>
+
+     *Description:* <br /> Channel 0 center frequency in KHz. Must be modified manually when changing OOB region.
+
+---
+<br /><br />
+
+ - <pre>set operatingclass 2</pre>
+
+     *Description:* <br /> Wi-SUN Operating class. Must be modified manually when changing OOB region.
+
+---
+<br /><br />
+
+ - <pre>set numchannels 129</pre>
+
+     *Description:* <br /> Number of channels in current region/PHY specification, starting from ch0. Must be modified manually when changing OOB region.
 
  # Running the Basic Example
 To start ```wfantund```, use this command:<br />

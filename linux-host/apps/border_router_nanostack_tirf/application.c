@@ -82,7 +82,11 @@
 #include "nsdynmemLIB.h"
 #include "6LoWPAN/ws/ws_config.h"
 #include "ti_wisunfan_features.h"
+#if defined(WISUN_CERT_CONFIG) && defined(LINUX_NANOSTACK)
+#include "cert/ti_wisunfan_config_cert.h"
+#else
 #include "ti_wisunfan_config.h"
+#endif
 
 #include "application.h"
 #include "eventOS_event_timer.h"
@@ -105,6 +109,11 @@ Defines & enums
 /******************************************************************************
  Static & Global Variables
  *****************************************************************************/
+
+#ifdef TI_WISUN_FAN_DEBUG
+bool disable_ns_messages = false;
+#endif
+
 
 static int8_t interface_id = NOT_INITIALIZED;
 static bool _configured = false;
@@ -135,8 +144,8 @@ extern JOIN_TIME_s node_join_time;
 int8_t rcp_tasklet_id = -1;
 #endif // WISUN_RCP_ENABLE
 
-// TODO: Make these configurable via .cfg file configuration
-#define NCP_SOCKET_PORT 4902
+// Set via cfg-props read in during runtime
+extern uint16_t ncp_socket_port;
 #define NCP_SOCKET_USE_IPV6 true
 
 ti_wisun_config_t ti_wisun_config =
@@ -158,6 +167,7 @@ ti_wisun_config_t ti_wisun_config =
     }
 };
 
+// Default values for br_config, can be overriden by an INI .cfg file
 ti_br_config_t ti_br_config =
 {
     .use_external_dhcp_server = FEATURE_EXTERNAL_DHCP_SERVER_ENABLE,
@@ -170,35 +180,47 @@ ti_br_config_t ti_br_config =
 
 
 #define CONFIG_CHANNEL_PAGE 9
-configurable_props_t cfg_props = { .ccaDefaultdBm = CONFIG_CCA_THRESHOLD, \
-                                   .phyTxPower = CONFIG_TRANSMIT_POWER, \
-                                   .uc_channel_function = CONFIG_CHANNEL_FUNCTION, \
-                                   .uc_channel_list = CONFIG_UNICAST_CHANNEL_MASK, \
-                                   .uc_fixed_channel = CONFIG_UNICAST_FIXED_CHANNEL_NUM, \
-                                   .uc_dwell_interval = CONFIG_UNICAST_DWELL_TIME,\
-                                   .bc_channel_function = CONFIG_CHANNEL_FUNCTION, \
-                                   .bc_channel_list = CONFIG_BROADCAST_CHANNEL_MASK, \
-                                   .bc_fixed_channel = CONFIG_BROADCAST_FIXED_CHANNEL_NUM, \
-                                   .bc_interval = CONFIG_BROADCAST_INTERVAL,\
-                                   .bc_dwell_interval = CONFIG_BROADCAST_DWELL_TIME, \
-                                   .async_channel_list = CONFIG_ASYNC_CHANNEL_MASK, \
-                                   .pan_id = CONFIG_PAN_ID, \
-                                   .network_name = CONFIG_NETNAME, \
-                                   .wisun_device_type = CONFIG_WISUN_DEVICE_TYPE, \
-                                   .ch0_center_frequency = CONFIG_CENTER_FREQ * 1000, \
-                                   .config_channel_spacing = CONFIG_CHANNEL_SPACING, \
-                                   .config_phy_id = CONFIG_PHY_ID, \
-                                   .config_reg_domain = CONFIG_REG_DOMAIN, \
-                                   .operating_class = CONFIG_OP_MODE_CLASS, \
-                                   .operating_mode = CONFIG_OP_MODE_ID, \
-                                   .fan_support_version = 0, \
-                                   .usie_chan_plan_selection = 0, \
-                                   .bsie_chan_plan_selection = 0, \
-                                   .hwaddr = {0}, \
-                                   .channel_page = CONFIG_CHANNEL_PAGE, \
-                                   .rx_on_when_idle = true
-                                   };
-                                   
+configurable_props_t cfg_props = {
+    .ccaDefaultdBm = CONFIG_CCA_THRESHOLD,
+    .phyTxPower = CONFIG_TRANSMIT_POWER,
+    .uc_channel_function = CONFIG_CHANNEL_FUNCTION,
+    .uc_channel_list = CONFIG_UNICAST_CHANNEL_MASK,
+    .uc_fixed_channel = CONFIG_UNICAST_FIXED_CHANNEL_NUM,
+    .uc_dwell_interval = CONFIG_UNICAST_DWELL_TIME,
+    .bc_channel_function = CONFIG_CHANNEL_FUNCTION,
+    .bc_channel_list = CONFIG_BROADCAST_CHANNEL_MASK,
+    .bc_fixed_channel = CONFIG_BROADCAST_FIXED_CHANNEL_NUM,
+    .bc_interval = CONFIG_BROADCAST_INTERVAL,
+    .bc_dwell_interval = CONFIG_BROADCAST_DWELL_TIME,
+    .async_channel_list = CONFIG_ASYNC_CHANNEL_MASK,
+    .pan_id = CONFIG_PAN_ID,
+    .network_name = CONFIG_NETNAME,
+    .wisun_device_type = CONFIG_WISUN_DEVICE_TYPE,
+    .ch0_center_frequency = CONFIG_CENTER_FREQ * 1000,
+    .config_channel_spacing = CONFIG_CHANNEL_SPACING,
+    .config_number_of_channels = CONFIG_TOTAL_CHANNELS,
+    .config_phy_id = CONFIG_PHY_ID,
+    .config_reg_domain = CONFIG_REG_DOMAIN,
+    .operating_class = CONFIG_OP_MODE_CLASS,
+    .operating_mode = CONFIG_OP_MODE_ID,
+    .fan_support_version = 1,
+    .config_chan_plan = 0,
+    .config_chan_plan_id = 255,
+    .hwaddr = CONFIG_INVALID_HWADDR,
+#ifdef WISUN_FAN_CORE_1_1
+    .mdr_enable = 0 ,
+    .num_phy_mode = 1,
+    .Phy_Mode_Id = {CONFIG_PHY_ID},
+#endif
+    .channel_page = CONFIG_CHANNEL_PAGE,
+    .rx_on_when_idle = true,
+#ifdef FEATURE_FULL_FUNCTION_DEVICE
+    .ffd = true,
+#else
+    .ffd = false,
+#endif
+    .regulatory_channel_list = CONFIG_REGULATION_CHANNEL_MASK,
+};
 
 /******************************************************************************
 Function declarations Local & Global
@@ -287,8 +309,6 @@ mesh_error_t nanostack_wisunInterface_configure(void)
 void *mainThread(void *arg0)
 {
     int16_t ret;
-
-    tr_info("Border Router Example: US 915MHz, Channel 11, security disabled");
 
     if(MESH_ERROR_NONE != nanostack_wisunInterface_configure())
     {
@@ -676,7 +696,7 @@ void ncp_tasklet(arm_event_s *event)
                 assert(OtStack_instance);
 
                 // workaround for not being able to add arguments to otNcpInit call
-                otNcpConfigure(NCP_SOCKET_PORT, NCP_SOCKET_USE_IPV6);
+                otNcpConfigure(ncp_socket_port, NCP_SOCKET_USE_IPV6);
                 otNcpInit(OtStack_instance);
 
 #ifdef WISUN_AUTO_START

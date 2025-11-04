@@ -27,6 +27,7 @@ std::recursive_mutex mutex;
 volatile uint32_t enter_critical_count = 0;
 volatile uint32_t exit_critical_count = 0;
 volatile uint32_t highest_recursion = 0;
+static uint32_t current_recursion_depth = 0;
 
 void platform_critical_init(void)
 {
@@ -36,16 +37,19 @@ void platform_enter_critical(void)
 {
     /* Enter critical section */
     mutex.lock();
+    // Stats tracking
     enter_critical_count++;
-    uint32_t current_recursion = mutex.native_handle()->__data.__count; // check for highest count here
-    if (current_recursion > highest_recursion) {
-        highest_recursion = current_recursion;
+    current_recursion_depth++;
+    if (current_recursion_depth > highest_recursion) {
+        highest_recursion = current_recursion_depth;
     }
 }
 
 void platform_exit_critical(void)
 {
+    // Stats tracking
+    current_recursion_depth--;
+    exit_critical_count++;
     /* Exit critical section */
     mutex.unlock();
-    exit_critical_count++;
 }

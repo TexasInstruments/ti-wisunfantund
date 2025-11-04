@@ -2682,15 +2682,6 @@ SpinelNCPInstance::regsiter_all_get_handlers(void)
 		kWPANTUNDProperty_ThreadRouterSelectionJitter,
 		SPINEL_PROP_THREAD_ROUTER_SELECTION_JITTER, SPINEL_DATATYPE_UINT8_S);
 	register_get_handler_spinel_simple(
-		kWPANTUNDProperty_ThreadLeaderLocalWeight,
-		SPINEL_PROP_THREAD_LOCAL_LEADER_WEIGHT, SPINEL_DATATYPE_UINT8_S);
-	register_get_handler_spinel_simple(
-		kWPANTUNDProperty_ThreadNetworkData,
-		SPINEL_PROP_THREAD_NETWORK_DATA, SPINEL_DATATYPE_DATA_S);
-	register_get_handler_spinel_simple(
-		kWPANTUNDProperty_ThreadNetworkDataVersion,
-		SPINEL_PROP_THREAD_NETWORK_DATA_VERSION, SPINEL_DATATYPE_UINT8_S);
-	register_get_handler_spinel_simple(
 		kWPANTUNDProperty_ThreadStableNetworkData,
 		SPINEL_PROP_THREAD_STABLE_NETWORK_DATA, SPINEL_DATATYPE_DATA_S);
 	register_get_handler_spinel_simple(
@@ -4041,6 +4032,24 @@ SpinelNCPInstance::regsiter_all_set_handlers(void)
 		kWPANTUNDProperty_NetworkRole,
 		SPINEL_PROP_NET_ROLE, SPINEL_DATATYPE_UINT8_C);
 	register_set_handler_spinel(
+		kWPANTUNDProperty_NCPPhyRegion,
+		SPINEL_PROP_PHY_REGION, SPINEL_DATATYPE_UINT8_C);
+	register_set_handler_spinel(
+		kWPANTUNDProperty_NCPModeID,
+		SPINEL_PROP_PHY_MODE_ID, SPINEL_DATATYPE_UINT8_C);
+	register_set_handler_spinel(
+		kWPANTUNDProperty_Ch0CenterFreq,
+		SPINEL_PROP_PHY_CHO_CENTER_FREQ, SPINEL_DATATYPE_UINT32_C);
+	register_set_handler_spinel(
+		kWPANTUNDProperty_ChSpacing,
+		SPINEL_PROP_PHY_CH_SPACING, SPINEL_DATATYPE_UINT16_C);
+	register_set_handler_spinel(
+		kWPANTUNDProperty_OperatingClass,
+		SPINEL_PROP_PHY_OPERATING_CLASS, SPINEL_DATATYPE_UINT8_C);
+	register_set_handler_spinel(
+		kWPANTUNDProperty_NumChannels,
+		SPINEL_PROP_PHY_TOTAL_NUMBER_CHANNEL, SPINEL_DATATYPE_UINT8_C);
+	register_set_handler_spinel(
 		kWPANTUNDProperty_ThreadPreferredRouterID,
 		SPINEL_PROP_THREAD_PREFERRED_ROUTER_ID, SPINEL_DATATYPE_UINT8_C);
 	register_set_handler_spinel(
@@ -4273,6 +4282,11 @@ SpinelNCPInstance::regsiter_all_set_handlers(void)
 		SPINEL_PROP_PHY_ASYNC_CHANNEL_LIST, SPINEL_DATATYPE_DATA_C,
 		&SpinelNCPInstance::convert_value_channel_list);
 	register_set_handler_capability_spinel_persist(
+		kWPANTUNDProperty_RegulationChList,
+		0,
+		SPINEL_PROP_PHY_REGULATORY_CHANNEL_LIST, SPINEL_DATATYPE_DATA_C,
+		&SpinelNCPInstance::convert_value_channel_list);
+	register_set_handler_capability_spinel_persist(
 		kWPANTUNDProperty_NCPMCUPowerState,
 		SPINEL_PROP_MCU_POWER_STATE,
 		SPINEL_PROP_MCU_POWER_STATE, SPINEL_DATATYPE_UINT8_C,
@@ -4455,8 +4469,8 @@ SpinelNCPInstance::convert_value_channel_list(const boost::any &value, boost::an
 	// step 1 : split input string
 	std::string new_value = any_to_string(value);
 
-	unsigned char array_of_bits [129];
-	for (int x = 0; x < 129; x++){
+	unsigned char array_of_bits [MAX_NUM_CHANNELS];
+	for (int x = 0; x < MAX_NUM_CHANNELS; x++){
 		array_of_bits[x] = 0;
 	}
 	int bytes_to_send [CHANNEL_LIST_SIZE];
@@ -4505,7 +4519,7 @@ SpinelNCPInstance::convert_value_channel_list(const boost::any &value, boost::an
 	int channel_mask_byte = 0;
 	int count = 0;
 	int value_to_store = 0;
-	for (int x = 0; x < 129; x++){
+	for (int x = 0; x < MAX_NUM_CHANNELS; x++){
 		if (x < eight_multiple){
 			value_to_store += (array_of_bits[x] << count);
 			count++;
@@ -5940,7 +5954,40 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 			array[x] = entry_ptr[x];
 		}
 		set_async_array(array);
+	} else if (key == SPINEL_PROP_PHY_REGULATORY_CHANNEL_LIST) {
+		unsigned int regulation_channel_list = 0;
+		spinel_datatype_unpack(value_data_ptr, value_data_len, "i", &regulation_channel_list);
 
+		uint8_t *entry_ptr = NULL;
+		spinel_size_t entry_len = 0;
+		spinel_ssize_t len = 0;
+		len = spinel_datatype_unpack(value_data_ptr, value_data_len, "D", &entry_ptr, &entry_len);
+		std::string ret = "";
+
+		for (int x = 0; x < (len - 1); x++){
+			char str_to_add[4];
+			sprintf(str_to_add, "%02x:", entry_ptr[x]);
+			ret.append(str_to_add);
+		}
+		char final_str_to_add[4];
+		sprintf(final_str_to_add, "%02x", entry_ptr[len - 1]);
+		ret.append(final_str_to_add);
+		set_regulation_channel_list(ret);
+
+		int array [len];
+		for (int x = 0; x < (len); x++){
+			array[x] = entry_ptr[x];
+		}
+		set_regulation_array(array);
+
+	} else if (key == SPINEL_PROP_PHY_OPERATING_CLASS) {
+		uint8_t op_class = 0;
+		spinel_datatype_unpack(value_data_ptr, value_data_len, SPINEL_DATATYPE_UINT8_S, &op_class);
+		set_ncp_op_class(op_class);
+	} else if (key == SPINEL_PROP_PHY_TOTAL_NUMBER_CHANNEL) {
+		uint8_t num_channels = 0;
+		spinel_datatype_unpack(value_data_ptr, value_data_len, SPINEL_DATATYPE_UINT8_S, &num_channels);
+		set_ncp_num_channels(num_channels);
 	} else if (key == SPINEL_PROP_PROTOCOL_VERSION) {
 		unsigned int protocol_version_major = 0;
 		unsigned int protocol_version_minor = 0;

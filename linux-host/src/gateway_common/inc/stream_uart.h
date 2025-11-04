@@ -47,6 +47,7 @@
 #define STREAM_UART_H
 
 #include "bitsnbits.h"
+#include "stdint.h"
 
 /*!
  * @struct uart_cfg

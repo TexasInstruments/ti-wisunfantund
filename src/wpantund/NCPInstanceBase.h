@@ -300,6 +300,8 @@ public:
 
 	virtual void remove_service(uint32_t enterprise_number, const Data &service_data, CallbackWithStatus cb = NilReturn());
 
+	void set_ncp_op_class(uint8_t op_class);
+	void set_ncp_num_channels(uint8_t num_channels);
 	void set_ncp_region(uint8_t region);
 	void set_ncp_mode_id(int mode_id);
 	void set_ncp_protocol_version(const int protocol_version_major, const int protocol_version_minor);
@@ -325,16 +327,17 @@ public:
 	void set_broadcast_array(int broadcast_array[]);
 	void set_async_channel_list(std::string async_channel_list);
 	void set_async_array(int async_array[]);
+	void set_regulation_channel_list(std::string async_channel_list);
+	void set_regulation_array(int async_array[]);
 	void set_dodag_route_string(std::string dodag_route_dest_string);
 	void set_dodag_route_array(int dodag_route_dest_array[]);
 
-	void convert_to_bitmask_unicast(std::string value);
-	void convert_to_bitmask_broadcast(std::string value);
-	void convert_to_bitmask_async(std::string value);
+	void convert_to_bitmask(std::string value, unsigned char chArray[], int chBytesArray[]);
 
 	void convert_to_filter_list(std::string value);
 
 	#define CHANNEL_LIST_SIZE             17
+	#define MAX_NUM_CHANNELS              129
 	#define MAC_FILTER_LIST_SIZE          10
 	#define DODAG_ROUTE_SIZE	          16
 
@@ -364,6 +367,8 @@ private:
 	void regsiter_all_get_handlers(void);
 
 	void get_prop_DodagRouteDest(CallbackWithStatusArg1 cb);
+	void get_prop_OperatingClass(CallbackWithStatusArg1 cb);
+	void get_prop_NumChannels(CallbackWithStatusArg1 cb);
 	void get_prop_NCPPhyRegion(CallbackWithStatusArg1 cb);
 	void get_prop_NCPModeID(CallbackWithStatusArg1 cb);
 	void get_prop_NCPProtocolVersion(CallbackWithStatusArg1 cb);
@@ -389,6 +394,7 @@ private:
 	void get_prop_UnicastChList(CallbackWithStatusArg1 cb);
 	void get_prop_BroadcastChList(CallbackWithStatusArg1 cb);
 	void get_prop_AsyncChList(CallbackWithStatusArg1 cb);
+	void get_prop_RegulationChList(CallbackWithStatusArg1 cb);
 
 	void get_prop_empty(CallbackWithStatusArg1 cb);
 	void get_prop_ConfigTUNInterfaceName(CallbackWithStatusArg1 cb);
@@ -445,6 +451,14 @@ private:
 	void set_prop_UnicastChList(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_BroadcastChList(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_AsyncChList(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_RegulationChList(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_OperatingClass(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_NumChannels(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_NCPPhyRegion(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_NCPModeID(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_Ch0CenterFreq(const boost::any &value, CallbackWithStatus cb);
+	void set_prop_ChSpacing(const boost::any &value, CallbackWithStatus cb);
+
 	void set_prop_DaemonAutoAssociateAfterReset(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_NestLabs_NetworkPassthruPort(const boost::any &value, CallbackWithStatus cb);
 	void set_prop_DaemonAutoFirmwareUpdate(const boost::any &value, CallbackWithStatus cb);
@@ -754,6 +768,8 @@ protected:
 
 	time_t mCommissioningExpiration;
 
+	int mOperatingClass;
+	int mNumChannels;
 	uint8_t mNCPRegion;
 	int mNCPModeID;
 	int mNCPProtocolVersionMajor;
@@ -781,14 +797,17 @@ protected:
 	int mUCChFunction;
 	int mBCChFunction;
 	std::string mUnicastChList;
-	unsigned char mUnicastArray [129];
-	int mUnicastBytes [17];
+	unsigned char mUnicastArray [MAX_NUM_CHANNELS];
+	int mUnicastBytes [CHANNEL_LIST_SIZE];
 	std::string mBroadcastChList;
-	unsigned char mBroadcastArray [129];
-	int mBroadcastBytes [17];
+	unsigned char mBroadcastArray [MAX_NUM_CHANNELS];
+	int mBroadcastBytes [CHANNEL_LIST_SIZE];
 	std::string mAsyncChList;
-	unsigned char mAsyncArray [129];
-	int mAsyncBytes [17];
+	unsigned char mAsyncArray [MAX_NUM_CHANNELS];
+	int mAsyncBytes [CHANNEL_LIST_SIZE];
+	std::string mRegulationChList;
+	unsigned char mRegulationArray [MAX_NUM_CHANNELS];
+	int mRegulationBytes [CHANNEL_LIST_SIZE];
 	bool mEnabled;
 	bool mTerminateOnFault;
 	bool mAutoUpdateFirmware;

@@ -348,6 +348,8 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 
 	remove_ncp_originated_address_prefix_route_entries();
 
+	mNumChannels = 0;
+	mOperatingClass = 0;
 	mNCPRegion = region;
 	mNCPModeID = 0;
 	mNCPProtocolVersionMajor = 0;
@@ -373,6 +375,7 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 	mUnicastChList = "";
 	mBroadcastChList = "";
 	mAsyncChList = "";
+	mRegulationChList = "";
 	mDodagRouteDest = "";
 
 	mDriverState = INITIALIZING_WAITING_FOR_RESET;
@@ -492,11 +495,14 @@ SpinelNCPInstance::vprocess_init(int event, va_list args)
 				{ SPINEL_PROP_HWADDR, 0 },
 				{ SPINEL_PROP_PHY_CCA_THRESHOLD, 0 },
 				{ SPINEL_PROP_PHY_TX_POWER, 0 },
+				{ SPINEL_PROP_PHY_OPERATING_CLASS, 0 },
+				{ SPINEL_PROP_PHY_TOTAL_NUMBER_CHANNEL, 0 },
 				{ SPINEL_PROP_PHY_REGION, 0 },
 				{ SPINEL_PROP_PHY_MODE_ID, 0 },
 				{ SPINEL_PROP_PHY_UNICAST_CHANNEL_LIST, 0 },
 				{ SPINEL_PROP_PHY_BROADCAST_CHANNEL_LIST, 0 },
 				{ SPINEL_PROP_PHY_ASYNC_CHANNEL_LIST, 0 },
+				{ SPINEL_PROP_PHY_REGULATORY_CHANNEL_LIST, 0 },
 				{ SPINEL_PROP_PHY_CH_SPACING, 0 },
 				{ SPINEL_PROP_PHY_CHO_CENTER_FREQ, 0 },
 				{ SPINEL_PROP_MAC_15_4_PANID, 0 },

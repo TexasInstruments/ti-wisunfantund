@@ -56,6 +56,7 @@ WPANTUND_DECLARE_NCPINSTANCE_PLUGIN(spinel, SpinelNCPInstance);
 #define NCP_FRAMING_OVERHEAD 3
 
 #define CHANNEL_LIST_SIZE             17
+#define MAX_NUM_CHANNELS              129
 
 #define CONTROL_REQUIRE_EMPTY_OUTBOUND_BUFFER_WITHIN(seconds, error_label) do { \
 		EH_WAIT_UNTIL_WITH_TIMEOUT(seconds, (GetInstance(this)->mOutboundBufferLen <= 0) && GetInstance(this)->mOutboundCallback.empty()); \

@@ -55,8 +55,8 @@ volatile uint32_t timer_exit_critical_count = 0;
     void Linux_Polling_Timer::hal_layer_timer_exit_critical(void)
     {
         /* Exit critical section */
-        mutex.unlock();
         timer_exit_critical_count++;
+        mutex.unlock();
     }
 
     void Linux_Polling_Timer::clk0Fxn(uintptr_t arg0)
@@ -80,17 +80,22 @@ volatile uint32_t timer_exit_critical_count = 0;
         {
             if(clockActive)
             {
+                bool trigger_callback = false;
                 // critical section may not be needed or could cause a lockup, check later
                 hal_layer_timer_enter_critical();
                 std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
                 if (currentTime >= clockStopTime)
                 {
-                    // if (maximum_drift < )
-                    // tr_info("Timer callback with %lu microsecond diff between currentTime and clockStopTime!", std::chrono::duration_cast<std::chrono::microseconds>(currentTime.time_since_epoch() - clockStopTime.time_since_epoch()).count());
                     clockActive = false; // the clock function below can start a timer, rendering this true!
-                    clk0Fxn((uintptr_t)NULL);
+                    trigger_callback = true;
                 }
                 hal_layer_timer_exit_critical();
+
+                if (trigger_callback)
+                {
+                    // Trigger the callback outside of timer critical section
+                    clk0Fxn((uintptr_t)NULL);
+                }
             }
             usleep(1000);
         }

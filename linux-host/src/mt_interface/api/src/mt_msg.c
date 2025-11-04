@@ -64,6 +64,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdatomic.h>
 
 #include "ns_trace.h"
 
@@ -88,7 +90,7 @@ const struct ini_flag_name mt_msg_log_flags[] = {
 };
 
 /*! used to track the order of messages. */
-static unsigned msg_sequence_counter;
+static atomic_uint msg_sequence_counter = ATOMIC_VAR_INIT(0);
 
 /* Used to verify a msg pointer is a message pointer. */
 static const int msg_check_value = 'm';
@@ -102,6 +104,16 @@ extern struct mt_version_info MT_DEVICE_version_info;
 
 extern void platformRcpAReqRxedSignal(uintptr_t arg);
 
+typedef struct MT_MSG_DBG_tag
+{
+    uint32_t    num_tx_pkt;
+    uint32_t    num_rx_pkt;
+    uint32_t    num_rx_err_no_frame_sync;
+    uint32_t    num_rx_err_checksum;
+    uint32_t    num_rx_err_packet_len;
+} MT_MSG_DBG_s;
+
+MT_MSG_DBG_s mt_msg_Dbg;
 /******************************************************************************
  Functions
  *****************************************************************************/
@@ -335,7 +347,7 @@ static void MT_MSG_format_msg(struct mt_msg *pMsg)
     {
         MT_MSG_wrU8(pMsg, pMsg->expected_len);
     }
-    
+
 
     /* cmd0/cmd1 */
     MT_MSG_wrU8(pMsg, pMsg->cmd0);
@@ -921,7 +933,7 @@ struct mt_msg *MT_MSG_alloc(int len, int cmd0, int cmd1)
     /* initialize it */
     if(pMsg)
     {
-        pMsg->sequence_id = msg_sequence_counter++;
+        pMsg->sequence_id = atomic_fetch_add(&msg_sequence_counter, 1);
         pMsg->check_ptr = &(msg_check_value);
         /* current implimentation is a u8 array local to the struct */
         pMsg->iobuf_idx_max = sizeof(pMsg->iobuf);
@@ -1417,6 +1429,8 @@ static int MT_MSG_tx(struct mt_msg *pMsg)
     /* Set the message type */
     MT_MSG_set_type(pMsg, pMsg->pDestIface);
 
+    mt_msg_Dbg.num_tx_pkt++;
+
     /* if there was an error, we don't tx */
     if(pMsg->is_error || (pMsg->m_type == MT_MSG_TYPE_unknown))
     {
@@ -1557,7 +1571,7 @@ static int mt_msg_rx_bytes(struct mt_msg_interface *pMI,
     nneed = n - pMsg->iobuf_nvalid;
 
     /* go read */
-#ifndef NPI_USE_NLI		
+#ifndef NPI_USE_NLI
     r = STREAM_rdBytes(pMI->hndl,
                        pMsg->iobuf + pMsg->iobuf_nvalid,
                        nneed,
@@ -1697,11 +1711,12 @@ read_more:
         {
             /* not found */
 #ifdef MT_MSG_DEBUG_TRACE
-            tr_debug("Garbage data...\n");		
-#endif		   
-            goto try_again;		
+            tr_debug("Garbage data...\n");
+#endif
+            tr_err("RX packet frame Sync not found");
+            goto try_again;
         }
-#ifndef NPI_USE_NLI	
+#ifndef NPI_USE_NLI
         /* frame sync must start at zero. */
         if(p8 != pMsg->iobuf)
         {
@@ -1721,6 +1736,15 @@ read_more:
                 /* No - we need more, go get more */
                 goto read_more;
             }
+        }
+#else
+        if(p8 != pMsg->iobuf)
+        {   // the first byte should be sync word (0xFE)
+            // if the sync word is not found, drop the whole packet
+            // goto try_again;
+            mt_msg_Dbg.num_rx_err_no_frame_sync++;
+            tr_err("RX packet frame Sync not at beginning");
+            return NULL;
         }
 #endif
         /* DUMMY read of the sync byte */
@@ -1742,7 +1766,7 @@ read_more:
     pMsg->cmd1 = MT_MSG_rdU8(pMsg);
 
     nneed += pMsg->expected_len;
-#ifndef NPI_USE_NLI	
+#ifndef NPI_USE_NLI
     /* read the data component */
     r = mt_msg_rx_bytes(pMI, nneed, pMI->intersymbol_timeout_mSecs);
     if(r != nneed)
@@ -1764,7 +1788,18 @@ read_more:
         STREAM_rdDump(pMI->hndl, pMI->flush_timeout_mSecs);
         goto try_again;
     }
+#else
+    // in HDLC, whole packet is received, just make sure we have enough data
+    if (r < nneed)
+    {   //drop this packet
+        mt_msg_Dbg.num_rx_err_packet_len++;
+
+        tr_err("RX packet too short (packet-len=%d): need: %d\n",r, nneed);
+        //goto try_again;
+        return NULL;
+    }
 #endif
+
     /* Dummy read to the end of the data. */
     /* this puts us at the checksum byte (if present) */
     MT_MSG_rdBuf(pMsg, NULL, pMsg->expected_len);
@@ -1778,14 +1813,17 @@ read_more:
             tr_err("%s: chksum error\n",
                 pMI->dbg_name);
             LOG_hexdump(!LOG_ERROR, 0, pMsg->iobuf, pMsg->iobuf_nvalid);
-#ifndef NPI_USE_NLI	            
+#ifndef NPI_USE_NLI
 			goto dump_recover;
 #else
             //LOG_printf(LOG_DBG_MT_MSG_traffic, "Flushing RX stream\n");
            /* Dump all incoming data until we find a sync byte */
-           STREAM_rdDump(pMI->hndl, pMI->flush_timeout_mSecs);
-           goto try_again;			
-#endif			
+
+           mt_msg_Dbg.num_rx_err_checksum++;
+
+           tr_err("%s: chksum error\n",pMI->dbg_name);
+           return NULL;
+#endif
         }
     }
     /* We have a message */
@@ -1802,6 +1840,8 @@ read_more:
        );
     /* next time we need to allocate a new message */
     pMI->pCurRxMsg = NULL;
+
+    mt_msg_Dbg.num_rx_pkt++;
 
     /* return our message */
     return (pMsg);
@@ -2081,7 +2121,7 @@ static struct mt_msg *handle_data_fragment(struct mt_msg *pRxFrag)
 
     /* update the block number. */
     pMI->rx_frag.block_cur = this_block;
-    
+
 #ifdef MT_MSG_DEBUG_TRACE
     tr_debug("RX-Frag: Block %d of %d\n",
         this_block + 1,
@@ -2221,6 +2261,9 @@ static intptr_t mt_msg_rx_thread(intptr_t cookie)
     /* run till we die */
     for(;;)
     {
+#ifndef NPI_USE_NLI
+        usleep(100000); // 100ms sleep
+#endif
         if(pMI->is_dead)
         {
             break;
@@ -2280,7 +2323,7 @@ static intptr_t mt_msg_rx_thread(intptr_t cookie)
         }
 
         //ignore processing of srsps for now
-        
+
         /* it should match our current Sreq */
         /* and it might not match our Sreq */
         // if(pMI->pCurSreq == NULL)
@@ -2317,10 +2360,10 @@ static intptr_t mt_msg_rx_thread(intptr_t cookie)
         /* attach it to the request */
         //pMI->pCurSreq->pSrsp = pRxMsg;
         //pMI->pCurSreq = NULL;
-        
+
         // free message
         MT_MSG_free(pRxMsg);
-        
+
         /* wake up the waiter */
         //SEMAPHORE_put(pMI->srsp_semaphore);
     }
@@ -2975,8 +3018,8 @@ int MT_MSG_loopback(struct mt_msg_interface *pIface, int repeatCount,
     int r;
     int x;
 
-    pMsg = MT_MSG_alloc(1 + 4 + ((int)length), 
-                        MT_UTIL_LOOPBACK_cmd0, 
+    pMsg = MT_MSG_alloc(1 + 4 + ((int)length),
+                        MT_UTIL_LOOPBACK_cmd0,
                         MT_UTIL_LOOPBACK_cmd1);
     if(pMsg == NULL)
     {

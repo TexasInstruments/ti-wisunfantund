@@ -1614,17 +1614,29 @@ const char *spinel_prop_key_to_cstr(spinel_prop_key_t prop_key)
         ret = "ASYNC_CHANNEL_LIST";
         break;
 
-    case SPINEL_PROP_THREAD_LOCAL_LEADER_WEIGHT:
-        ret = "THREAD_LOCAL_LEADER_WEIGHT";
+    case SPINEL_PROP_PHY_REGULATORY_CHANNEL_LIST:
+        ret = "REGULATION_CHANNEL_LIST";
         break;
 
-    case SPINEL_PROP_THREAD_NETWORK_DATA:
-        ret = "THREAD_NETWORK_DATA";
+    case SPINEL_PROP_PHY_OPERATING_CLASS:
+        ret = "OPERATING_CLASS";
         break;
 
-    case SPINEL_PROP_THREAD_NETWORK_DATA_VERSION:
-        ret = "THREAD_NETWORK_DATA_VERSION";
+    case SPINEL_PROP_PHY_TOTAL_NUMBER_CHANNEL:
+        ret = "NUM_CHANNELS";
         break;
+
+    // case SPINEL_PROP_THREAD_LOCAL_LEADER_WEIGHT:
+    //     ret = "THREAD_LOCAL_LEADER_WEIGHT";
+    //     break;
+
+    // case SPINEL_PROP_THREAD_NETWORK_DATA:
+    //     ret = "THREAD_NETWORK_DATA";
+    //     break;
+
+    // case SPINEL_PROP_THREAD_NETWORK_DATA_VERSION:
+    //     ret = "THREAD_NETWORK_DATA_VERSION";
+    //     break;
 
     case SPINEL_PROP_THREAD_STABLE_NETWORK_DATA:
         ret = "THREAD_STABLE_NETWORK_DATA";

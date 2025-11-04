@@ -151,7 +151,7 @@ static bool hdlc_byte_needs_escape(uint8_t byte)
 
 uint8_t *add_NLI_byte(const uint8_t *inputBuf, uint16_t inputFrameLen, uint8_t nli, uint16_t *outputBufLen)
 {
-    uint8_t *outputBuf;
+    uint8_t *outputBuf=NULL;
 
     if (inputFrameLen > 0)
     {
@@ -333,10 +333,10 @@ uint8_t *pull_hdlc(int inputFd, int *outputBufLen)
 {
     int localPayloadSize = 0;
     uint8_t *loclaFrameBuffer;
-    uint8_t byte;
+    uint8_t byte =0;
     uint8_t *outputBuf = NULL;
     int ret = 0;
-    uint16_t fcs;
+    uint16_t fcs =0;
     bool unescape_next_byte = false;
 
     loclaFrameBuffer = (uint8_t*)malloc(MAX_FRAME_SIZE * 2);
@@ -351,7 +351,7 @@ uint8_t *pull_hdlc(int inputFd, int *outputBufLen)
                 printf( "HDLC frame was too big");
                 unescape_next_byte = false;
                 localPayloadSize  = 0;
-                fcs                = kHdlcCrcResetValue;
+                fcs               = kHdlcCrcResetValue;
             }
             else if (byte == HDLC_BYTE_FLAG)
             {
@@ -359,7 +359,7 @@ uint8_t *pull_hdlc(int inputFd, int *outputBufLen)
                 {
                     unescape_next_byte = false;
                     localPayloadSize  = 0;
-                    fcs                = kHdlcCrcResetValue;
+                    fcs               = kHdlcCrcResetValue;
                     continue;
                 }
                 else if (fcs != kHdlcCrcCheckValue)
@@ -367,7 +367,7 @@ uint8_t *pull_hdlc(int inputFd, int *outputBufLen)
                     printf( "HDLC frame with bad CRC (LEN:%d, FCS:0x%04X)", localPayloadSize, fcs);
                     unescape_next_byte = false;
                     localPayloadSize  = 0;
-                    fcs                = kHdlcCrcResetValue;
+                    fcs               = kHdlcCrcResetValue;
                     continue;
                 }
 
@@ -399,6 +399,10 @@ uint8_t *pull_hdlc(int inputFd, int *outputBufLen)
             loclaFrameBuffer[localPayloadSize++] = byte;
         }
 
+        if (localPayloadSize == 0)
+        {
+            return NULL;
+        }
         outputBuf = (uint8_t*)malloc(localPayloadSize);
         if (NULL != outputBuf)
         {

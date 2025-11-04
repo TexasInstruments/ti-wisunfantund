@@ -59,6 +59,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdatomic.h>
 #include "hlos_specific.h"
 
 /*
@@ -83,7 +84,7 @@ static int      log_col;
 /*!
  * @var [private] flag to print ERROR at start of line or not.
  */
-static bool     log_is_error;
+static atomic_bool log_is_error = ATOMIC_VAR_INIT(false);
 
 /*!
  * @var [private] log_mutex
@@ -209,8 +210,8 @@ static void log_putc(int c)
             t / 1000, t % 1000);
         /* Example: "1234.567: " */
         log_puts_dup(buf);
-        if(log_is_error){
-            log_is_error = false;
+        if(atomic_load(&log_is_error)){
+            atomic_store(&log_is_error, false);
             log_puts_dup("ERROR: ");
         }
     }
@@ -357,8 +358,8 @@ void LOG_printf(logflags_t whybits, _Printf_format_string_ const char *fmt, ...)
  */
 bool LOG_test(logflags_t whybits)
 {
-    /* Set log error */
-    log_is_error = (whybits == LOG_ERROR) ? true : false;
+    /* Set log error using atomic store to prevent data race */
+    atomic_store(&log_is_error, (whybits == LOG_ERROR));
 
     /* if there is no log stream.. */
     if((log_cfg.log_stream == 0) && (log_cfg.dup_to_stderr == false))

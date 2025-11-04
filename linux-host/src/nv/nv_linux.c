@@ -97,7 +97,11 @@ static uint32_t nvPageSize = FLASH_PAGE_SIZE;
 ******************************************************************************/
 
 bool linux_CONFIG_NV_RESTORE;
-static const char _nv_default_filename[] = "nv-simulation.bin";
+#ifdef DEVICE_TYPE_BORDER_ROUTER 
+static const char _nv_default_filename[] = "nv-simulation-br.bin";
+#else
+static const char _nv_default_filename[] = "nv-simulation-rn.bin";
+#endif
 static const char *NV_filename = _nv_default_filename;
 static uint8_t    *NV_ramSim;
 static unsigned    NV_ramLength;

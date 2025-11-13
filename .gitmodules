@@ -1,7 +1,0 @@
-# [submodule "simplelink-lowpower-f2-sdk"]
-# 	path = src/simplelink-lowpower-f2-sdk
-# 	url = git@github.com:TexasInstruments/simplelink-lowpower-f2-sdk.git
-
-[submodule "src/lprf-dallas-wisunfan"]
-	path = src/lprf-dallas-wisunfan
-	url = ssh://git@bitbucket.itg.ti.com/lpc_sw_rnd/lprf-dallas-wisunfan.git

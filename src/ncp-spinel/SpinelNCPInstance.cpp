@@ -51,6 +51,7 @@
 #include <string.h>
 #include "string-utils.h"
 #include "../src/wpanctl/webserver-config.h"
+#include "MQTTClient.h"
 
 #define kWPANTUND_Allowlist_RssiOverrideDisabled    127
 #define kWPANTUND_SpinelPropValueDumpLen            8
@@ -6922,6 +6923,38 @@ SpinelNCPInstance::handle_ncp_spinel_value_is(spinel_prop_key_t key, const uint8
 
 		syslog(LOG_DEBUG, "Received Multicast Listener Registration Response status=%u mlr_status=%u",
 			(unsigned)status, (unsigned)mlr_status);
+	} else if (key == SPINEL_PROP_VENDOR_TCP_SEND_ALL) {
+		/* Unsolicited TCP RX data from NCP → route to MQTT client.
+		 * Variables scoped in nested block to avoid crossing goto bail. */
+		{
+			const uint8_t *tcp_data     = NULL;
+			spinel_size_t  tcp_data_len = 0;
+			spinel_datatype_unpack(value_data_ptr, value_data_len,
+			                       SPINEL_DATATYPE_DATA_WLEN_S,
+			                       &tcp_data, &tcp_data_len);
+			if (tcp_data && tcp_data_len > 0) {
+				mVendorCustom.get_mqtt_client()->handle_tcp_rx(tcp_data, (size_t)tcp_data_len);
+			}
+		}
+
+	} else if (key == SPINEL_PROP_VENDOR_TCP_STATUS) {
+		/* Unsolicited TCP connection event from NCP → route to MQTT client.
+		 * Variables scoped in nested block to avoid crossing goto bail. */
+		{
+			const uint8_t *status_data     = NULL;
+			spinel_size_t  status_data_len = 0;
+			spinel_datatype_unpack(value_data_ptr, value_data_len,
+			                       SPINEL_DATATYPE_DATA_S,
+			                       &status_data, &status_data_len);
+			if (status_data && status_data_len >= 2) {
+				bool connected = (status_data[1] != 0);
+				if (connected) {
+					mVendorCustom.get_mqtt_client()->handle_tcp_connected();
+				} else {
+					mVendorCustom.get_mqtt_client()->handle_tcp_disconnected();
+				}
+			}
+		}
 	}
 
 bail:

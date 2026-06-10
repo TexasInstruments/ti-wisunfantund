@@ -4,6 +4,7 @@ set(RN_SOURCES
     # Application level code
     ${PROJECT_SOURCE_DIR}/apps/router_node_nanostack_tirf/main.cpp
     ${PROJECT_SOURCE_DIR}/apps/router_node_nanostack_tirf/application.c
+    ${PROJECT_SOURCE_DIR}/apps/router_node_nanostack_tirf/tcp_app.c 
 )
 
 set(rn_include_dirs

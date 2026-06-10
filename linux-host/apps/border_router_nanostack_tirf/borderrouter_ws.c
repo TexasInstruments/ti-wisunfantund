@@ -662,6 +662,10 @@ static void wisun_interface_event_handler(arm_event_s *event)
                 tr_warn("Failed to set metric for mesh0.");
             }
 
+            /* Advertise default route (::/0) in RPL DIO so mesh nodes can
+             * forward external traffic (e.g. CSMP to FND) to the border router */
+            ws_bbr_configure(ws_br_handler.ws_interface_id, BBR_DEFAULT_ROUTE);
+
             tr_info("RF interface addresses:");
             print_interface_addr(ws_br_handler.ws_interface_id);
 

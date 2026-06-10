@@ -53,4 +53,21 @@ extern "C"
 
 #endif
 
+
+/* -------- MQTT (lwIP-ported) Configuration -------- */
+#define FEATURE_MQTT_APP_ENABLE          (true)
+#define MQTT_OUTPUT_RINGBUF_SIZE         (256u)     /* output ring buffer bytes     */
+#define MQTT_VAR_HEADER_BUFFER_LEN       (256u)     /* rx variable header buffer    */
+#define MQTT_REQ_MAX_IN_FLIGHT           (4u)       /* max pending QoS 1/2 requests */
+#define MQTT_REQ_TIMEOUT                 (30u)      /* request timeout seconds      */
+#define MQTT_CONNECT_TIMEO               (100u)     /* connect timeout seconds      */
+#define MQTT_CYCLIC_TIMER_INTERVAL       (5u)       /* timer tick seconds           */
+
+/* -------- TCP Application Feature Configuration -------- */
+/* Always compiled as DUAL mode — server and client both available.
+ * Mode is selected at runtime via wfanctl (TCP:ServerListen / TCP:ClientConnect). */
+#define FEATURE_TCP_APP_PORT          (5678u)
+#define FEATURE_TCP_APP_BUF_SIZE      (2048u)
+#define FEATURE_TCP_MAX_CLIENTS       (50u)
+
 #endif /* TI_WISUNFAN_FEATURES_H */

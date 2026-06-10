@@ -633,4 +633,22 @@
 #define kWPANTUNDValueMapKey_CoexMetrics_AvgRxRequestToGrantTime            "AvgRxRequestToGrantTime"            // The average time in usec from rx request to grant.
 #define kWPANTUNDValueMapKey_CoexMetrics_NumRxGrantNone                     "NumRxGrantNone"                     // The number of rx requests that completed without receiving grant.
 
+
+/* -------- TCP Application Properties -------- */
+#define kWPANTUNDProperty_TCPMode           "TCP:Mode"
+#define kWPANTUNDProperty_TCPServerListen   "TCP:ServerListen"
+#define kWPANTUNDProperty_TCPClientConnect  "TCP:ClientConnect"
+#define kWPANTUNDProperty_TCPSendAll        "TCP:Send"
+#define kWPANTUNDProperty_TCPSendTo         "TCP:SendTo"
+#define kWPANTUNDProperty_TCPStatus         "TCP:Status"
+#define kWPANTUNDProperty_TCPDisconnect     "TCP:Disconnect"
+
+/* -------- MQTT Application Properties -------- */
+#define kWPANTUNDProperty_MQTTConnect      "MQTT:Connect"
+#define kWPANTUNDProperty_MQTTDisconnect   "MQTT:Disconnect"
+#define kWPANTUNDProperty_MQTTPublish      "MQTT:Publish"
+#define kWPANTUNDProperty_MQTTSubscribe    "MQTT:Subscribe"
+#define kWPANTUNDProperty_MQTTUnsubscribe  "MQTT:Unsubscribe"
+#define kWPANTUNDProperty_MQTTStatus       "MQTT:Status"
+
 #endif

@@ -7,5 +7,8 @@ RUN apt-get install freeradius -y
 COPY external-servers/freeradius/raddb/. /etc/freeradius/3.0/
 # Install dnsmasq (no need for custom config)
 RUN apt install -y dnsmasq=2.86-1.1
+# Install Mosquitto MQTT broker and CLI tools
+RUN apt-get install -y mosquitto mosquitto-clients
+COPY etc/mosquitto.conf /etc/mosquitto/mosquitto.conf
 # Leave container running so we can exec into it later
 ENTRYPOINT ["tail", "-f", "/dev/null"]

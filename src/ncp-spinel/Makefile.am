@@ -110,6 +110,8 @@ NCP_SOURCES = \
 	SpinelNCPThreadDataset.cpp \
 	SpinelNCPVendorCustom.h \
 	SpinelNCPVendorCustom.cpp \
+	MQTTClient.h \
+	MQTTClient.cpp \
 	$(top_srcdir)/third_party/openthread/src/ncp/spinel.c \
 	spinel-extra.c \
 	spinel-extra.h \

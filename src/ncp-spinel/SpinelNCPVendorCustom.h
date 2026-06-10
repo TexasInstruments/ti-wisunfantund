@@ -32,6 +32,7 @@
 #include <map>
 #include <errno.h>
 #include "spinel.h"
+#include "MQTTClient.h"
 
 namespace nl {
 namespace wpantund {
@@ -59,12 +60,33 @@ public:
 	void property_remove_value(const std::string& key, const boost::any& value, CallbackWithStatus cb);
 
 	cms_t get_ms_to_next_event(void);
+	MQTTClient *get_mqtt_client() { return mMQTTClient; }
 
 	void process(void);
 
 private:
 	SpinelNCPInstance *mInstance;
 	std::set<std::string> mSupportedProperties;
+	MQTTClient *mMQTTClient;
+
+	/* Called by MQTTClient to send data over TCP */
+	void mqtt_tcp_send_data(const uint8_t *data, size_t len);
+
+	/* Called by MQTTClient to initiate TCP connection.
+	 * Tries a direct Linux socket first (for BR self-connection);
+	 * falls back to TCP:ClientConnect Spinel command on failure. */
+	bool mqtt_tcp_connect(const std::string &addr, uint16_t port);
+
+	/* Called by MQTTClient to close TCP connection */
+	void mqtt_tcp_disconnect();
+
+	/* Attempt a direct Linux kernel TCP socket to addr:port.
+	 * Waits up to 50 ms to determine if the connection succeeds.
+	 * Returns true only if a broker is actually listening (connect accepted).
+	 * Returns false on refused/timeout so the caller falls back to Spinel. */
+	bool try_direct_connect(const std::string &addr, uint16_t port);
+
+	int  mDirectFd;   /* Linux socket fd when using direct path, -1 otherwise */
 }; // class SpinelNCPVendorCustom
 
 

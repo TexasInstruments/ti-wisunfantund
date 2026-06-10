@@ -89,6 +89,7 @@
 #endif
 
 #include "application.h"
+#include "tcp_app.h"
 #include "eventOS_event_timer.h"
 #ifdef WISUN_NCP_ENABLE
 /* OpenThread Internal/Example Header files */

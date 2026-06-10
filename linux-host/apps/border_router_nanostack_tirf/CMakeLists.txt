@@ -6,6 +6,7 @@ set(BR_SOURCES
     ${PROJECT_SOURCE_DIR}/apps/border_router_nanostack_tirf/application.c
     ${PROJECT_SOURCE_DIR}/apps/border_router_nanostack_tirf/borderrouter_ws.c
     ${PROJECT_SOURCE_DIR}/apps/border_router_nanostack_tirf/borderrouter_helpers.c
+    ${PROJECT_SOURCE_DIR}/apps/border_router_nanostack_tirf/tcp_app.c
 )
 
 set(br_include_dirs

@@ -3,6 +3,9 @@
 
 #include "IniSection.hpp"
 #include "stream_uart.h"
+#include <memory>
+
+class SpiSection;
 
 class UartSection : public IniSection {
 private:
@@ -16,6 +19,12 @@ public:
     bool validate() const override;
     
     struct uart_cfg* getConfig();
+
+    // When this SPI section is configured, the UART section is not required
+    void setSpiAlternative(std::shared_ptr<SpiSection> spi);
+
+private:
+    std::shared_ptr<SpiSection> spiAlt_;
 };
 
 #endif // UART_SECTION_HPP

@@ -56,6 +56,7 @@
 #include "stream.h"
 #include "stream_socket.h"
 #include "stream_uart.h"
+#include "stream_spi.h"
 #include "timer.h"
 #include "ti_semaphore.h"
 #include "fatal.h"
@@ -1606,7 +1607,8 @@ static int mt_msg_rx_bytes(struct mt_msg_interface *pMI,
         {
             if(r < 0)
             {
-                /* USB uarts die if they are disconnected */
+                /* USB uarts die if they are disconnected; a spi link
+                 * reports r < 0 only when its bus has failed */
                 pMI->is_dead = true;
             }
         }
@@ -2417,6 +2419,12 @@ int MT_MSG_interfaceCreate(struct mt_msg_interface *pMI)
                 }
             }
         }
+    }
+    else if(pMI->spi_cfg)
+    {
+        /* TRX SPI link to the RCP. STREAM_createSpi() sends a RESET request that
+         * resets the firmware's stream sequence/flow state (not its NPI buffers). */
+        pMI->hndl = STREAM_createSpi(pMI->spi_cfg);
     }
     else if(pMI->u_cfg)
     {

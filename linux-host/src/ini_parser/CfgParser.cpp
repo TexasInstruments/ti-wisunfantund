@@ -42,7 +42,11 @@ bool CfgParser::parse(int argc, char** argv) {
     iniFile = std::make_unique<IniFile>(argv[1]);
     
     // Register section handlers
-    iniFile->registerSection("uart-cfg", std::make_shared<UartSection>("uart-cfg"));
+    auto uartSection = std::make_shared<UartSection>("uart-cfg");
+    auto spiSection = std::make_shared<SpiSection>("spi-cfg");
+    uartSection->setSpiAlternative(spiSection);
+    iniFile->registerSection("uart-cfg", uartSection);
+    iniFile->registerSection("spi-cfg", spiSection);
     iniFile->registerSection("ncp-cfg", std::make_shared<NcpSection>("ncp-cfg"));
     iniFile->registerSection("dhcp-cfg", std::make_shared<DhcpSection>("dhcp-cfg"));
     iniFile->registerSection("radius-cfg", std::make_shared<RadiusSection>("radius-cfg"));
@@ -51,9 +55,17 @@ bool CfgParser::parse(int argc, char** argv) {
     return iniFile->parse();
 }
 
-void CfgParser::applySettings(struct uart_cfg **u_cfg_ptr, uint16_t *ncp_socket_port) {
+void CfgParser::applySettings(struct uart_cfg **u_cfg_ptr, uint16_t *ncp_socket_port, struct spi_cfg **spi_cfg_ptr) {
+    auto spiSection = getTypedSection<SpiSection>("spi-cfg");
+    bool useSpi = false;
+    if (spi_cfg_ptr != nullptr && spiSection && spiSection->isConfigured()) {
+        // the RCP is reached over the TRX SPI link; the UART is not used
+        *spi_cfg_ptr = spiSection->getConfig();
+        useSpi = true;
+    }
+
     auto uartSection = getTypedSection<UartSection>("uart-cfg");
-    if (uartSection) {
+    if (uartSection && !useSpi) {
         // change the uart pointer to point at the newly parsed config
         const struct uart_cfg* config = uartSection->getConfig();
         *u_cfg_ptr = const_cast<struct uart_cfg*>(config);
@@ -66,8 +78,8 @@ void CfgParser::applySettings(struct uart_cfg **u_cfg_ptr, uint16_t *ncp_socket_
     }
 }
 
-void CfgParser::applyBrSettings(struct uart_cfg **u_cfg_ptr, ti_br_config_t *ti_br_config, uint16_t *ncp_socket_port) {
-    applySettings(u_cfg_ptr, ncp_socket_port);
+void CfgParser::applyBrSettings(struct uart_cfg **u_cfg_ptr, ti_br_config_t *ti_br_config, uint16_t *ncp_socket_port, struct spi_cfg **spi_cfg_ptr) {
+    applySettings(u_cfg_ptr, ncp_socket_port, spi_cfg_ptr);
 
     auto dhcpSection = getTypedSection<DhcpSection>("dhcp-cfg");
     if (dhcpSection) {

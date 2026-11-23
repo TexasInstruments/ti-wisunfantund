@@ -72,3 +72,29 @@ Android.mk
 ti_wisun_webapp/node_modules
 .vscode/
 aminclude_static.am
+logs
+linux-host/docs
+
+# BBB build products and copied deployment bundles
+/build-bbb/
+/bbb-runtime-*/
+/linux-host/bin/
+/linux-host/build/
+/linux-host/build-*/
+/linux-host/CMakeFiles/
+/linux-host/CMakeCache.txt
+/linux-host/build.ninja
+/linux-host/.ninja_deps
+/linux-host/.ninja_log
+/linux-host/cmake_install.cmake
+/linux-host/compile_commands.json
+
+# Local validation files, interpreter caches and runtime state
+/scripts/tests/
+/linux-host/test/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+/linux-host/logs.txt
+nv-simulation-*.bin

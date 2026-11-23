@@ -15,6 +15,13 @@ set(rn_include_dirs
 # Create the executable
 add_executable(${PROJ_NAME} ${SOURCES} ${RN_SOURCES} ${SOURCES_COMMON_NANOSTACK})
 
+target_link_libraries(${PROJ_NAME} PRIVATE Threads::Threads gpiod)
+
+# FT232H backend library (empty when not available)
+if (FTDI_LIBS)
+    target_link_libraries(${PROJ_NAME} PRIVATE ${FTDI_LIBS})
+endif()
+
 # Specify include directories
 target_include_directories(${PROJ_NAME} PRIVATE ${ti_wisunfan_nanostack_include_dirs} ${rn_include_dirs})
 

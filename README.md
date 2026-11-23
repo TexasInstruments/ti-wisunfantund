@@ -13,6 +13,12 @@ operating in Network Processor (NWP) mode.
 TI Wi-SUN FAN Solution are supported over TI CC13xx platforms.
 Refer to https://www.ti.com/wireless-connectivity/wi-sun/overview.html for more details.
 
+> **New: CC1407 support (Early Access).** CC1407 boards can now be used as the
+> RCP (radio) with a BeagleBone Black host. This is for **early access and
+> evaluation only. It is not for production use.** The software is still in
+> development and is being improved continuously. Existing CC13xx support is
+> unchanged. See [CC1407 on BeagleBone Black](#cc1407-on-beaglebone-black-early-access) below.
+
 
 TI Wi-SUN FAN embedded software running on TI CC13xx platform can be downloaded
 from TI CC13xx_26xx SDK (https://www.ti.com/tool/download/SIMPLELINK-CC13X2-26X2-SDK)
@@ -27,6 +33,8 @@ of a Linux OS based Wi-SUN Border Router custom applications and provide back-en
 Software can be ported to other embedded Linux platforms to develop WI-SUN FAN based Border router
 solution. Reference cross compilation support has been provided for TI AM64x SK Platform 
 (https://www.ti.com/tool/SK-AM64).
+Early access cross compilation support for BeagleBone Black with a CC1407 RCP is also
+available (see [BBB.md](./BBB.md)).
 
 
 `wfantund` is designed to marshall all access to the NCP, ensuring
@@ -51,7 +59,24 @@ limitations under the License.
 
 Please refer to the readme in the `linux-host` folder for instructions on using the new Linux Host functionality for increased network sizes! Otherwise continue along with this readme for more info on wfantund and steps for the previous version of wfantund, which still works like before.
 
-##
+## CC1407 on BeagleBone Black (Early Access) ##
+
+> **Early access only. Not for production use.** CC1407 support is still in
+> development and is being improved as we progress. Expect rough edges.
+
+CC1407 boards can be used as the RCP (radio) for the Linux Host, running on a
+BeagleBone Black (BBB) and connected over SPI.
+
+**Nothing else changes.** All previous functionality is unaffected, and CC13xx
+support (UART NWP and the existing Linux Host + RCP flow) works exactly as before.
+
+To run a BBB with a CC1407 as the RCP, follow these 3 steps:
+
+1. **Flash the firmware.** Follow the flashing steps in the
+   [CC1407P user guide (SWRU633A)](https://www.ti.com/lit/ug/swru633a/swru633a.pdf?ts=1795414509445&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FCC1407P).
+2. **Choose the image.** Flash the `.bin` file found in the [`artifacts/`](./artifacts) folder of this repository.
+3. **Set up the BeagleBone Black.** Wire the boards using [`BBB_WIRING.md`](./BBB_WIRING.md), then build, install and run using [`BBB.md`](./BBB.md).
+
 
 ## Compilation and Installation ##
 
@@ -62,6 +87,10 @@ in Ubuntu Linux OS.
 ### Embedded Linux OS Support ###
 Refer to Install_AM64x_sk.md for cross-compiling and installing `wfantund` and `wfanctl` 
 for TI AM64x SK (https://www.ti.com/tool/SK-AM64).
+
+### BeagleBone Black + CC1407 (Early Access) ###
+Refer to BBB.md for cross-compiling and running on BeagleBone Black with a CC1407 RCP,
+and BBB_WIRING.md for SPI wiring. This is early access, not for production use.
 
 ## Usage Overview ##
 

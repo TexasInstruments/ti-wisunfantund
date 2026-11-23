@@ -5,6 +5,16 @@ project(wisun-rcp-host VERSION 1.0
                   DESCRIPTION "TI Wi-SUN FAN Border Router"
                   LANGUAGES C CXX)
 
+# Preserve the bundled SDK default while allowing out-of-tree cross builds.
+set(WISUN_SDK_ROOT "${PROJECT_SOURCE_DIR}/src/lprf-dallas-wisunfan" CACHE PATH "Matching Wi-SUN SDK source root")
+get_filename_component(WISUN_SDK_ROOT "${WISUN_SDK_ROOT}" ABSOLUTE)
+if(NOT EXISTS "${WISUN_SDK_ROOT}/source/ti/ti_wisunfan/rcp/rcp_host.c")
+    message(FATAL_ERROR "Missing Wi-SUN SDK sources; set WISUN_SDK_ROOT to a matching SDK")
+endif()
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 include(CMakeSources.cmake)
 
 # Add your source files here
@@ -19,6 +29,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/ini_parser/IniFile.cpp
     ${PROJECT_SOURCE_DIR}/src/ini_parser/IniSection.cpp
     ${PROJECT_SOURCE_DIR}/src/ini_parser/UartSection.cpp
+    ${PROJECT_SOURCE_DIR}/src/ini_parser/SpiSection.cpp
     ${PROJECT_SOURCE_DIR}/src/ini_parser/NcpSection.cpp
     ${PROJECT_SOURCE_DIR}/src/ini_parser/DhcpSection.cpp
     ${PROJECT_SOURCE_DIR}/src/ini_parser/RadiusSection.cpp
@@ -30,6 +41,8 @@ set(SOURCES
     # Gateway Common Code
     ${PROJECT_SOURCE_DIR}/src/gateway_common/linux/linux_specific.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/linux/linux_uart.c
+    ${PROJECT_SOURCE_DIR}/src/gateway_common/linux/linux_spi.c
+    ${PROJECT_SOURCE_DIR}/src/gateway_common/linux/linux_ftdi_io.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/debug_helpers.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/fatal.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/fifo.c
@@ -47,6 +60,10 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/stream_socket_private.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/stream_socket_server.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/stream_uart_ini.c
+    ${PROJECT_SOURCE_DIR}/src/gateway_common/src/mpsse_spi.c
+    ${PROJECT_SOURCE_DIR}/src/gateway_common/src/trx_spi_log.c
+    ${PROJECT_SOURCE_DIR}/src/gateway_common/src/trx_spi_core.c
+    ${PROJECT_SOURCE_DIR}/src/gateway_common/src/trx_spi_link.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/threads.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/timer.c
     ${PROJECT_SOURCE_DIR}/src/gateway_common/src/timer_cb.c
@@ -162,8 +179,38 @@ set(ti_wisunfan_nanostack_include_dirs
     ${PROJECT_SOURCE_DIR}/src/lprf-dallas-wisunfan/source/third_party/mbed/nanostack/sal-stack-nanostack/nanostack
 )
 
+# Override SDK roots without changing the existing source/include manifests.
+foreach(list_name SOURCES SOURCES_COMMON_NANOSTACK ti_wisunfan_nanostack_include_dirs)
+    set(resolved_paths "")
+    foreach(path IN LISTS ${list_name})
+        string(REPLACE "${PROJECT_SOURCE_DIR}/src/lprf-dallas-wisunfan" "${WISUN_SDK_ROOT}" path "${path}")
+        list(APPEND resolved_paths "${path}")
+    endforeach()
+    set(${list_name} "${resolved_paths}")
+endforeach()
+
 # Add debug flag
 add_compile_options(-g -fdiagnostics-color=always)
+
+# FT232H (USB) SPI backend: needs libftdi1-dev. ON by default if the library is found;
+# without it "backend = ftdi" reports a clear error at runtime and everything else works.
+option(ENABLE_FTDI_SPI "Build the FT232H (libftdi1) SPI backend" ON)
+set(FTDI_LIBS "")
+if (ENABLE_FTDI_SPI)
+    find_package(PkgConfig QUIET)
+    if (PkgConfig_FOUND)
+        pkg_check_modules(LIBFTDI1 QUIET libftdi1)
+    endif()
+    if (LIBFTDI1_FOUND)
+        message(STATUS "FT232H SPI backend enabled (libftdi1 ${LIBFTDI1_VERSION})")
+        add_compile_definitions(ENABLE_FTDI_SPI)
+        include_directories(${LIBFTDI1_INCLUDE_DIRS})
+        link_directories(${LIBFTDI1_LIBRARY_DIRS})
+        set(FTDI_LIBS ${LIBFTDI1_LIBRARIES})
+    else()
+        message(STATUS "libftdi1 not found: FT232H SPI backend disabled (apt install libftdi1-dev)")
+    endif()
+endif()
 
 # Add optimization flags
 # add_compile_options(-O3 -march=native)

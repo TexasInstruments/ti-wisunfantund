@@ -198,6 +198,9 @@ struct mt_msg_interface {
     /*! non-null if interface is a uart */
     struct uart_cfg *u_cfg;
 
+    /*! non-null if interface is a TRX SPI link (checked before u_cfg) */
+    struct spi_cfg *spi_cfg;
+
     /*! Rx thread reading on this interface */
     intptr_t rx_thread;
 

@@ -1,4 +1,5 @@
 #include "UartSection.hpp"
+#include "SpiSection.hpp"
 #include <cstring>
 #include <cstdlib>
 
@@ -51,7 +52,15 @@ bool UartSection::parseItem(const std::string& key, const std::string& value) {
     return true;
 }
 
+void UartSection::setSpiAlternative(std::shared_ptr<SpiSection> spi) {
+    spiAlt_ = spi;
+}
+
 bool UartSection::validate() const {
+    // A configured [spi-cfg] replaces the UART link
+    if (spiAlt_ && spiAlt_->isConfigured()) {
+        return true;
+    }
     // Check that required fields are set
     return config.devname != nullptr && config.baudrate > 0;
 }

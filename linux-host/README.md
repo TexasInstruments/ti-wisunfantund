@@ -4,6 +4,8 @@ The Linux Host is a port of the upper layers of the Wi-SUN MAC and the Applicati
 
 This new architecture allows the stack to take advantage of the increased resources available on the Linux Host, enabling support for 1000+ node networks. 
 
+**CC1407 support (Early Access):** The Linux Host can also run on a BeagleBone Black with a CC1407 board as the RCP, connected over SPI. This is early access only and is **not for production use**; it is still in development and is being improved continuously. Existing CC13xx support and the steps below are unchanged. See [BBB.md](../BBB.md) and [BBB_WIRING.md](../BBB_WIRING.md) for the CC1407 setup.
+
 Quickstart
 -------------------------------
 

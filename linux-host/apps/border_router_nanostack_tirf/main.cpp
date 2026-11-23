@@ -68,6 +68,7 @@ extern "C" {
 
 #include "mt_msg.h"
 #include "stream_uart.h"
+#include "stream_spi.h"
 }
 
 #include "CfgParser.hpp"
@@ -121,6 +122,7 @@ struct mt_msg_interface uart_mt_interface = {
     .hndl                      = 0,
     .s_cfg                     = nullptr,
     .u_cfg                     = nullptr, // must be initialized via uart-cfg section of ini config file
+    .spi_cfg                   = nullptr, // set from the optional spi-cfg section (replaces the uart)
     .rx_thread                 = 0,
     .tx_frag_size              = 0,
     .retry_max                 = 3,
@@ -170,8 +172,22 @@ int rcp_interface_init()
     // Initialize the MT interface
     API_MAC_msg_interface = &uart_mt_interface;
 
-    tr_info("creating RCP interface with UART parameters: devname =  %s, baudrate = %d\n", \
-             uart_mt_interface.u_cfg->devname, uart_mt_interface.u_cfg->baudrate);
+    if (uart_mt_interface.spi_cfg != nullptr)
+    {
+        tr_info("creating RCP interface with SPI parameters: devname = %s, speed = %u Hz, int-gpio = %d\n",
+                uart_mt_interface.spi_cfg->devname, (unsigned)uart_mt_interface.spi_cfg->speed_hz,
+                uart_mt_interface.spi_cfg->int_gpio);
+    }
+    else if (uart_mt_interface.u_cfg != nullptr)
+    {
+        tr_info("creating RCP interface with UART parameters: devname =  %s, baudrate = %d\n", \
+                 uart_mt_interface.u_cfg->devname, uart_mt_interface.u_cfg->baudrate);
+    }
+    else
+    {
+        tr_error("no [uart-cfg] or [spi-cfg] section in the cfg file\n");
+        return(-1);
+    }
 
 
     if(create_rcp_interface() < 0)
@@ -206,7 +222,7 @@ int main(int argc, char **argv) {
         return(-1);
     }   
     
-    cfgParser.applyBrSettings(&uart_mt_interface.u_cfg, &ti_br_config, &ncp_socket_port);
+    cfgParser.applyBrSettings(&uart_mt_interface.u_cfg, &ti_br_config, &ncp_socket_port, &uart_mt_interface.spi_cfg);
 
     // Start up NV system
     pNV = new NVINTF_nvFuncts_t();

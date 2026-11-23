@@ -238,6 +238,12 @@ process_input_line(char *l)
 	char **ap = argv2;
 	int argc2 = 0;
 
+    /* EOF and empty input are not command lines */
+    if (l == NULL)
+    {
+        return;
+    }
+
 	if (!l[0]) {
 		l = NULL;
 		goto bail;
@@ -643,6 +649,21 @@ int main(int argc, char * argv[])
 	{
 		goto webserver_line;
 	}
+    /* Execute explicit commands without requiring terminal editing support */
+	if (optind < argc) {
+			if (gDebugMode >= 1) {
+			fprintf(stderr, "DEBUG: Executing command '%s'. . .\n",
+				argv[optind]);
+		}
+
+		argc -= optind;
+		argv += optind;
+
+		optind = 0;
+		gRet = exec_command(argc, argv);
+		goto bail;
+	}
+
 	if (istty) {
 #if !HAVE_LIBREADLINE
 		fprintf(stderr,
@@ -705,25 +726,17 @@ int main(int argc, char * argv[])
 #endif  // HAVE_LIBREADLINE
 		{
 			char linebuffer[200];
-			process_input_line(fgets(linebuffer, sizeof(linebuffer), stdin));
+            /* Leave cleanly when a pipe or redirected input reaches EOF */
+            if (fgets(linebuffer, sizeof(linebuffer), stdin) == NULL)
+            {
+                break;
+            }
+            process_input_line(linebuffer);
 		}
 
 		dbus_connection_read_write_dispatch(connection, 0);
 	}
 	
-	if (optind < argc) {
-			if (gDebugMode >= 1) {
-			fprintf(stderr, "DEBUG: Executing command '%s'. . .\n",
-				argv[optind]);
-		}
-
-		argc -= optind;
-		argv += optind;
-
-		optind = 0;
-		gRet = exec_command(argc, argv);
-		goto bail;
-	}
 
 webserver_line:
     // This is required because optind is treated as a global variable,
